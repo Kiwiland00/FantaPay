@@ -21,6 +21,11 @@ import { useLanguage } from '../../contexts/LanguageContext';
 const SignupScreen: React.FC = () => {
   const navigation = useNavigation();
   const { signup } = useAuth();
+  const { t } = useLanguage();
+
+const SignupScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const { signup } = useAuth();
   const { t, currentLanguage } = useLanguage();
 
   const [formData, setFormData] = useState({
