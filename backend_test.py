@@ -510,6 +510,31 @@ class FantaPayTester:
             self.log_test("Update Standings", False, f"Exception: {str(e)}")
             return False
     
+    def test_competition_transactions(self):
+        """Test getting competition transaction history"""
+        if not self.competition_id:
+            self.log_test("Competition Transactions", False, "No competition ID available")
+            return False
+            
+        try:
+            response = self.make_request("GET", f"/competitions/{self.competition_id}/transactions")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_test("Competition Transactions", True, f"Retrieved {len(data)} competition transactions", data)
+                    return True
+                else:
+                    self.log_test("Competition Transactions", False, f"Unexpected response: {data}")
+                    return False
+            else:
+                self.log_test("Competition Transactions", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Competition Transactions", False, f"Exception: {str(e)}")
+            return False
+    
     def test_error_scenarios(self):
         """Test various error scenarios"""
         error_tests = []
