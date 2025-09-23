@@ -74,6 +74,23 @@ export const authAPI = {
       headers: { 'X-Session-ID': sessionId },
     }),
   
+  signup: (data: {
+    username: string;
+    email: string;
+    name: string;
+    password: string;
+    language?: string;
+  }) => apiClient.post('/auth/signup', data),
+  
+  verifyOTP: (data: { email: string; otp_code: string }) =>
+    apiClient.post('/auth/verify-otp', data),
+  
+  login: (data: { email: string; password: string }) =>
+    apiClient.post('/auth/login', data),
+  
+  resendOTP: (email: string) =>
+    apiClient.post('/auth/resend-otp', { email }),
+  
   getCurrentUser: () => apiClient.get('/auth/me'),
   
   logout: () => apiClient.post('/auth/logout'),
