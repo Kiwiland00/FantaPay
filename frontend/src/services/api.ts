@@ -3,10 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
 
 // Get backend URL from environment
-const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || 
-                   Constants.expoConfig?.hostUri?.split(':')[0] + ':8001' ||
-                   process.env.EXPO_PUBLIC_BACKEND_URL ||
-                   'https://fantasy-wallet-app.preview.emergentagent.com';
+const BACKEND_URL = 'https://fantasy-wallet-app.preview.emergentagent.com';
 
 class ApiClient {
   private client: AxiosInstance;
