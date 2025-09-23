@@ -475,29 +475,39 @@ class FantaPayTester:
             self.log_test("Transaction History", False, f"Exception: {str(e)}")
             return False
     
-    def test_competition_transactions(self):
-        """Test getting competition transaction history"""
+    def test_update_standings(self):
+        """Test updating competition standings (admin only)"""
         if not self.competition_id:
-            self.log_test("Competition Transactions", False, "No competition ID available")
+            self.log_test("Update Standings", False, "No competition ID available")
             return False
             
         try:
-            response = self.make_request("GET", f"/competitions/{self.competition_id}/transactions")
+            standings_data = {
+                "standings": {
+                    "matchday_1": {
+                        "user_1": {"points": 85, "rank": 1},
+                        "user_2": {"points": 72, "rank": 2}
+                    }
+                },
+                "matchday": 1
+            }
+            
+            response = self.make_request("PATCH", f"/competitions/{self.competition_id}/standings", standings_data)
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    self.log_test("Competition Transactions", True, f"Retrieved {len(data)} competition transactions", data)
+                if "updated successfully" in data.get("message", ""):
+                    self.log_test("Update Standings", True, "Standings updated successfully", data)
                     return True
                 else:
-                    self.log_test("Competition Transactions", False, f"Unexpected response: {data}")
+                    self.log_test("Update Standings", False, f"Unexpected response: {data}")
                     return False
             else:
-                self.log_test("Competition Transactions", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Update Standings", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Competition Transactions", False, f"Exception: {str(e)}")
+            self.log_test("Update Standings", False, f"Exception: {str(e)}")
             return False
     
     def test_error_scenarios(self):
