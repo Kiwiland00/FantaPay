@@ -603,7 +603,7 @@ async def create_session(response: Response, session_id: str = Header(..., alias
         )
         
         return {
-            "user": user.dict(),
+            "user": dict(user, _id=str(user["_id"])),
             "session_token": auth_data["session_token"]
         }
         
