@@ -38,6 +38,9 @@ api_router = APIRouter(prefix="/api")
 
 security = HTTPBearer()
 
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # Pydantic models
 class PyObjectId(ObjectId):
     @classmethod
@@ -60,12 +63,17 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     email: EmailStr
     name: str
+    username: Optional[str] = None
     picture: Optional[str] = None
+    password_hash: Optional[str] = None
+    auth_method: str = "google"  # "google" or "email"
+    is_verified: bool = True  # Google users are auto-verified
     language: str = "en"
     wallet_balance: float = 0.0
     biometric_enabled: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_login: Optional[datetime] = None
 
     class Config:
         validate_by_name = True
@@ -77,6 +85,34 @@ class UserCreate(BaseModel):
     name: str
     picture: Optional[str] = None
     language: str = "en"
+
+class UserSignup(BaseModel):
+    username: str
+    email: EmailStr
+    name: str
+    password: str
+    language: str = "en"
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class OTPVerification(BaseModel):
+    email: EmailStr
+    otp_code: str
+
+class OTPRecord(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    email: EmailStr
+    otp_code: str
+    expires_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    verified: bool = False
+
+    class Config:
+        validate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 class UserSession(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
