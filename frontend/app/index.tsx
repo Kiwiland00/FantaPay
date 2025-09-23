@@ -15,25 +15,16 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function App() {
+export default function Index() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <AuthProvider>
-            <View style={styles.container}>
-              <AppNavigator />
-            </View>
+            <AppNavigator />
           </AuthProvider>
         </LanguageProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-});
