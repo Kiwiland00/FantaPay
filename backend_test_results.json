@@ -1,163 +1,247 @@
 {
   "summary": {
-    "passed": 4,
-    "failed": 15,
-    "success_rate": 21.052631578947366,
-    "timestamp": "2025-09-23T15:10:01.732978"
+    "passed": 15,
+    "failed": 4,
+    "success_rate": 78.94736842105263,
+    "timestamp": "2025-09-23T15:10:46.933777"
   },
   "results": [
     {
       "test": "Health Check",
       "success": true,
       "details": "API is healthy",
-      "timestamp": "2025-09-23T15:09:50.585788",
+      "timestamp": "2025-09-23T15:10:28.221053",
       "response_data": {
         "status": "healthy",
-        "timestamp": "2025-09-23T15:09:50.582361+00:00"
+        "timestamp": "2025-09-23T15:10:28.217512+00:00"
       }
     },
     {
       "test": "User Signup",
       "success": true,
-      "details": "Account created for marco.rossi.607111@fantapay.it",
-      "timestamp": "2025-09-23T15:09:51.432135",
+      "details": "Account created for marco.rossi.164145@fantapay.it",
+      "timestamp": "2025-09-23T15:10:29.129606",
       "response_data": {
         "message": "Account created successfully. Please check your email for verification code.",
-        "email": "marco.rossi.607111@fantapay.it",
+        "email": "marco.rossi.164145@fantapay.it",
         "otp_sent": true
       }
     },
     {
       "test": "OTP Verification",
-      "success": false,
-      "details": "HTTP 400: {\"detail\":\"Invalid or expired verification code\"}",
-      "timestamp": "2025-09-23T15:09:51.994427",
-      "response_data": null
+      "success": true,
+      "details": "Account verified for marco.rossi.164145@fantapay.it",
+      "timestamp": "2025-09-23T15:10:29.729938",
+      "response_data": {
+        "user": {
+          "_id": "68d2b865b1169e8e5e9404e3",
+          "username": "marco_rossi_164145",
+          "email": "marco.rossi.164145@fantapay.it",
+          "name": "Marco Rossi",
+          "password_hash": "$2b$12$klL8fuXv.y/kvk2bZ0AyJuNeJnJUZk.4Xu6h8if/GbnEed52NpMCS",
+          "auth_method": "email",
+          "is_verified": true,
+          "language": "it",
+          "wallet_balance": 0.0,
+          "biometric_enabled": false,
+          "created_at": "2025-09-23T15:10:29.063000",
+          "updated_at": "2025-09-23T15:10:29.709000",
+          "last_login": "2025-09-23T15:10:29.709000"
+        },
+        "session_token": "ba412029-9b38-491e-96b9-9ad2682e0ee6",
+        "message": "Account verified successfully"
+      }
     },
     {
       "test": "User Login",
-      "success": false,
-      "details": "HTTP 403: {\"detail\":\"Account not verified. Please check your email for verification code\"}",
-      "timestamp": "2025-09-23T15:09:52.786711",
-      "response_data": null
+      "success": true,
+      "details": "Login successful for marco.rossi.164145@fantapay.it",
+      "timestamp": "2025-09-23T15:10:30.515890",
+      "response_data": {
+        "user": {
+          "_id": "68d2b865b1169e8e5e9404e3",
+          "username": "marco_rossi_164145",
+          "email": "marco.rossi.164145@fantapay.it",
+          "name": "Marco Rossi",
+          "password_hash": "$2b$12$klL8fuXv.y/kvk2bZ0AyJuNeJnJUZk.4Xu6h8if/GbnEed52NpMCS",
+          "auth_method": "email",
+          "is_verified": true,
+          "language": "it",
+          "wallet_balance": 0.0,
+          "biometric_enabled": false,
+          "created_at": "2025-09-23T15:10:29.063000",
+          "updated_at": "2025-09-23T15:10:29.709000",
+          "last_login": "2025-09-23T15:10:29.709000"
+        },
+        "session_token": "d3ae863a-677b-4b9f-b10b-9a174af59e8b",
+        "message": "Login successful"
+      }
     },
     {
       "test": "Google OAuth Session",
       "success": true,
       "details": "Endpoint accessible, invalid session ID as expected",
-      "timestamp": "2025-09-23T15:09:53.478728",
+      "timestamp": "2025-09-23T15:10:31.152478",
       "response_data": null
     },
     {
       "test": "Get Current User",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:54.037709",
-      "response_data": null
+      "success": true,
+      "details": "User info retrieved for marco.rossi.164145@fantapay.it",
+      "timestamp": "2025-09-23T15:10:31.712056",
+      "response_data": {
+        "_id": "68d2b865b1169e8e5e9404e3",
+        "email": "marco.rossi.164145@fantapay.it",
+        "name": "Marco Rossi",
+        "username": "marco_rossi_164145",
+        "picture": null,
+        "password_hash": "$2b$12$klL8fuXv.y/kvk2bZ0AyJuNeJnJUZk.4Xu6h8if/GbnEed52NpMCS",
+        "auth_method": "email",
+        "is_verified": true,
+        "language": "it",
+        "wallet_balance": 0.0,
+        "biometric_enabled": false,
+        "created_at": "2025-09-23T15:10:29.063000",
+        "updated_at": "2025-09-23T15:10:29.709000",
+        "last_login": "2025-09-23T15:10:30.510000"
+      }
     },
     {
       "test": "Language Update",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:54.590755",
-      "response_data": null
+      "success": true,
+      "details": "Language updated to English",
+      "timestamp": "2025-09-23T15:10:32.270811",
+      "response_data": {
+        "message": "Language updated successfully"
+      }
     },
     {
       "test": "Biometric Toggle",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:55.141519",
-      "response_data": null
+      "success": true,
+      "details": "Biometric authentication enabled",
+      "timestamp": "2025-09-23T15:10:32.827492",
+      "response_data": {
+        "message": "Biometric authentication enabled"
+      }
     },
     {
       "test": "Create Competition",
       "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:55.717799",
+      "details": "HTTP 500: Internal Server Error",
+      "timestamp": "2025-09-23T15:10:33.407074",
       "response_data": null
     },
     {
       "test": "Get My Competitions",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:56.269470",
-      "response_data": null
+      "success": true,
+      "details": "Retrieved 0 competitions",
+      "timestamp": "2025-09-23T15:10:33.963242",
+      "response_data": []
     },
     {
       "test": "Get Competition Details",
       "success": false,
       "details": "No competition ID available",
-      "timestamp": "2025-09-23T15:09:56.770945",
+      "timestamp": "2025-09-23T15:10:34.464641",
       "response_data": null
     },
     {
       "test": "Get Wallet Balance",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:57.327694",
-      "response_data": null
+      "success": true,
+      "details": "Balance: \u20ac0.0",
+      "timestamp": "2025-09-23T15:10:35.019447",
+      "response_data": {
+        "balance": 0.0
+      }
     },
     {
       "test": "Wallet Top-up",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:57.879840",
-      "response_data": null
+      "success": true,
+      "details": "Topped up \u20ac100, new balance: \u20ac100.0",
+      "timestamp": "2025-09-23T15:10:40.230986",
+      "response_data": {
+        "message": "Wallet topped up successfully",
+        "new_balance": 100.0
+      }
     },
     {
       "test": "Wallet Withdrawal",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:58.431187",
-      "response_data": null
+      "success": true,
+      "details": "Withdrew \u20ac25, new balance: \u20ac75.0",
+      "timestamp": "2025-09-23T15:10:42.631392",
+      "response_data": {
+        "message": "Withdrawal successful",
+        "new_balance": 75.0
+      }
     },
     {
       "test": "Competition Payment",
       "success": false,
       "details": "No competition ID available",
-      "timestamp": "2025-09-23T15:09:58.932645",
+      "timestamp": "2025-09-23T15:10:43.132833",
       "response_data": null
     },
     {
       "test": "Transaction History",
-      "success": false,
-      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
-      "timestamp": "2025-09-23T15:09:59.490384",
-      "response_data": null
+      "success": true,
+      "details": "Retrieved 2 transactions",
+      "timestamp": "2025-09-23T15:10:43.926131",
+      "response_data": [
+        {
+          "_id": "68d2b86eb1169e8e5e9404e8",
+          "competition_id": null,
+          "type": "deposit",
+          "amount": 100.0,
+          "description": "Wallet top-up of \u20ac100.0",
+          "from_wallet": "external",
+          "to_wallet": "personal",
+          "user_id": "68d2b865b1169e8e5e9404e3"
+        },
+        {
+          "_id": "68d2b872b1169e8e5e9404e9",
+          "competition_id": null,
+          "type": "withdraw",
+          "amount": 25.0,
+          "description": "Withdrawal of \u20ac25.0",
+          "from_wallet": "personal",
+          "to_wallet": "external",
+          "user_id": "68d2b865b1169e8e5e9404e3"
+        }
+      ]
     },
     {
       "test": "Competition Transactions",
       "success": false,
       "details": "No competition ID available",
-      "timestamp": "2025-09-23T15:09:59.991891",
+      "timestamp": "2025-09-23T15:10:44.427798",
       "response_data": null
     },
     {
       "test": "Invalid Login",
       "success": true,
       "details": "Correctly rejected invalid credentials",
-      "timestamp": "2025-09-23T15:10:00.647199",
+      "timestamp": "2025-09-23T15:10:45.089734",
       "response_data": null
     },
     {
       "test": "Insufficient Balance",
-      "success": false,
-      "details": "Expected 400, got 401",
-      "timestamp": "2025-09-23T15:10:00.647244",
+      "success": true,
+      "details": "Correctly rejected insufficient balance",
+      "timestamp": "2025-09-23T15:10:45.089778",
       "response_data": null
     },
     {
       "test": "Invalid Competition Code",
-      "success": false,
-      "details": "Expected 404, got 401",
-      "timestamp": "2025-09-23T15:10:00.647250",
+      "success": true,
+      "details": "Correctly rejected invalid code",
+      "timestamp": "2025-09-23T15:10:45.089785",
       "response_data": null
     },
     {
       "test": "Unauthorized Access",
       "success": true,
       "details": "Correctly rejected unauthorized request",
-      "timestamp": "2025-09-23T15:10:01.231022",
+      "timestamp": "2025-09-23T15:10:46.431709",
       "response_data": null
     }
   ]
