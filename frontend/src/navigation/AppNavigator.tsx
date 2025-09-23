@@ -1,5 +1,4 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -104,59 +103,57 @@ function AppNavigator() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#1C1C1E',
-          },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        {!isAuthenticated ? (
-          // Auth screens
-          <>
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="BiometricSetup" 
-              component={BiometricSetupScreen}
-              options={{ title: 'Biometric Setup' }}
-            />
-          </>
-        ) : (
-          // Main app screens
-          <>
-            <Stack.Screen 
-              name="MainTabs" 
-              component={MainTabNavigator}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="CreateCompetition" 
-              component={CreateCompetitionScreen}
-              options={{ title: 'Create Competition' }}
-            />
-            <Stack.Screen 
-              name="JoinCompetition" 
-              component={JoinCompetitionScreen}
-              options={{ title: 'Join Competition' }}
-            />
-            <Stack.Screen 
-              name="CompetitionDetail" 
-              component={CompetitionDetailScreen}
-              options={{ title: 'Competition Details' }}
-            />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#1C1C1E',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      {!isAuthenticated ? (
+        // Auth screens
+        <>
+          <Stack.Screen 
+            name="Login" 
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="BiometricSetup" 
+            component={BiometricSetupScreen}
+            options={{ title: 'Biometric Setup' }}
+          />
+        </>
+      ) : (
+        // Main app screens
+        <>
+          <Stack.Screen 
+            name="MainTabs" 
+            component={MainTabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="CreateCompetition" 
+            component={CreateCompetitionScreen}
+            options={{ title: 'Create Competition' }}
+          />
+          <Stack.Screen 
+            name="JoinCompetition" 
+            component={JoinCompetitionScreen}
+            options={{ title: 'Join Competition' }}
+          />
+          <Stack.Screen 
+            name="CompetitionDetail" 
+            component={CompetitionDetailScreen}
+            options={{ title: 'Competition Details' }}
+          />
+        </>
+      )}
+    </Stack.Navigator>
   );
 }
 
