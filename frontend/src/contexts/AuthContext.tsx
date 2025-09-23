@@ -59,11 +59,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = !!user;
+  // TEMPORARY: Mock authenticated user for testing core features
+  // TODO: Remove this when re-enabling full authentication
+  const mockUser: User = {
+    id: '650f1f1f1f1f1f1f1f1f1f1f',
+    email: 'test@fantapay.com',
+    name: 'FantaPay Tester',
+    username: 'fantapay_user',
+    picture: undefined,
+    auth_method: 'email',
+    is_verified: true,
+    language: 'en',
+    wallet_balance: 150.00,
+    biometric_enabled: false,
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+    last_login: '2024-01-01T00:00:00Z',
+  };
 
-  // Check existing session on app start
+  const isAuthenticated = true; // Always authenticated for testing
+
+  // Initialize with mock user on app start
   useEffect(() => {
-    checkExistingSession();
+    const initMockUser = () => {
+      setUser(mockUser);
+      setIsLoading(false);
+    };
+
+    // Simulate loading time
+    const timer = setTimeout(initMockUser, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const checkExistingSession = async () => {
