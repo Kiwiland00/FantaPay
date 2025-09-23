@@ -1,0 +1,164 @@
+{
+  "summary": {
+    "passed": 4,
+    "failed": 15,
+    "success_rate": 21.052631578947366,
+    "timestamp": "2025-09-23T15:10:01.732978"
+  },
+  "results": [
+    {
+      "test": "Health Check",
+      "success": true,
+      "details": "API is healthy",
+      "timestamp": "2025-09-23T15:09:50.585788",
+      "response_data": {
+        "status": "healthy",
+        "timestamp": "2025-09-23T15:09:50.582361+00:00"
+      }
+    },
+    {
+      "test": "User Signup",
+      "success": true,
+      "details": "Account created for marco.rossi.607111@fantapay.it",
+      "timestamp": "2025-09-23T15:09:51.432135",
+      "response_data": {
+        "message": "Account created successfully. Please check your email for verification code.",
+        "email": "marco.rossi.607111@fantapay.it",
+        "otp_sent": true
+      }
+    },
+    {
+      "test": "OTP Verification",
+      "success": false,
+      "details": "HTTP 400: {\"detail\":\"Invalid or expired verification code\"}",
+      "timestamp": "2025-09-23T15:09:51.994427",
+      "response_data": null
+    },
+    {
+      "test": "User Login",
+      "success": false,
+      "details": "HTTP 403: {\"detail\":\"Account not verified. Please check your email for verification code\"}",
+      "timestamp": "2025-09-23T15:09:52.786711",
+      "response_data": null
+    },
+    {
+      "test": "Google OAuth Session",
+      "success": true,
+      "details": "Endpoint accessible, invalid session ID as expected",
+      "timestamp": "2025-09-23T15:09:53.478728",
+      "response_data": null
+    },
+    {
+      "test": "Get Current User",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:54.037709",
+      "response_data": null
+    },
+    {
+      "test": "Language Update",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:54.590755",
+      "response_data": null
+    },
+    {
+      "test": "Biometric Toggle",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:55.141519",
+      "response_data": null
+    },
+    {
+      "test": "Create Competition",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:55.717799",
+      "response_data": null
+    },
+    {
+      "test": "Get My Competitions",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:56.269470",
+      "response_data": null
+    },
+    {
+      "test": "Get Competition Details",
+      "success": false,
+      "details": "No competition ID available",
+      "timestamp": "2025-09-23T15:09:56.770945",
+      "response_data": null
+    },
+    {
+      "test": "Get Wallet Balance",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:57.327694",
+      "response_data": null
+    },
+    {
+      "test": "Wallet Top-up",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:57.879840",
+      "response_data": null
+    },
+    {
+      "test": "Wallet Withdrawal",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:58.431187",
+      "response_data": null
+    },
+    {
+      "test": "Competition Payment",
+      "success": false,
+      "details": "No competition ID available",
+      "timestamp": "2025-09-23T15:09:58.932645",
+      "response_data": null
+    },
+    {
+      "test": "Transaction History",
+      "success": false,
+      "details": "HTTP 401: {\"detail\":\"No session token provided\"}",
+      "timestamp": "2025-09-23T15:09:59.490384",
+      "response_data": null
+    },
+    {
+      "test": "Competition Transactions",
+      "success": false,
+      "details": "No competition ID available",
+      "timestamp": "2025-09-23T15:09:59.991891",
+      "response_data": null
+    },
+    {
+      "test": "Invalid Login",
+      "success": true,
+      "details": "Correctly rejected invalid credentials",
+      "timestamp": "2025-09-23T15:10:00.647199",
+      "response_data": null
+    },
+    {
+      "test": "Insufficient Balance",
+      "success": false,
+      "details": "Expected 400, got 401",
+      "timestamp": "2025-09-23T15:10:00.647244",
+      "response_data": null
+    },
+    {
+      "test": "Invalid Competition Code",
+      "success": false,
+      "details": "Expected 404, got 401",
+      "timestamp": "2025-09-23T15:10:00.647250",
+      "response_data": null
+    },
+    {
+      "test": "Unauthorized Access",
+      "success": true,
+      "details": "Correctly rejected unauthorized request",
+      "timestamp": "2025-09-23T15:10:01.231022",
+      "response_data": null
+    }
+  ]
+}
