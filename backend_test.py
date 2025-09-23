@@ -352,7 +352,7 @@ class FantaPayTester:
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get("id") and data.get("participants"):
+                if (data.get("_id") or data.get("id")) and data.get("participants"):
                     self.log_test("Get Competition Details", True, f"Competition details retrieved", data)
                     return True
                 else:
