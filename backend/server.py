@@ -658,8 +658,16 @@ async def create_competition(competition_data: CompetitionCreate, current_user: 
     competition_dict["admin_id"] = current_user.id
     competition_dict["participants"] = [current_user.id]
     
-    # Generate invite link (placeholder for now)
-    competition_dict["invite_link"] = f"fantapay://join/{competition_dict['invite_code']}"
+    # Generate invite code and link
+    invite_code = str(uuid.uuid4())[:8].upper()
+    competition_dict["invite_code"] = invite_code
+    competition_dict["invite_link"] = f"fantapay://join/{invite_code}"
+    competition_dict["wallet_balance"] = 0.0
+    competition_dict["is_active"] = True
+    competition_dict["standings"] = {}
+    competition_dict["current_matchday"] = 1
+    competition_dict["created_at"] = datetime.now(timezone.utc)
+    competition_dict["updated_at"] = datetime.now(timezone.utc)
     
     result = await db.competitions.insert_one(competition_dict)
     competition = Competition(**competition_dict)
