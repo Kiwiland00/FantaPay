@@ -116,10 +116,33 @@ class FantaPayTester:
             self.log_test("User Signup", False, f"Exception: {str(e)}")
             return False
     
-    def test_otp_verification(self, email: str, otp_code: str = "123456"):
-        """Test OTP verification (using mock OTP)"""
+    def get_otp_from_logs(self, email: str) -> str:
+        """Extract OTP from backend logs"""
         try:
-            # Since OTP is printed to console in the backend, we'll use a common test OTP
+            import subprocess
+            result = subprocess.run(['tail', '-n', '100', '/var/log/supervisor/backend.out.log'], 
+                                  capture_output=True, text=True)
+            logs = result.stdout
+            
+            # Look for OTP email line for this specific email
+            for line in logs.split('\n'):
+                if f"📧 OTP Email for {email}" in line and ":" in line:
+                    # Extract OTP from line like: "📧 OTP Email for email@test.com (Name): 123456"
+                    otp = line.split(':')[-1].strip()
+                    if otp.isdigit() and len(otp) == 6:
+                        return otp
+            return "123456"  # fallback
+        except:
+            return "123456"  # fallback
+
+    def test_otp_verification(self, email: str, otp_code: str = None):
+        """Test OTP verification (extracting real OTP from logs)"""
+        try:
+            # Get the real OTP from backend logs
+            if otp_code is None:
+                otp_code = self.get_otp_from_logs(email)
+                print(f"   Using OTP from logs: {otp_code}")
+            
             verification_data = {
                 "email": email,
                 "otp_code": otp_code
