@@ -1,0 +1,40 @@
+diff --git a/backend/server.py b/backend/server.py
+index f19bbd2..f07ff15 100644
+--- a/backend/server.py
++++ b/backend/server.py
+@@ -60,7 +60,7 @@ class User(BaseModel):
+     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+ 
+     class Config:
+-        allow_population_by_field_name = True
++        validate_by_name = True
+         arbitrary_types_allowed = True
+         json_encoders = {ObjectId: str}
+ 
+@@ -78,7 +78,7 @@ class UserSession(BaseModel):
+     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+ 
+     class Config:
+-        allow_population_by_field_name = True
++        validate_by_name = True
+         arbitrary_types_allowed = True
+         json_encoders = {ObjectId: str}
+ 
+@@ -109,7 +109,7 @@ class Competition(BaseModel):
+     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+ 
+     class Config:
+-        allow_population_by_field_name = True
++        validate_by_name = True
+         arbitrary_types_allowed = True
+         json_encoders = {ObjectId: str}
+ 
+@@ -138,7 +138,7 @@ class Transaction(BaseModel):
+     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+ 
+     class Config:
+-        allow_population_by_field_name = True
++        validate_by_name = True
+         arbitrary_types_allowed = True
+         json_encoders = {ObjectId: str}
+ 
