@@ -17,8 +17,10 @@ class ApiClient {
       },
     });
 
-    // Add request interceptor to include auth token
+    // Add request interceptor to include auth token and log requests
     this.client.interceptors.request.use(async (config) => {
+      console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`, config.data);
+      
       const token = await SecureStore.getItemAsync('session_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -26,10 +28,15 @@ class ApiClient {
       return config;
     });
 
-    // Add response interceptor for error handling
+    // Add response interceptor for error handling and logging
     this.client.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log(`✅ API Response: ${response.status}`, response.data);
+        return response;
+      },
       (error) => {
+        console.log(`❌ API Error: ${error.response?.status || 'Network'}`, error.response?.data || error.message);
+        
         if (error.response?.status === 401) {
           // Token expired, clear stored token
           SecureStore.deleteItemAsync('session_token');
