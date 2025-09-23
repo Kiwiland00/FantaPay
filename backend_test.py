@@ -625,6 +625,7 @@ class FantaPayTester:
             ("Create Competition", self.test_create_competition),
             ("Get My Competitions", self.test_get_my_competitions),
             ("Get Competition Details", self.test_get_competition_details),
+            ("Update Standings", self.test_update_standings),
             ("Get Wallet Balance", self.test_wallet_balance),
             ("Wallet Top-up", self.test_wallet_topup),
             ("Wallet Withdrawal", self.test_wallet_withdraw),
