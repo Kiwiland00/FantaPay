@@ -18,15 +18,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-const SignupScreen: React.FC = () => {
+export default function SignupScreen() {
   const navigation = useNavigation();
   const { signup } = useAuth();
   const { t } = useLanguage();
-
-const SignupScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const { signup } = useAuth();
-  const { t, currentLanguage } = useLanguage();
 
   const [formData, setFormData] = useState({
     username: '',
