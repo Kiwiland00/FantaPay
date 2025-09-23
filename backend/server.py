@@ -195,6 +195,64 @@ class TransactionCreate(BaseModel):
     to_wallet: str
 
 # Authentication helpers
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def generate_otp() -> str:
+    """Generate a 6-digit OTP code"""
+    return ''.join(random.choices(string.digits, k=6))
+
+async def send_otp_email(email: str, otp_code: str, name: str) -> bool:
+    """Send OTP via email (mock implementation for MVP)"""
+    try:
+        # For MVP, we'll just log the OTP instead of sending real email
+        # In production, you would use a real email service like SendGrid, SES, etc.
+        print(f"📧 OTP Email for {email} ({name}): {otp_code}")
+        
+        # Mock email content
+        subject = "FantaPay - Email Verification Code"
+        body = f"""
+        Hello {name},
+        
+        Welcome to FantaPay! Your verification code is: {otp_code}
+        
+        This code will expire in 10 minutes.
+        
+        If you didn't create an account with FantaPay, please ignore this email.
+        
+        Best regards,
+        The FantaPay Team
+        """
+        
+        # In production, replace this with actual email sending logic
+        # For now, return True to simulate successful sending
+        return True
+        
+    except Exception as e:
+        print(f"Failed to send OTP email: {str(e)}")
+        return False
+
+async def create_session_token(user_id: PyObjectId) -> str:
+    """Create a session token and store it in database"""
+    session_token = str(uuid.uuid4())
+    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    
+    session_doc = {
+        "_id": ObjectId(),
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": expires_at,
+        "created_at": datetime.now(timezone.utc)
+    }
+    
+    await db.user_sessions.insert_one(session_doc)
+    return session_token
+
 async def get_current_user(request: Request, authorization: Optional[str] = Header(None)) -> User:
     """Get current user from session token"""
     session_token = None
@@ -222,6 +280,12 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     user = await db.users.find_one({"_id": session["user_id"]})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+    
+    # Update last login
+    await db.users.update_one(
+        {"_id": user["_id"]},
+        {"$set": {"last_login": datetime.now(timezone.utc)}}
+    )
     
     return User(**user)
 
