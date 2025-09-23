@@ -135,6 +135,17 @@ const LoginScreen: React.FC = () => {
             <Text style={styles.buttonText}>{t('login.google')}</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.loginButton, styles.emailButton]}
+            onPress={() => navigation.navigate('EmailLogin' as never)}
+            disabled={isLoading}
+          >
+            <Ionicons name="mail" size={24} color="#007AFF" />
+            <Text style={[styles.buttonText, { color: '#007AFF' }]}>
+              Sign In with Email
+            </Text>
+          </TouchableOpacity>
+
           {user?.biometric_enabled && (
             <TouchableOpacity
               style={[styles.loginButton, styles.biometricButton]}
@@ -147,6 +158,14 @@ const LoginScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* Sign Up Link */}
+        <View style={styles.signupSection}>
+          <Text style={styles.signupText}>New to FantaPay?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Signup' as never)}>
+            <Text style={styles.signupButtonText}>Create Account</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Footer */}
