@@ -20,6 +20,15 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (sessionId: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  signup: (userData: {
+    username: string;
+    email: string;
+    name: string;
+    password: string;
+  }) => Promise<{ email: string; requiresOTP: boolean }>;
+  verifyOTP: (email: string, otpCode: string) => Promise<void>;
+  resendOTP: (email: string) => Promise<void>;
   logout: () => Promise<void>;
   enableBiometric: () => Promise<void>;
   authenticateWithBiometric: () => Promise<boolean>;
