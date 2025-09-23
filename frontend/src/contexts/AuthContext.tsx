@@ -92,64 +92,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const checkExistingSession = async () => {
-    try {
-      setIsLoading(true);
-      const sessionToken = await SecureStore.getItemAsync('session_token');
-      
-      if (sessionToken) {
-        const userData = await authAPI.getCurrentUser();
-        setUser(userData);
-      }
-    } catch (error) {
-      console.error('Session check failed:', error);
-      try {
-        await SecureStore.deleteItemAsync('session_token');
-      } catch (deleteError) {
-        console.error('Failed to delete session token:', deleteError);
-        // Fallback: try to remove from AsyncStorage
-        try {
-          await AsyncStorage.removeItem('session_token');
-        } catch (fallbackError) {
-          console.error('Failed to delete from AsyncStorage:', fallbackError);
-        }
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    // TEMPORARY: Disabled for testing
+    // Original authentication logic will be restored later
   };
 
   const login = async (sessionId: string) => {
-    try {
-      setIsLoading(true);
-      const response = await authAPI.createSession(sessionId);
-      
-      // Store session token securely
-      await SecureStore.setItemAsync('session_token', response.session_token);
-      
-      setUser(response.user);
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TEMPORARY: Mock login for testing
+    console.log('Mock login called');
   };
 
   const loginWithEmail = async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      const response = await authAPI.login({ email, password });
-      
-      // Store session token securely
-      await SecureStore.setItemAsync('session_token', response.session_token);
-      
-      setUser(response.user);
-    } catch (error) {
-      console.error('Email login failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TEMPORARY: Mock email login for testing  
+    console.log('Mock email login called');
   };
 
   const signup = async (userData: {
@@ -158,146 +112,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     name: string;
     password: string;
   }) => {
-    try {
-      setIsLoading(true);
-      const response = await authAPI.signup(userData);
-      
-      return {
-        email: response.email,
-        requiresOTP: response.otp_sent
-      };
-    } catch (error) {
-      console.error('Signup failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TEMPORARY: Mock signup for testing
+    console.log('Mock signup called');
+    return {
+      email: userData.email,
+      requiresOTP: false
+    };
   };
 
   const verifyOTP = async (email: string, otpCode: string) => {
-    try {
-      setIsLoading(true);
-      const response = await authAPI.verifyOTP({ email, otp_code: otpCode });
-      
-      // Store session token securely
-      await SecureStore.setItemAsync('session_token', response.session_token);
-      
-      setUser(response.user);
-    } catch (error) {
-      console.error('OTP verification failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TEMPORARY: Mock OTP verification for testing
+    console.log('Mock OTP verification called');
   };
 
   const resendOTP = async (email: string) => {
-    try {
-      setIsLoading(true);
-      await authAPI.resendOTP(email);
-    } catch (error) {
-      console.error('Resend OTP failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TEMPORARY: Mock resend OTP for testing
+    console.log('Mock resend OTP called');
   };
 
   const logout = async () => {
-    try {
-      setIsLoading(true);
-      await authAPI.logout();
-    } catch (error) {
-      console.error('Logout API failed:', error);
-    } finally {
-      // Always clear local session
-      try {
-        await SecureStore.deleteItemAsync('session_token');
-      } catch (deleteError) {
-        console.error('Failed to delete session token:', deleteError);
-        // Fallback: try to remove from AsyncStorage
-        try {
-          await AsyncStorage.removeItem('session_token');
-        } catch (fallbackError) {
-          console.error('Failed to delete from AsyncStorage:', fallbackError);
-        }
-      }
-      await AsyncStorage.removeItem('biometric_session');
-      setUser(null);
-      setIsLoading(false);
-    }
+    // TEMPORARY: Mock logout for testing
+    console.log('Mock logout called - staying logged in for testing');
   };
 
   const enableBiometric = async () => {
-    try {
-      // Check if device supports biometric authentication
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      
-      if (!hasHardware) {
-        Alert.alert('Error', 'This device does not support biometric authentication');
-        return;
-      }
-      
-      if (!isEnrolled) {
-        Alert.alert('Error', 'No biometric records found. Please set up biometric authentication in your device settings');
-        return;
-      }
-
-      // Authenticate to confirm
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Enable biometric authentication',
-        fallbackLabel: 'Use password',
-      });
-
-      if (result.success) {
-        // Update backend
-        await authAPI.toggleBiometric(true);
-        
-        // Store biometric session locally
-        await AsyncStorage.setItem('biometric_session', 'enabled');
-        
-        // Update user state
-        if (user) {
-          setUser({ ...user, biometric_enabled: true });
-        }
-        
-        Alert.alert('Success', 'Biometric authentication enabled');
-      }
-    } catch (error) {
-      console.error('Biometric setup failed:', error);
-      Alert.alert('Error', 'Failed to enable biometric authentication');
+    // TEMPORARY: Mock biometric enable for testing
+    if (user) {
+      setUser({ ...user, biometric_enabled: true });
+      console.log('Mock biometric enabled');
     }
   };
 
   const authenticateWithBiometric = async (): Promise<boolean> => {
-    try {
-      const hasSession = await AsyncStorage.getItem('biometric_session');
-      if (!hasSession || !user?.biometric_enabled) {
-        return false;
-      }
-
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Authenticate to access FantaPay',
-        fallbackLabel: 'Use password',
-      });
-
-      return result.success;
-    } catch (error) {
-      console.error('Biometric authentication failed:', error);
-      return false;
-    }
+    // TEMPORARY: Mock biometric auth for testing
+    console.log('Mock biometric authentication');
+    return true;
   };
 
   const updateLanguage = async (language: string) => {
-    try {
-      await authAPI.updateLanguage(language);
-      if (user) {
-        setUser({ ...user, language });
-      }
-    } catch (error) {
-      console.error('Language update failed:', error);
-      throw error;
+    // TEMPORARY: Mock language update for testing
+    if (user) {
+      setUser({ ...user, language });
+      console.log('Mock language updated to:', language);
     }
   };
 
