@@ -104,6 +104,74 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const loginWithEmail = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const response = await authAPI.login({ email, password });
+      
+      // Store session token securely
+      await SecureStore.setItemAsync('session_token', response.session_token);
+      
+      setUser(response.user);
+    } catch (error) {
+      console.error('Email login failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signup = async (userData: {
+    username: string;
+    email: string;
+    name: string;
+    password: string;
+  }) => {
+    try {
+      setIsLoading(true);
+      const response = await authAPI.signup(userData);
+      
+      return {
+        email: response.email,
+        requiresOTP: response.otp_sent
+      };
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOTP = async (email: string, otpCode: string) => {
+    try {
+      setIsLoading(true);
+      const response = await authAPI.verifyOTP({ email, otp_code: otpCode });
+      
+      // Store session token securely
+      await SecureStore.setItemAsync('session_token', response.session_token);
+      
+      setUser(response.user);
+    } catch (error) {
+      console.error('OTP verification failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resendOTP = async (email: string) => {
+    try {
+      setIsLoading(true);
+      await authAPI.resendOTP(email);
+    } catch (error) {
+      console.error('Resend OTP failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setIsLoading(true);
