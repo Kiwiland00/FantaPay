@@ -244,6 +244,11 @@ const styles = StyleSheet.create({
   googleButton: {
     backgroundColor: '#007AFF',
   },
+  emailButton: {
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
   biometricButton: {
     backgroundColor: 'rgba(0, 122, 255, 0.1)',
     borderWidth: 1,
@@ -252,6 +257,22 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  signupSection: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  signupText: {
+    color: '#8E8E93',
+    fontSize: 14,
+    marginRight: 4,
+  },
+  signupButtonText: {
+    color: '#007AFF',
+    fontSize: 14,
     fontWeight: '600',
   },
   footer: {
