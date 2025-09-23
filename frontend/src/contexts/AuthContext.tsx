@@ -9,10 +9,16 @@ interface User {
   id: string;
   email: string;
   name: string;
+  username?: string;
   picture?: string;
+  auth_method: string;
+  is_verified: boolean;
   language: string;
   wallet_balance: number;
   biometric_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  last_login?: string;
 }
 
 interface AuthContextType {
