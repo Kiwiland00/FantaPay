@@ -472,8 +472,12 @@ async def login_user(response: Response, login_data: UserLogin):
             path="/"
         )
         
+        # Return user data
+        user_dict = dict(user)
+        user_dict["_id"] = str(user_dict["_id"])
+        
         return {
-            "user": User(**user).dict(),
+            "user": user_dict,
             "session_token": session_token,
             "message": "Login successful"
         }
