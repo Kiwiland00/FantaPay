@@ -305,8 +305,8 @@ class FantaPayTester:
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get("id") and data.get("invite_code"):
-                    self.competition_id = data["id"]
+                if (data.get("_id") or data.get("id")) and data.get("invite_code"):
+                    self.competition_id = data.get("_id") or data.get("id")
                     self.log_test("Create Competition", True, f"Competition created with ID {self.competition_id}", data)
                     return True
                 else:
