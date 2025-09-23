@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
 
 // Get backend URL from environment
-const BACKEND_URL = 'https://fintech-fantapay.preview.emergentagent.com';
+const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'https://fintech-fantapay.preview.emergentagent.com';
 
 class ApiClient {
   private client: AxiosInstance;
