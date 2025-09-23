@@ -4,24 +4,23 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   Alert,
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import * as WebBrowser from 'expo-web-browser';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const LoginScreen: React.FC = () => {
+  const navigation = useNavigation();
   const { login, authenticateWithBiometric, user } = useAuth();
   const { t, changeLanguage, currentLanguage } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   useEffect(() => {
     // Listen for URL changes (deep linking from auth)
