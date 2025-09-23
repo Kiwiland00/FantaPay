@@ -96,7 +96,11 @@ function MainTabNavigator() {
 export default function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) {
+  // TEMPORARY: Skip authentication for testing core features
+  // TODO: Re-enable authentication later
+  const skipAuth = true;
+
+  if (isLoading && !skipAuth) {
     return <LoadingScreen />;
   }
 
@@ -112,8 +116,8 @@ export default function RootNavigator() {
         },
       }}
     >
-      {!isAuthenticated ? (
-        // Auth screens
+      {!skipAuth && !isAuthenticated ? (
+        // Auth screens (temporarily disabled)
         <>
           <Stack.Screen 
             name="Login" 
@@ -137,7 +141,7 @@ export default function RootNavigator() {
           />
         </>
       ) : (
-        // Main app screens
+        // Main app screens - Direct access for testing
         <>
           <Stack.Screen 
             name="MainTabs" 
