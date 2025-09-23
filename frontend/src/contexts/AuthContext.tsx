@@ -97,7 +97,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout API failed:', error);
     } finally {
       // Always clear local session
-      await SecureStore.deleteItemAsync('session_token');
+      try {
+        await SecureStore.deleteItemAsync('session_token');
+      } catch (deleteError) {
+        console.error('Failed to delete session token:', deleteError);
+      }
       await AsyncStorage.removeItem('biometric_session');
       setUser(null);
       setIsLoading(false);
