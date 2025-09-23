@@ -9,6 +9,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 // Auth screens
 import LoginScreen from '../screens/auth/LoginScreen';
+import SignupScreen from '../screens/auth/SignupScreen';
+import EmailLoginScreen from '../screens/auth/EmailLoginScreen';
+import OTPVerificationScreen from '../screens/auth/OTPVerificationScreen';
 import BiometricSetupScreen from '../screens/auth/BiometricSetupScreen';
 
 // Main screens
