@@ -164,7 +164,7 @@ const LoginScreen: React.FC = () => {
         {/* Sign Up Link */}
         <View style={styles.signupSection}>
           <Text style={styles.signupText}>New to FantaPay?</Text>
-          <TouchableOpacity onPress={() => router.push('/auth/signup')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Signup' as never)}>
             <Text style={styles.signupButtonText}>Create Account</Text>
           </TouchableOpacity>
         </View>
