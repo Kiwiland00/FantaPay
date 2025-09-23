@@ -62,7 +62,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Session check failed:', error);
-      await SecureStore.deleteItemAsync('session_token');
+      try {
+        await SecureStore.deleteItemAsync('session_token');
+      } catch (deleteError) {
+        console.error('Failed to delete session token:', deleteError);
+      }
     } finally {
       setIsLoading(false);
     }
