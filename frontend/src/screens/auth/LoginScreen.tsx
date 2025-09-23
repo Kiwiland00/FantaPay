@@ -137,7 +137,7 @@ const LoginScreen: React.FC = () => {
 
           <TouchableOpacity
             style={[styles.loginButton, styles.emailButton]}
-            onPress={() => router.push('/auth/login')}
+            onPress={() => navigation.navigate('EmailLogin' as never)}
             disabled={isLoading}
           >
             <Ionicons name="mail" size={24} color="#007AFF" />
