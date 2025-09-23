@@ -126,6 +126,21 @@ function AppNavigator() {
             options={{ headerShown: false }}
           />
           <Stack.Screen 
+            name="Signup" 
+            component={SignupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="EmailLogin" 
+            component={EmailLoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="OTPVerification" 
+            component={OTPVerificationScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
             name="BiometricSetup" 
             component={BiometricSetupScreen}
             options={{ title: 'Biometric Setup' }}
