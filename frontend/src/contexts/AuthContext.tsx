@@ -66,6 +66,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await SecureStore.deleteItemAsync('session_token');
       } catch (deleteError) {
         console.error('Failed to delete session token:', deleteError);
+        // Fallback: try to remove from AsyncStorage
+        try {
+          await AsyncStorage.removeItem('session_token');
+        } catch (fallbackError) {
+          console.error('Failed to delete from AsyncStorage:', fallbackError);
+        }
       }
     } finally {
       setIsLoading(false);
