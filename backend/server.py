@@ -290,9 +290,248 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     return User(**user)
 
 # Auth endpoints
+@api_router.post("/auth/signup")
+async def signup_user(signup_data: UserSignup):
+    """Register new user with email/password and send OTP"""
+    try:
+        # Check if user already exists
+        existing_user = await db.users.find_one({
+            "$or": [
+                {"email": signup_data.email},
+                {"username": signup_data.username}
+            ]
+        })
+        
+        if existing_user:
+            if existing_user["email"] == signup_data.email:
+                raise HTTPException(status_code=400, detail="Email already registered")
+            else:
+                raise HTTPException(status_code=400, detail="Username already taken")
+        
+        # Hash password
+        password_hash = hash_password(signup_data.password)
+        
+        # Create user (not verified yet)
+        user_doc = {
+            "_id": ObjectId(),
+            "username": signup_data.username,
+            "email": signup_data.email,
+            "name": signup_data.name,
+            "password_hash": password_hash,
+            "auth_method": "email",
+            "is_verified": False,
+            "language": signup_data.language,
+            "wallet_balance": 0.0,
+            "biometric_enabled": False,
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+            "last_login": None
+        }
+        
+        await db.users.insert_one(user_doc)
+        
+        # Generate and store OTP
+        otp_code = generate_otp()
+        otp_doc = {
+            "_id": ObjectId(),
+            "email": signup_data.email,
+            "otp_code": otp_code,
+            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=10),
+            "created_at": datetime.now(timezone.utc),
+            "verified": False
+        }
+        
+        await db.otp_records.insert_one(otp_doc)
+        
+        # Send OTP email
+        email_sent = await send_otp_email(signup_data.email, otp_code, signup_data.name)
+        
+        if not email_sent:
+            # Cleanup if email sending fails
+            await db.users.delete_one({"_id": user_doc["_id"]})
+            await db.otp_records.delete_one({"_id": otp_doc["_id"]})
+            raise HTTPException(status_code=500, detail="Failed to send verification email")
+        
+        return {
+            "message": "Account created successfully. Please check your email for verification code.",
+            "email": signup_data.email,
+            "otp_sent": True
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(response: Response, verification_data: OTPVerification):
+    """Verify OTP and activate account"""
+    try:
+        # Find valid OTP record
+        otp_record = await db.otp_records.find_one({
+            "email": verification_data.email,
+            "otp_code": verification_data.otp_code,
+            "verified": False,
+            "expires_at": {"$gt": datetime.now(timezone.utc)}
+        })
+        
+        if not otp_record:
+            raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+        
+        # Mark OTP as verified
+        await db.otp_records.update_one(
+            {"_id": otp_record["_id"]},
+            {"$set": {"verified": True}}
+        )
+        
+        # Activate user account
+        user = await db.users.find_one({"email": verification_data.email})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        await db.users.update_one(
+            {"_id": user["_id"]},
+            {
+                "$set": {
+                    "is_verified": True,
+                    "updated_at": datetime.now(timezone.utc),
+                    "last_login": datetime.now(timezone.utc)
+                }
+            }
+        )
+        
+        # Create session
+        session_token = await create_session_token(user["_id"])
+        
+        # Set httpOnly cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            max_age=7 * 24 * 60 * 60,  # 7 days
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/"
+        )
+        
+        # Return user data
+        updated_user = await db.users.find_one({"_id": user["_id"]})
+        return {
+            "user": User(**updated_user).dict(),
+            "session_token": session_token,
+            "message": "Account verified successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Verification failed: {str(e)}")
+
+@api_router.post("/auth/login")
+async def login_user(response: Response, login_data: UserLogin):
+    """Login with email/password"""
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": login_data.email})
+        
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Check if user used email registration
+        if user.get("auth_method") != "email":
+            raise HTTPException(status_code=400, detail="Please use Google login for this account")
+        
+        # Verify password
+        if not verify_password(login_data.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Check if account is verified
+        if not user.get("is_verified", False):
+            raise HTTPException(status_code=403, detail="Account not verified. Please check your email for verification code")
+        
+        # Update last login
+        await db.users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {"last_login": datetime.now(timezone.utc)}}
+        )
+        
+        # Create session
+        session_token = await create_session_token(user["_id"])
+        
+        # Set httpOnly cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            max_age=7 * 24 * 60 * 60,  # 7 days
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/"
+        )
+        
+        return {
+            "user": User(**user).dict(),
+            "session_token": session_token,
+            "message": "Login successful"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+
+@api_router.post("/auth/resend-otp")
+async def resend_otp(email: EmailStr):
+    """Resend OTP for unverified account"""
+    try:
+        # Find unverified user
+        user = await db.users.find_one({
+            "email": email,
+            "auth_method": "email",
+            "is_verified": False
+        })
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found or already verified")
+        
+        # Invalidate existing OTP records for this email
+        await db.otp_records.update_many(
+            {"email": email, "verified": False},
+            {"$set": {"verified": True}}  # Mark as used
+        )
+        
+        # Generate new OTP
+        otp_code = generate_otp()
+        otp_doc = {
+            "_id": ObjectId(),
+            "email": email,
+            "otp_code": otp_code,
+            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=10),
+            "created_at": datetime.now(timezone.utc),
+            "verified": False
+        }
+        
+        await db.otp_records.insert_one(otp_doc)
+        
+        # Send OTP email
+        email_sent = await send_otp_email(email, otp_code, user["name"])
+        
+        if not email_sent:
+            raise HTTPException(status_code=500, detail="Failed to send verification email")
+        
+        return {
+            "message": "Verification code sent successfully",
+            "email": email
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to resend OTP: {str(e)}")
+
 @api_router.post("/auth/session")
 async def create_session(response: Response, session_id: str = Header(..., alias="X-Session-ID")):
-    """Process session ID from Emergent Auth"""
+    """Process session ID from Emergent Auth (Google OAuth)"""
     try:
         # Call Emergent Auth API
         auth_response = requests.post(
@@ -310,17 +549,28 @@ async def create_session(response: Response, session_id: str = Header(..., alias
         
         if existing_user:
             user = User(**existing_user)
-        else:
-            # Create new user
-            user_data = UserCreate(
-                email=auth_data["email"],
-                name=auth_data["name"],
-                picture=auth_data.get("picture")
+            # Update last login for Google users
+            await db.users.update_one(
+                {"_id": existing_user["_id"]},
+                {"$set": {"last_login": datetime.now(timezone.utc)}}
             )
-            user_dict = user_data.dict()
-            user_dict["_id"] = ObjectId()
-            result = await db.users.insert_one(user_dict)
-            user = User(**user_dict)
+        else:
+            # Create new Google user (auto-verified)
+            user_data = {
+                "email": auth_data["email"],
+                "name": auth_data["name"],
+                "picture": auth_data.get("picture"),
+                "auth_method": "google",
+                "is_verified": True,  # Google users are auto-verified
+                "wallet_balance": 0.0,
+                "biometric_enabled": False,
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
+                "last_login": datetime.now(timezone.utc)
+            }
+            user_data["_id"] = ObjectId()
+            result = await db.users.insert_one(user_data)
+            user = User(**user_data)
         
         # Create session in database
         expires_at = datetime.now(timezone.utc) + timedelta(days=7)
