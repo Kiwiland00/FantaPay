@@ -255,4 +255,4 @@ test_plan:
 
 agent_communication:
   - agent: "main"
-    message: "Phase 1 complete: Backend APIs and core frontend screens implemented. Ready for backend testing of authentication, competition, and wallet endpoints. Frontend needs integration testing after backend validation."
+    message: "CRITICAL BUG FIX: Fixed hardcoded backend URL in /app/frontend/src/services/api.ts to use environment variables. All screens are implemented and ready for testing. Starting comprehensive backend testing to validate all APIs before frontend integration testing."
