@@ -416,8 +416,11 @@ async def verify_otp(response: Response, verification_data: OTPVerification):
         
         # Return user data
         updated_user = await db.users.find_one({"_id": user["_id"]})
+        user_dict = dict(updated_user)
+        user_dict["_id"] = str(user_dict["_id"])
+        
         return {
-            "user": User(**updated_user).dict(),
+            "user": user_dict,
             "session_token": session_token,
             "message": "Account verified successfully"
         }
