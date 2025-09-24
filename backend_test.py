@@ -286,7 +286,7 @@ class FantaPayTester:
             return False
     
     def test_create_competition(self):
-        """Test competition creation"""
+        """Test competition creation with financial configuration"""
         try:
             competition_data = {
                 "name": "Serie A Fantasy League 2024",
@@ -298,7 +298,12 @@ class FantaPayTester:
                         {"position": 2, "amount": 300.0, "description": "Second Place"},
                         {"position": 3, "amount": 200.0, "description": "Third Place"}
                     ]
-                }
+                },
+                # Financial configuration fields as specified in the test request
+                "total_matchdays": 36,
+                "participation_cost_per_team": 210.0,
+                "expected_teams": 8,
+                "total_prize_pool": 1680.0
             }
             
             response = self.make_request("POST", "/competitions", competition_data)
@@ -307,17 +312,32 @@ class FantaPayTester:
                 data = response.json()
                 if (data.get("_id") or data.get("id")) and data.get("invite_code"):
                     self.competition_id = data.get("_id") or data.get("id")
-                    self.log_test("Create Competition", True, f"Competition created with ID {self.competition_id}", data)
-                    return True
+                    
+                    # Verify financial fields are correctly stored
+                    financial_fields_correct = (
+                        data.get("total_matchdays") == 36 and
+                        data.get("participation_cost_per_team") == 210.0 and
+                        data.get("expected_teams") == 8 and
+                        data.get("total_prize_pool") == 1680.0
+                    )
+                    
+                    if financial_fields_correct:
+                        self.log_test("Create Competition with Financial Config", True, 
+                                    f"Competition created with correct financial fields: ID {self.competition_id}, matchdays={data['total_matchdays']}, cost={data['participation_cost_per_team']}, teams={data['expected_teams']}, pool={data['total_prize_pool']}", data)
+                        return True
+                    else:
+                        self.log_test("Create Competition with Financial Config", False, 
+                                    f"Financial fields incorrect: matchdays={data.get('total_matchdays')}, cost={data.get('participation_cost_per_team')}, teams={data.get('expected_teams')}, pool={data.get('total_prize_pool')}")
+                        return False
                 else:
-                    self.log_test("Create Competition", False, f"Unexpected response: {data}")
+                    self.log_test("Create Competition with Financial Config", False, f"Unexpected response: {data}")
                     return False
             else:
-                self.log_test("Create Competition", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Create Competition with Financial Config", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Create Competition", False, f"Exception: {str(e)}")
+            self.log_test("Create Competition with Financial Config", False, f"Exception: {str(e)}")
             return False
     
     def test_get_my_competitions(self):
