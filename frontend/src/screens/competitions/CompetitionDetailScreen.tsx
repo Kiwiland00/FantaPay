@@ -212,7 +212,7 @@ const CompetitionDetailScreen: React.FC = () => {
         payments = JSON.parse(storedPayments);
         console.log('💳 Loaded stored payments:', payments.length);
       } else {
-        // Generate default payment status for all matchdays
+        // Generate default payment status for all matchdays - ALL START AS UNPAID
         const totalMatchdays = competition?.total_matchdays || 36;
         
         for (let i = 1; i <= totalMatchdays; i++) {
@@ -222,14 +222,14 @@ const CompetitionDetailScreen: React.FC = () => {
             competition_id: competitionId,
             matchday: i,
             amount: competition?.daily_payment_amount || 5,
-            status: 'pending', // All start as pending
+            status: 'pending', // ALL matchdays start as UNPAID/pending
             paid_at: undefined
           });
         }
         
         // Store initial payment status
         await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(payments));
-        console.log('💳 Generated initial payment records for', totalMatchdays, 'matchdays');
+        console.log('💳 Generated initial payment records - ALL UNPAID for', totalMatchdays, 'matchdays');
       }
       
       setUserPayments(payments);
