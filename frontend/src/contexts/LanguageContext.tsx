@@ -101,6 +101,8 @@ const resources = {
       'competitions.useLinkComingSoon': 'Use invite link (Coming soon)',
       'competitions.paymentInstructions': 'Payment Instructions',
       'competitions.paymentInstructionsDetail': 'Payment for each matchday is required before the start. Contact the admin if you have any payment issues.',
+      'competitions.nameAvailable': 'Name available',
+      'competitions.nameExists': 'Name already exists',
       
       // Wallet
       'wallet.balance': 'Balance',
