@@ -330,17 +330,17 @@ const CompetitionDetailScreen: React.FC = () => {
         {/* Competition Stats */}
         <View style={styles.statsSection}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{mockCompetition.participants.length}</Text>
+            <Text style={styles.statValue}>{competition.participants?.length || 0}</Text>
             <Text style={styles.statLabel}>{t('competitions.participants')}</Text>
           </View>
           
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>€{mockCompetition.wallet_balance}</Text>
+            <Text style={styles.statValue}>€{competition.wallet_balance || 0}</Text>
             <Text style={styles.statLabel}>{t('competitions.wallet')}</Text>
           </View>
           
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{mockCompetition.current_matchday}</Text>
+            <Text style={styles.statValue}>{competition.current_matchday || 1}</Text>
             <Text style={styles.statLabel}>{t('competitions.matchday')}</Text>
           </View>
         </View>
@@ -352,7 +352,7 @@ const CompetitionDetailScreen: React.FC = () => {
             <View style={styles.adminCard}>
               <View style={styles.adminInfo}>
                 <Text style={styles.inviteCodeLabel}>{t('competitions.inviteCodeLabel')}</Text>
-                <Text style={styles.inviteCodeValue}>{mockCompetition.invite_code}</Text>
+                <Text style={styles.inviteCodeValue}>{competition.invite_code}</Text>
               </View>
               <TouchableOpacity
                 style={styles.copyButton}
@@ -387,9 +387,15 @@ const CompetitionDetailScreen: React.FC = () => {
 
           {/* Participants List */}
           <View style={styles.participantsList}>
-            {mockCompetition.participants
-              .sort((a, b) => (a.position || 0) - (b.position || 0))
-              .map((participant, index) => renderParticipantRow(participant, index))}
+            {competition.participants && competition.participants.length > 0 ? (
+              competition.participants
+                .sort((a, b) => (a.position || 0) - (b.position || 0))
+                .map((participant, index) => renderParticipantRow(participant, index))
+            ) : (
+              <View style={styles.emptyParticipants}>
+                <Text style={styles.emptyParticipantsText}>No participants yet</Text>
+              </View>
+            )}
           </View>
         </View>
 
