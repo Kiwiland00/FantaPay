@@ -23,7 +23,8 @@ interface RouteParams {
   participantName: string;
   participantId: string;
   competitionName: string;
-  paymentHistory: PaymentHistoryItem[];
+  competitionMatchdays: number;
+  paidMatchdays: number[];
 }
 
 const ParticipantPaymentHistoryScreen: React.FC = () => {
@@ -31,56 +32,95 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   const route = useRoute();
   const { t } = useLanguage();
   
-  const { participantName, competitionName, paymentHistory } = route.params as RouteParams;
+  const { 
+    participantName, 
+    competitionName, 
+    competitionMatchdays = 36,
+    paidMatchdays = []
+  } = route.params as RouteParams;
 
-  // Mock payment history if not provided
-  const mockPaymentHistory: PaymentHistoryItem[] = paymentHistory || [
-    { matchday: 1, amount: 25, status: 'paid', date: '2024-01-15' },
-    { matchday: 2, amount: 25, status: 'paid', date: '2024-01-22' },
-    { matchday: 3, amount: 25, status: 'pending' },
-    { matchday: 4, amount: 25, status: 'pending' },
-    { matchday: 5, amount: 25, status: 'pending' },
-  ];
-
-  const renderPaymentItem = (item: PaymentHistoryItem) => (
-    <View key={item.matchday} style={styles.paymentItem}>
-      <View style={styles.matchdayInfo}>
-        <Text style={styles.matchdayText}>
-          {t('competitions.matchday')} {item.matchday}
-        </Text>
-        {item.date && (
-          <Text style={styles.dateText}>
-            {new Date(item.date).toLocaleDateString()}
-          </Text>
-        )}
-      </View>
+  // Generate detailed payment history based on total matchdays
+  const generatePaymentHistory = (): PaymentHistoryItem[] => {
+    const history: PaymentHistoryItem[] = [];
+    const dailyFee = 25; // €25 per matchday
+    
+    for (let matchday = 1; matchday <= competitionMatchdays; matchday++) {
+      const isPaid = paidMatchdays.includes(matchday);
+      const daysSinceStart = matchday - 1;
+      const paymentDate = new Date();
+      paymentDate.setDate(paymentDate.getDate() - (competitionMatchdays - matchday) * 7); // Weekly matchdays
       
-      <View style={styles.paymentStatus}>
-        <Text style={styles.amountText}>€{item.amount.toFixed(2)}</Text>
-        <View style={[
-          styles.statusBadge,
-          { backgroundColor: item.status === 'paid' ? '#34C759' : '#FF3B30' }
-        ]}>
-          <Ionicons
-            name={item.status === 'paid' ? 'checkmark' : 'close'}
-            size={16}
-            color="#FFFFFF"
-          />
-          <Text style={styles.statusText}>
-            {item.status === 'paid' ? t('competitions.paid') : t('competitions.pending')}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
+      history.push({
+        matchday,
+        amount: dailyFee,
+        status: isPaid ? 'paid' : 'pending',
+        date: isPaid ? paymentDate.toISOString().split('T')[0] : undefined,
+      });
+    }
+    
+    return history;
+  };
 
-  const totalPaid = mockPaymentHistory
+  const paymentHistory = generatePaymentHistory();
+
+  const renderPaymentItem = (item: PaymentHistoryItem) => {
+    const isCurrentOrFuture = item.matchday > 3; // Assuming current matchday is 3
+    
+    return (
+      <View key={item.matchday} style={[
+        styles.paymentItem,
+        item.status === 'paid' ? styles.paidItem : styles.pendingItem,
+        isCurrentOrFuture && styles.futureItem
+      ]}>
+        <View style={styles.matchdayInfo}>
+          <Text style={styles.matchdayText}>
+            {t('competitions.matchday')} {item.matchday}
+          </Text>
+          {item.date && (
+            <Text style={styles.dateText}>
+              {new Date(item.date).toLocaleDateString()}
+            </Text>
+          )}
+          {isCurrentOrFuture && !item.date && (
+            <Text style={styles.futureText}>
+              {item.matchday === 4 ? 'Next matchday' : 'Future'}
+            </Text>
+          )}
+        </View>
+        
+        <View style={styles.paymentStatus}>
+          <Text style={styles.amountText}>€{item.amount.toFixed(2)}</Text>
+          <View style={[
+            styles.statusContainer,
+            item.status === 'paid' ? styles.paidContainer : styles.pendingContainer
+          ]}>
+            <Ionicons
+              name={item.status === 'paid' ? 'checkmark-circle' : 'time-outline'}
+              size={16}
+              color={item.status === 'paid' ? '#34C759' : '#FF3B30'}
+            />
+            <Text style={[
+              styles.statusText,
+              { color: item.status === 'paid' ? '#34C759' : '#FF3B30' }
+            ]}>
+              {item.status === 'paid' ? t('competitions.paid') : t('competitions.pending')}
+            </Text>
+          </View>
+        </div>
+      </View>
+    );
+  };
+
+  const totalPaid = paymentHistory
     .filter(item => item.status === 'paid')
     .reduce((sum, item) => sum + item.amount, 0);
   
-  const totalOwed = mockPaymentHistory
+  const totalPending = paymentHistory
     .filter(item => item.status === 'pending')
     .reduce((sum, item) => sum + item.amount, 0);
+
+  const paidCount = paymentHistory.filter(item => item.status === 'paid').length;
+  const pendingCount = paymentHistory.filter(item => item.status === 'pending').length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -103,40 +143,91 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         {/* Summary Cards */}
         <View style={styles.summarySection}>
           <View style={[styles.summaryCard, styles.paidCard]}>
-            <Text style={styles.summaryLabel}>{t('wallet.totalPaid')}</Text>
-            <Text style={styles.summaryAmount}>€{totalPaid.toFixed(2)}</Text>
-            <View style={styles.summaryIcon}>
+            <View style={styles.summaryHeader}>
               <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+              <Text style={styles.summaryTitle}>{t('competitions.paid')}</Text>
             </View>
+            <Text style={styles.summaryAmount}>€{totalPaid.toFixed(2)}</Text>
+            <Text style={styles.summarySubtext}>
+              {paidCount} of {competitionMatchdays} matchdays
+            </Text>
           </View>
           
-          <View style={[styles.summaryCard, styles.owedCard]}>
-            <Text style={styles.summaryLabel}>{t('wallet.totalOwed')}</Text>
-            <Text style={styles.summaryAmount}>€{totalOwed.toFixed(2)}</Text>
-            <View style={styles.summaryIcon}>
-              <Ionicons name="time" size={24} color="#FF3B30" />
+          <View style={[styles.summaryCard, styles.pendingCard]}>
+            <View style={styles.summaryHeader}>
+              <Ionicons name="time-outline" size={24} color="#FF3B30" />
+              <Text style={styles.summaryTitle}>{t('competitions.pending')}</Text>
             </View>
+            <Text style={styles.summaryAmount}>€{totalPending.toFixed(2)}</Text>
+            <Text style={styles.summarySubtext}>
+              {pendingCount} matchdays remaining
+            </Text>
+          </View>
+        </View>
+
+        {/* Progress Bar */}
+        <View style={styles.progressSection}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Payment Progress</Text>
+            <Text style={styles.progressPercentage}>
+              {Math.round((paidCount / competitionMatchdays) * 100)}%
+            </Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View 
+              style={[
+                styles.progressFill,
+                { width: `${(paidCount / competitionMatchdays) * 100}%` }
+              ]}
+            />
           </View>
         </View>
 
         {/* Payment History */}
         <View style={styles.historySection}>
-          <Text style={styles.sectionTitle}>{t('wallet.paymentHistory')}</Text>
-          <View style={styles.paymentsList}>
-            {mockPaymentHistory.map(renderPaymentItem)}
+          <Text style={styles.sectionTitle}>
+            {t('wallet.paymentHistory')} - Day by Day
+          </Text>
+          
+          {/* Current/Recent Matchdays */}
+          <View style={styles.matchdaysGroup}>
+            <Text style={styles.groupTitle}>Recent Matchdays</Text>
+            <View style={styles.paymentsList}>
+              {paymentHistory.slice(0, 5).map(renderPaymentItem)}
+            </View>
           </View>
+
+          {/* Upcoming Matchdays */}
+          {competitionMatchdays > 5 && (
+            <View style={styles.matchdaysGroup}>
+              <Text style={styles.groupTitle}>Upcoming Matchdays</Text>
+              <View style={styles.paymentsList}>
+                {paymentHistory.slice(5, 10).map(renderPaymentItem)}
+              </View>
+            </View>
+          )}
+
+          {/* Show all if needed */}
+          {competitionMatchdays > 10 && (
+            <TouchableOpacity style={styles.showAllButton}>
+              <Text style={styles.showAllText}>
+                Show all {competitionMatchdays} matchdays
+              </Text>
+              <Ionicons name="chevron-down" size={16} color="#007AFF" />
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* Payment Instructions */}
+        {/* Instructions */}
         <View style={styles.instructionsSection}>
           <View style={styles.instructionCard}>
             <Ionicons name="information-circle" size={24} color="#007AFF" />
             <View style={styles.instructionContent}>
               <Text style={styles.instructionTitle}>
-                {t('competitions.paymentInstructions')}
+                Payment Information
               </Text>
               <Text style={styles.instructionText}>
-                {t('competitions.paymentInstructionsDetail')}
+                Each matchday requires a €25 payment. Green indicates completed payments, red shows pending payments for upcoming matchdays.
               </Text>
             </View>
           </View>
@@ -195,33 +286,66 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     borderRadius: 12,
-    position: 'relative',
+    borderWidth: 1,
   },
   paidCard: {
-    backgroundColor: '#1C2E1C',
-    borderWidth: 1,
+    backgroundColor: '#0A1F0A',
     borderColor: '#34C759',
   },
-  owedCard: {
-    backgroundColor: '#2E1C1C',
-    borderWidth: 1,
+  pendingCard: {
+    backgroundColor: '#1F0A0A',
     borderColor: '#FF3B30',
   },
-  summaryLabel: {
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  summaryTitle: {
     fontSize: 12,
-    color: '#8E8E93',
-    marginBottom: 4,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   summaryAmount: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  summarySubtext: {
+    fontSize: 10,
+    color: '#8E8E93',
+  },
+  progressSection: {
+    marginBottom: 24,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  summaryIcon: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
+  progressTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  progressPercentage: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#34C759',
+    borderRadius: 4,
   },
   historySection: {
     marginBottom: 24,
@@ -232,22 +356,43 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 16,
   },
+  matchdaysGroup: {
+    marginBottom: 20,
+  },
+  groupTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginBottom: 12,
+  },
   paymentsList: {
-    gap: 12,
+    gap: 8,
   },
   paymentItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  paidItem: {
+    backgroundColor: '#0A1F0A',
+    borderColor: '#34C759',
+  },
+  pendingItem: {
+    backgroundColor: '#1F0A0A',
+    borderColor: '#FF3B30',
+  },
+  futureItem: {
+    backgroundColor: '#1A1A1A',
+    borderColor: '#3C3C3E',
   },
   matchdayInfo: {
     flex: 1,
   },
   matchdayText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
   },
@@ -255,6 +400,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8E8E93',
     marginTop: 2,
+  },
+  futureText: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 2,
+    fontStyle: 'italic',
   },
   paymentStatus: {
     alignItems: 'flex-end',
@@ -265,18 +416,34 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 4,
   },
-  statusBadge: {
+  statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
     gap: 4,
+  },
+  paidContainer: {
+    // No additional styles needed
+  },
+  pendingContainer: {
+    // No additional styles needed
   },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#FFFFFF',
+  },
+  showAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    gap: 8,
+  },
+  showAllText: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '500',
   },
   instructionsSection: {
     marginBottom: 24,
