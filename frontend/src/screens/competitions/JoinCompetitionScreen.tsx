@@ -118,7 +118,7 @@ const JoinCompetitionScreen: React.FC = () => {
             
             {/* Helper text */}
             <Text style={styles.helperText}>
-              Ask the competition admin for the invite code
+              {t('competitions.askAdminForCode')}
             </Text>
           </View>
 
