@@ -202,24 +202,37 @@ const CompetitionDetailScreen: React.FC = () => {
     try {
       console.log('💳 Loading payment data for competition:', competitionId);
       
-      // Mock payment data (in real implementation, call API)
-      const mockPayments: MatchdayPayment[] = [];
-      const totalMatchdays = competition?.total_matchdays || 36;
+      const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+      const paymentKey = `payments_${userId}_${competitionId}`;
+      const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
       
-      // Generate mock payment status for current user
-      for (let i = 1; i <= totalMatchdays; i++) {
-        mockPayments.push({
-          _id: `payment_${i}`,
-          user_id: user?.id || '',
-          competition_id: competitionId,
-          matchday: i,
-          amount: competition?.daily_payment_amount || 5,
-          status: i <= 3 ? 'paid' : 'pending', // Mock: first 3 matchdays paid
-          paid_at: i <= 3 ? new Date().toISOString() : undefined
-        });
+      let payments: MatchdayPayment[] = [];
+      
+      if (storedPayments) {
+        payments = JSON.parse(storedPayments);
+        console.log('💳 Loaded stored payments:', payments.length);
+      } else {
+        // Generate default payment status for all matchdays
+        const totalMatchdays = competition?.total_matchdays || 36;
+        
+        for (let i = 1; i <= totalMatchdays; i++) {
+          payments.push({
+            _id: `payment_${i}`,
+            user_id: userId,
+            competition_id: competitionId,
+            matchday: i,
+            amount: competition?.daily_payment_amount || 5,
+            status: 'pending', // All start as pending
+            paid_at: undefined
+          });
+        }
+        
+        // Store initial payment status
+        await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(payments));
+        console.log('💳 Generated initial payment records for', totalMatchdays, 'matchdays');
       }
       
-      setUserPayments(mockPayments);
+      setUserPayments(payments);
       
       // If user is admin, load payment status table
       if (competition?.admin_id === user?.id) {
