@@ -1070,6 +1070,254 @@ async def get_competition_transactions(
     
     return transactions
 
+# Matchday Payment Endpoints
+@api_router.post("/competitions/{competition_id}/matchday-payments")
+async def pay_matchdays(
+    competition_id: str,
+    payment_data: MatchdayPaymentCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Pay for one or multiple matchdays"""
+    try:
+        comp_id = ObjectId(competition_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid competition ID")
+    
+    # Get competition details
+    competition = await db.competitions.find_one({"_id": comp_id})
+    if not competition:
+        raise HTTPException(status_code=404, detail="Competition not found")
+    
+    if current_user.id not in competition["participants"]:
+        raise HTTPException(status_code=403, detail="Not a participant in this competition")
+    
+    if not competition.get("daily_payment_enabled", False):
+        raise HTTPException(status_code=400, detail="Daily payments are not enabled for this competition")
+    
+    # Validate matchdays
+    total_matchdays = competition.get("total_matchdays", 36)
+    invalid_matchdays = [md for md in payment_data.matchdays if md < 1 or md > total_matchdays]
+    if invalid_matchdays:
+        raise HTTPException(status_code=400, detail=f"Invalid matchdays: {invalid_matchdays}")
+    
+    # Check if user has enough balance
+    daily_amount = competition.get("daily_payment_amount", 0.0)
+    total_cost = daily_amount * len(payment_data.matchdays)
+    
+    if current_user.wallet_balance < total_cost:
+        raise HTTPException(status_code=400, detail="Insufficient balance")
+    
+    # Check which matchdays are already paid
+    existing_payments = await db.matchday_payments.find({
+        "user_id": current_user.id,
+        "competition_id": comp_id,
+        "matchday": {"$in": payment_data.matchdays},
+        "status": "paid"
+    }).to_list(100)
+    
+    already_paid = [p["matchday"] for p in existing_payments]
+    if already_paid:
+        raise HTTPException(status_code=400, detail=f"Already paid for matchdays: {already_paid}")
+    
+    # Process payments
+    updated_matchdays = []
+    now = datetime.now(timezone.utc)
+    
+    for matchday in payment_data.matchdays:
+        # Update or create payment record
+        result = await db.matchday_payments.update_one(
+            {
+                "user_id": current_user.id,
+                "competition_id": comp_id,
+                "matchday": matchday
+            },
+            {
+                "$set": {
+                    "status": "paid",
+                    "paid_at": now,
+                    "amount": daily_amount
+                },
+                "$setOnInsert": {
+                    "_id": ObjectId(),
+                    "user_id": current_user.id,
+                    "competition_id": comp_id,
+                    "matchday": matchday,
+                    "created_at": now
+                }
+            },
+            upsert=True
+        )
+        updated_matchdays.append(matchday)
+    
+    # Update user balance
+    new_user_balance = current_user.wallet_balance - total_cost
+    await db.users.update_one(
+        {"_id": current_user.id},
+        {"$set": {"wallet_balance": new_user_balance, "updated_at": now}}
+    )
+    
+    # Update competition wallet
+    new_comp_balance = competition["wallet_balance"] + total_cost
+    await db.competitions.update_one(
+        {"_id": comp_id},
+        {"$set": {"wallet_balance": new_comp_balance, "updated_at": now}}
+    )
+    
+    # Create transaction record
+    transaction = TransactionCreate(
+        competition_id=comp_id,
+        type="matchday_payment",
+        amount=total_cost,
+        description=f"Matchday payments for {competition['name']} - Matchdays: {', '.join(map(str, payment_data.matchdays))}",
+        from_wallet="personal",
+        to_wallet="competition"
+    )
+    
+    transaction_dict = transaction.dict()
+    transaction_dict["_id"] = ObjectId()
+    transaction_dict["user_id"] = current_user.id
+    
+    await db.transactions.insert_one(transaction_dict)
+    
+    # Log the payment action
+    await db.admin_logs.insert_one({
+        "_id": ObjectId(),
+        "admin_id": current_user.id,
+        "admin_username": current_user.username or current_user.name,
+        "competition_id": comp_id,
+        "competition_name": competition["name"],
+        "action": "matchday_payment",
+        "details": f"Paid for matchdays: {', '.join(map(str, payment_data.matchdays))} (€{total_cost})",
+        "timestamp": now
+    })
+    
+    return {
+        "message": f"Successfully paid for {len(updated_matchdays)} matchdays",
+        "paid_matchdays": updated_matchdays,
+        "total_cost": total_cost,
+        "new_user_balance": new_user_balance
+    }
+
+@api_router.get("/competitions/{competition_id}/matchday-payments")
+async def get_matchday_payments(
+    competition_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get matchday payment status for current user"""
+    try:
+        comp_id = ObjectId(competition_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid competition ID")
+    
+    # Get competition details
+    competition = await db.competitions.find_one({"_id": comp_id})
+    if not competition:
+        raise HTTPException(status_code=404, detail="Competition not found")
+    
+    if current_user.id not in competition["participants"]:
+        raise HTTPException(status_code=403, detail="Not a participant in this competition")
+    
+    # Get payment records
+    payments = await db.matchday_payments.find({
+        "user_id": current_user.id,
+        "competition_id": comp_id
+    }).sort("matchday", 1).to_list(1000)
+    
+    # Convert ObjectIds
+    for payment in payments:
+        payment["_id"] = str(payment["_id"])
+        payment["user_id"] = str(payment["user_id"])
+        payment["competition_id"] = str(payment["competition_id"])
+    
+    return {
+        "competition_id": competition_id,
+        "daily_payment_enabled": competition.get("daily_payment_enabled", False),
+        "daily_payment_amount": competition.get("daily_payment_amount", 0.0),
+        "total_matchdays": competition.get("total_matchdays", 36),
+        "payments": payments
+    }
+
+@api_router.get("/competitions/{competition_id}/payment-status-table")
+async def get_payment_status_table(
+    competition_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get payment status table for all participants (admin only)"""
+    try:
+        comp_id = ObjectId(competition_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid competition ID")
+    
+    # Get competition details
+    competition = await db.competitions.find_one({"_id": comp_id})
+    if not competition:
+        raise HTTPException(status_code=404, detail="Competition not found")
+    
+    if current_user.id != competition["admin_id"]:
+        raise HTTPException(status_code=403, detail="Only admin can view payment status table")
+    
+    # Get all participants
+    participant_ids = competition["participants"]
+    participants = await db.users.find({"_id": {"$in": participant_ids}}).to_list(100)
+    
+    # Get all matchday payments for this competition
+    all_payments = await db.matchday_payments.find({
+        "competition_id": comp_id
+    }).to_list(10000)
+    
+    # Organize payments by user
+    payments_by_user = {}
+    for payment in all_payments:
+        user_id = str(payment["user_id"])
+        if user_id not in payments_by_user:
+            payments_by_user[user_id] = {}
+        payments_by_user[user_id][payment["matchday"]] = {
+            "status": payment["status"],
+            "amount": payment["amount"],
+            "paid_at": payment.get("paid_at")
+        }
+    
+    # Build status table
+    total_matchdays = competition.get("total_matchdays", 36)
+    daily_amount = competition.get("daily_payment_amount", 0.0)
+    
+    status_table = []
+    for participant in participants:
+        user_id = str(participant["_id"])
+        user_payments = payments_by_user.get(user_id, {})
+        
+        # Calculate payment status for each matchday
+        matchday_status = []
+        for matchday in range(1, total_matchdays + 1):
+            if matchday in user_payments:
+                status = user_payments[matchday]
+            else:
+                # Create pending status for missing matchdays
+                status = {
+                    "status": "pending",
+                    "amount": daily_amount,
+                    "paid_at": None
+                }
+            matchday_status.append({
+                "matchday": matchday,
+                **status
+            })
+        
+        status_table.append({
+            "user_id": user_id,
+            "username": participant.get("username") or participant["name"],
+            "name": participant["name"],
+            "email": participant["email"],
+            "matchday_payments": matchday_status
+        })
+    
+    return {
+        "competition_name": competition["name"],
+        "total_matchdays": total_matchdays,
+        "daily_payment_amount": daily_amount,
+        "participants": status_table
+    }
+
 # Health check
 @api_router.get("/health")
 async def health_check():
