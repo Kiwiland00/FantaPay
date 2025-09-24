@@ -638,6 +638,35 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     lineHeight: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#8E8E93',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF3B30',
+    textAlign: 'center',
+  },
+  emptyParticipants: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  emptyParticipantsText: {
+    fontSize: 14,
+    color: '#8E8E93',
+  },
 });
 
 export default CompetitionDetailScreen;
