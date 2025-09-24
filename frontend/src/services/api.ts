@@ -430,7 +430,7 @@ export const competitionAPI = {
     console.log('🏆 Mock: Getting my competitions');
     
     // AGGRESSIVE CLEANUP: Clear ALL legacy storage keys
-    const shouldClearStorage = true; // Force cleanup every time during testing
+    const shouldClearStorage = false; // Cleanup done, now disable
     
     if (shouldClearStorage) {
       console.log('🗑️ AGGRESSIVE CLEANUP: Clearing ALL legacy data...');
