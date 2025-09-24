@@ -33,7 +33,7 @@ const CreateCompetitionScreen: React.FC = () => {
   
   // Wizard state
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 4; // Adding financial configuration step
   
   // Form data
   const [competitionName, setCompetitionName] = useState('');
@@ -41,6 +41,11 @@ const CreateCompetitionScreen: React.FC = () => {
   const [totalMatchdays, setTotalMatchdays] = useState('36'); // Serie A default
   const [dailyPrize, setDailyPrize] = useState('5'); // Default to €5 as requested
   const [finalPrizes, setFinalPrizes] = useState<Array<{ position: number; amount: string; description: string }>>([]);
+  
+  // Financial configuration
+  const [participationCostPerTeam, setParticipationCostPerTeam] = useState('210'); // €210 default
+  const [expectedTeams, setExpectedTeams] = useState('8'); // 8 teams default
+  const [totalPrizePool, setTotalPrizePool] = useState('1680'); // Calculated automatically
   
   // Real-time validation state
   const [validation, setValidation] = useState<ValidationState>({
