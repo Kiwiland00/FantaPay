@@ -428,6 +428,32 @@ export const competitionAPI = {
   // Mock method to get user's competitions (now checks updated storage)
   getMyCompetitionsMock: async () => {
     console.log('🏆 Mock: Getting my competitions');
+    
+    // FORCE CLEANUP: Clear competitions storage if we need fresh start
+    const shouldClearStorage = true; // Set to true for complete cleanup
+    
+    if (shouldClearStorage) {
+      console.log('🗑️ FORCE CLEANUP: Clearing all competition data...');
+      await CrossPlatformStorage.removeItem('competitions_mock');
+      await CrossPlatformStorage.removeItem('admin_logs_mock');
+      
+      // Clear all payment records with wildcard pattern
+      const paymentKeys = [
+        'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758742449593',
+        'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758739458817',
+        'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_mock_1',
+        'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758785185912'
+      ];
+      
+      for (const key of paymentKeys) {
+        await CrossPlatformStorage.removeItem(key);
+        console.log(`✅ Cleared payment data: ${key}`);
+      }
+      
+      console.log('✅ FORCE CLEANUP COMPLETE - All competitions removed');
+      return []; // Return empty array after cleanup
+    }
+    
     const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
     
     if (storedCompetitions) {
