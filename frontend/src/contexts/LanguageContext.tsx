@@ -1,55 +1,67 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { initReactI18next } from 'react-i18next';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Translation resources
 const resources = {
   en: {
     translation: {
       // Common
-      loading: 'Loading...',
-      error: 'Error',
-      success: 'Success',
-      cancel: 'Cancel',
-      confirm: 'Confirm',
-      back: 'Back',
-      next: 'Next',
-      finish: 'Finish',
-      save: 'Save',
-      
-      // Authentication
-      login: 'Login',
-      logout: 'Logout',
-      'login.google': 'Login with Google',
-      'login.biometric': 'Use Biometric Login',
-      'auth.welcome': 'Welcome to FantaPay',
-      'auth.subtitle': 'Manage your fantasy competitions and winnings',
-      
+      'common.loading': 'Loading...',
+      'common.error': 'Error',
+      'common.success': 'Success',
+      'common.ok': 'OK',
+      'common.cancel': 'Cancel',
+      'common.save': 'Save',
+      'common.delete': 'Delete',
+      'common.edit': 'Edit',
+      'common.back': 'Back',
+      'common.next': 'Next',
+      'common.previous': 'Previous',
+      'common.confirm': 'Confirm',
+      'common.yes': 'Yes',
+      'common.no': 'No',
+
+      // Auth
+      'auth.login': 'Login',
+      'auth.logout': 'Logout',
+      'auth.signup': 'Sign Up',
+      'auth.email': 'Email',
+      'auth.password': 'Password',
+      'auth.confirmPassword': 'Confirm Password',
+      'auth.forgotPassword': 'Forgot Password?',
+      'auth.dontHaveAccount': "Don't have an account?",
+      'auth.alreadyHaveAccount': 'Already have an account?',
+      'auth.signupSuccess': 'Account created successfully!',
+      'auth.loginSuccess': 'Login successful!',
+      'auth.verifyOTP': 'Verify OTP',
+      'auth.enterOTP': 'Enter the OTP sent to your email',
+      'auth.resendOTP': 'Resend OTP',
+      'auth.otpVerified': 'OTP verified successfully!',
+
       // Navigation
       'nav.home': 'Home',
       'nav.competitions': 'Competitions',
       'nav.wallet': 'Wallet',
       'nav.profile': 'Profile',
-      
+
       // Home
       'home.welcome': 'Welcome back!',
+      'home.balance': 'Your Balance',
+      'home.quickActions': 'Quick Actions',
+      'home.recentTransactions': 'Recent Transactions',
       'home.createCompetition': 'Create Competition',
       'home.joinCompetition': 'Join Competition',
-      'home.myWallet': 'My Wallet',
+      'home.wallet': 'Wallet',
       'home.logs': 'Logs & Notifications',
-      
+
       // Competition
       'competition.create.title': 'Create Competition',
       'competition.create.name': 'Competition Name',
-      'competition.create.rules': 'Rules',
-      'competition.create.invite': 'Invite Players',
-      'competition.rules.daily': 'Daily Prize',
-      'competition.rules.final': 'Final Prize Pool',
-      'competition.rules.mixed': 'Daily + Final',
+      'competition.create.rules': 'Select Rules',
       'competition.join.title': 'Join Competition',
-      'competition.join.code': 'Enter Invite Code',
-      'competition.join.link': 'Or use invite link',
+      'competition.join.code': 'Enter Code',
+      'competition.details.title': 'Competition Details',
       'competition.standings': 'Standings',
       'competition.participants': 'Participants',
       'competition.wallet': 'Competition Wallet',
@@ -86,26 +98,50 @@ const resources = {
       'competitions.enterCodeDescription': 'Enter the invite code shared by the competition admin to join',
       'competitions.askAdminForCode': 'Ask the competition admin for the invite code',
       'competitions.useLinkComingSoon': 'Use invite link (Coming soon)',
+      'competitions.paymentInstructions': 'Payment Instructions',
+      'competitions.paymentInstructionsDetail': 'Payment for each matchday is required before the start. Contact the admin if you have any payment issues.',
       
       // Wallet
       'wallet.balance': 'Balance',
-      'wallet.topup': 'Top Up',
+      'wallet.topUp': 'Top Up',
       'wallet.withdraw': 'Withdraw',
-      'wallet.transactions': 'Transaction History',
-      'wallet.personal': 'Personal Wallet',
-      'wallet.competition': 'Competition Wallet',
-      
+      'wallet.transactions': 'Transactions',
+      'wallet.myWallet': 'My Wallet',
+      'wallet.competitionWallets': 'Competition Wallets',
+      'wallet.totalPaid': 'Total Paid',
+      'wallet.totalOwed': 'Total Owed',
+      'wallet.paymentHistory': 'Payment History',
+
+      // Profile
+      'profile.title': 'Profile',
+      'profile.settings': 'Settings',
+      'profile.language': 'Language',
+      'profile.notifications': 'Notifications',
+      'profile.security': 'Security',
+      'profile.biometric': 'Biometric Authentication',
+      'profile.changePassword': 'Change Password',
+      'profile.deleteAccount': 'Delete Account',
+
       // Settings
       'settings.language': 'Language',
-      'settings.biometric': 'Biometric Authentication',
       'settings.notifications': 'Notifications',
+      'settings.biometric': 'Biometric Authentication',
+      'settings.privacy': 'Privacy',
+      'settings.about': 'About',
+
+      // Error messages
+      'error.networkError': 'Network error. Please check your connection.',
+      'error.serverError': 'Server error. Please try again later.',
+      'error.invalidCredentials': 'Invalid email or password.',
+      'error.emailAlreadyExists': 'Email already exists.',
+      'error.weakPassword': 'Password is too weak.',
+      'error.invalidEmail': 'Invalid email format.',
+      'error.requiredField': 'This field is required.',
       
-      // Prize
-      'prize.position': 'Position',
-      'prize.amount': 'Amount',
-      'prize.first': '1st Place',
-      'prize.second': '2nd Place',
-      'prize.third': '3rd Place',
+      // Success messages
+      'success.profileUpdated': 'Profile updated successfully!',
+      'success.passwordChanged': 'Password changed successfully!',
+      'success.settingsSaved': 'Settings saved successfully!',
       
       // Currency
       'currency.euro': '€',
@@ -128,48 +164,61 @@ const resources = {
   it: {
     translation: {
       // Common
-      loading: 'Caricamento...',
-      error: 'Errore',
-      success: 'Successo',
-      cancel: 'Annulla',
-      confirm: 'Conferma',
-      back: 'Indietro',
-      next: 'Avanti',
-      finish: 'Fine',
-      save: 'Salva',
-      
-      // Authentication
-      login: 'Accedi',
-      logout: 'Esci',
-      'login.google': 'Accedi con Google',
-      'login.biometric': 'Usa Login Biometrico',
-      'auth.welcome': 'Benvenuto su FantaPay',
-      'auth.subtitle': 'Gestisci le tue competizioni fantasy e le vincite',
-      
+      'common.loading': 'Caricamento...',
+      'common.error': 'Errore',
+      'common.success': 'Successo',
+      'common.ok': 'OK',
+      'common.cancel': 'Annulla',
+      'common.save': 'Salva',
+      'common.delete': 'Elimina',
+      'common.edit': 'Modifica',
+      'common.back': 'Indietro',
+      'common.next': 'Avanti',
+      'common.previous': 'Precedente',
+      'common.confirm': 'Conferma',
+      'common.yes': 'Sì',
+      'common.no': 'No',
+
+      // Auth
+      'auth.login': 'Accedi',
+      'auth.logout': 'Esci',
+      'auth.signup': 'Registrati',
+      'auth.email': 'Email',
+      'auth.password': 'Password',
+      'auth.confirmPassword': 'Conferma Password',
+      'auth.forgotPassword': 'Password dimenticata?',
+      'auth.dontHaveAccount': 'Non hai un account?',
+      'auth.alreadyHaveAccount': 'Hai già un account?',
+      'auth.signupSuccess': 'Account creato con successo!',
+      'auth.loginSuccess': 'Accesso effettuato con successo!',
+      'auth.verifyOTP': 'Verifica OTP',
+      'auth.enterOTP': 'Inserisci il codice OTP inviato alla tua email',
+      'auth.resendOTP': 'Reinvia OTP',
+      'auth.otpVerified': 'OTP verificato con successo!',
+
       // Navigation
       'nav.home': 'Home',
       'nav.competitions': 'Competizioni',
       'nav.wallet': 'Portafoglio',
       'nav.profile': 'Profilo',
-      
+
       // Home
       'home.welcome': 'Bentornato!',
+      'home.balance': 'Il tuo Saldo',
+      'home.quickActions': 'Azioni Rapide',
+      'home.recentTransactions': 'Transazioni Recenti',
       'home.createCompetition': 'Crea Competizione',
       'home.joinCompetition': 'Unisciti Competizione',
-      'home.myWallet': 'Il Mio Portafoglio',
+      'home.wallet': 'Portafoglio',
       'home.logs': 'Log e Notifiche',
-      
+
       // Competition
       'competition.create.title': 'Crea Competizione',
       'competition.create.name': 'Nome Competizione',
-      'competition.create.rules': 'Regole',
-      'competition.create.invite': 'Invita Giocatori',
-      'competition.rules.daily': 'Premio Giornaliero',
-      'competition.rules.final': 'Montepremi Finale',
-      'competition.rules.mixed': 'Giornaliero + Finale',
+      'competition.create.rules': 'Seleziona Regole',
       'competition.join.title': 'Unisciti Competizione',
-      'competition.join.code': 'Inserisci Codice Invito',
-      'competition.join.link': 'O usa link invito',
+      'competition.join.code': 'Inserisci Codice',
+      'competition.details.title': 'Dettagli Competizione',
       'competition.standings': 'Classifica',
       'competition.participants': 'Partecipanti',
       'competition.wallet': 'Portafoglio Competizione',
@@ -206,26 +255,50 @@ const resources = {
       'competitions.enterCodeDescription': 'Inserisci il codice invito condiviso dall\'amministratore della competizione per unirti',
       'competitions.askAdminForCode': 'Chiedi il codice invito all\'amministratore della competizione',
       'competitions.useLinkComingSoon': 'Usa link invito (Prossimamente)',
+      'competitions.paymentInstructions': 'Istruzioni di Pagamento',
+      'competitions.paymentInstructionsDetail': 'Il pagamento per ogni giornata è richiesto prima dell\'inizio. Contatta l\'amministratore se hai problemi di pagamento.',
       
       // Wallet
       'wallet.balance': 'Saldo',
-      'wallet.topup': 'Ricarica',
+      'wallet.topUp': 'Ricarica',
       'wallet.withdraw': 'Preleva',
-      'wallet.transactions': 'Storico Transazioni',
-      'wallet.personal': 'Portafoglio Personale',
-      'wallet.competition': 'Portafoglio Competizione',
-      
+      'wallet.transactions': 'Transazioni',
+      'wallet.myWallet': 'Il mio Portafoglio',
+      'wallet.competitionWallets': 'Portafogli Competizione',
+      'wallet.totalPaid': 'Totale Pagato',
+      'wallet.totalOwed': 'Totale Dovuto',
+      'wallet.paymentHistory': 'Storico Pagamenti',
+
+      // Profile
+      'profile.title': 'Profilo',
+      'profile.settings': 'Impostazioni',
+      'profile.language': 'Lingua',
+      'profile.notifications': 'Notifiche',
+      'profile.security': 'Sicurezza',
+      'profile.biometric': 'Autenticazione Biometrica',
+      'profile.changePassword': 'Cambia Password',
+      'profile.deleteAccount': 'Elimina Account',
+
       // Settings
       'settings.language': 'Lingua',
-      'settings.biometric': 'Autenticazione Biometrica',
       'settings.notifications': 'Notifiche',
+      'settings.biometric': 'Autenticazione Biometrica',
+      'settings.privacy': 'Privacy',
+      'settings.about': 'Informazioni',
+
+      // Error messages
+      'error.networkError': 'Errore di rete. Controlla la connessione.',
+      'error.serverError': 'Errore del server. Riprova più tardi.',
+      'error.invalidCredentials': 'Email o password non validi.',
+      'error.emailAlreadyExists': 'Email già esistente.',
+      'error.weakPassword': 'Password troppo debole.',
+      'error.invalidEmail': 'Formato email non valido.',
+      'error.requiredField': 'Questo campo è obbligatorio.',
       
-      // Prize
-      'prize.position': 'Posizione',
-      'prize.amount': 'Importo',
-      'prize.first': '1° Posto',
-      'prize.second': '2° Posto',
-      'prize.third': '3° Posto',
+      // Success messages
+      'success.profileUpdated': 'Profilo aggiornato con successo!',
+      'success.passwordChanged': 'Password cambiata con successo!',
+      'success.settingsSaved': 'Impostazioni salvate con successo!',
       
       // Currency
       'currency.euro': '€',
@@ -247,17 +320,14 @@ const resources = {
   },
 };
 
-// Initialize i18next
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en', // default language
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false,
-    },
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en', // Default language
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 interface LanguageContextType {
   currentLanguage: string;
@@ -267,7 +337,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const useLanguage = () => {
+export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (!context) {
     throw new Error('useLanguage must be used within a LanguageProvider');
@@ -276,7 +346,7 @@ export const useLanguage = () => {
 };
 
 interface LanguageProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
@@ -288,8 +358,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   const loadSavedLanguage = async () => {
     try {
-      const savedLanguage = await AsyncStorage.getItem('selected_language');
-      if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'it')) {
+      const savedLanguage = await AsyncStorage.getItem('language');
+      if (savedLanguage) {
         setCurrentLanguage(savedLanguage);
         await i18n.changeLanguage(savedLanguage);
       }
@@ -300,13 +370,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   const changeLanguage = async (language: string) => {
     try {
-      if (language !== 'en' && language !== 'it') {
-        throw new Error('Unsupported language');
-      }
-
-      setCurrentLanguage(language);
       await i18n.changeLanguage(language);
-      await AsyncStorage.setItem('selected_language', language);
+      await AsyncStorage.setItem('language', language);
+      setCurrentLanguage(language);
     } catch (error) {
       console.error('Failed to change language:', error);
       throw error;
