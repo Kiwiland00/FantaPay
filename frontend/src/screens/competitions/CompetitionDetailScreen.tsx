@@ -12,8 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -35,32 +34,18 @@ interface Competition {
   name: string;
   admin_id: string;
   invite_code: string;
-  invite_link: string;
-  participants: Participant[];
-  current_matchday: number;
-  standings: any[];
-  wallet_balance: number;
-  is_active: boolean;
+  invite_link?: string;
+  participants?: Participant[];
+  current_matchday?: number;
+  standings?: any[];
+  wallet_balance?: number;
+  is_active?: boolean;
   total_matchdays?: number;
 }
 
 const CompetitionDetailScreen: React.FC = () => {
-  let navigation: any;
-  let route: any;
-  
-  try {
-    navigation = useNavigation();
-    route = useRoute();
-  } catch (error) {
-    console.error('Navigation hook error:', error);
-    // Fallback navigation
-    navigation = {
-      goBack: () => console.log('Go back'),
-      navigate: (name: string, params?: any) => console.log('Navigate to:', name, params)
-    };
-    route = { params: {} };
-  }
-
+  const navigation = useNavigation();
+  const route = useRoute();
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -70,12 +55,12 @@ const CompetitionDetailScreen: React.FC = () => {
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch actual competition data
+  // Fetch competition data
   useEffect(() => {
     if (competitionId) {
       loadCompetition();
     } else {
-      console.error('No competition ID provided');
+      console.error('❌ No competition ID provided');
       setIsLoading(false);
     }
   }, [competitionId]);
@@ -85,32 +70,29 @@ const CompetitionDetailScreen: React.FC = () => {
       setIsLoading(true);
       console.log('🔍 Loading competition with ID:', competitionId);
       
-      // Get competitions from storage and find the specific one
       const competitions = await competitionAPI.getMyCompetitionsMock();
-      console.log('📋 All competitions loaded:', competitions.length);
+      console.log('📋 All competitions:', competitions.length);
       
       const foundCompetition = competitions.find((comp: any) => {
-        console.log('🔎 Checking competition:', comp._id, 'vs target:', competitionId);
+        console.log('🔎 Checking:', comp._id, 'vs', competitionId);
         return comp._id === competitionId;
       });
       
       if (foundCompetition) {
         console.log('✅ Competition found:', foundCompetition.name);
         console.log('🔑 Invite code:', foundCompetition.invite_code);
-        console.log('👤 Admin ID:', foundCompetition.admin_id);
-        console.log('👥 Participants:', foundCompetition.participants?.length || 0);
-        
         setCompetition(foundCompetition);
       } else {
-        console.error('❌ Competition not found with ID:', competitionId);
-        console.log('📋 Available competition IDs:', competitions.map((c: any) => c._id));
-        
-        // Show error - competition not found
-        setCompetition(null);
+        console.error('❌ Competition not found');
+        Alert.alert('Error', 'Competition not found', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
       }
     } catch (error) {
       console.error('💥 Error loading competition:', error);
-      setCompetition(null);
+      Alert.alert('Error', 'Failed to load competition', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -124,44 +106,16 @@ const CompetitionDetailScreen: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
       Alert.alert(
-        t('success'),
+        'Success',
         'Competition deleted successfully',
-        [
-          {
-            text: t('common.ok'),
-            onPress: () => navigation.goBack(),
-          },
-        ]
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     },
     onError: (error: any) => {
       const errorMessage = error.message || 'Failed to delete competition';
-      Alert.alert(t('error'), errorMessage);
+      Alert.alert('Error', errorMessage);
     },
   });
-
-  // Check if current user is admin
-  const isAdmin = competition?.admin_id === user?.id;
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>{t('common.loading')}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (!competition) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Competition not found</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -171,33 +125,21 @@ const CompetitionDetailScreen: React.FC = () => {
 
   const handleCopyInviteCode = async () => {
     try {
-      await Clipboard.setStringAsync(competition.invite_code);
-      Alert.alert(t('success'), 'Invite code copied to clipboard!');
+      await Clipboard.setStringAsync(competition?.invite_code || '');
+      Alert.alert('Success', 'Invite code copied to clipboard!');
     } catch (error) {
-      Alert.alert(t('error'), 'Failed to copy invite code');
-    }
-  };
-
-  const handleShareInviteLink = async () => {
-    try {
-      await Share.share({
-        message: `Join my FantaPay competition: ${competition.name}\n\nInvite Code: ${competition.invite_code}\nLink: ${competition.invite_link}`,
-        title: `Join ${competition.name}`,
-      });
-    } catch (error) {
-      Alert.alert(t('error'), 'Failed to share invite link');
+      Alert.alert('Error', 'Failed to copy invite code');
     }
   };
 
   const handleDeleteCompetition = () => {
+    if (!competition) return;
+    
     Alert.alert(
       'Delete Competition',
       `Are you sure you want to delete "${competition.name}"? This action cannot be undone.`,
       [
-        {
-          text: t('common.cancel'),
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
@@ -211,10 +153,54 @@ const CompetitionDetailScreen: React.FC = () => {
     navigation.navigate('ParticipantPaymentHistory' as never, {
       participantId: participant.id,
       participantName: participant.name,
-      competitionName: competition.name,
-      competitionMatchdays: competition.total_matchdays || 36,
+      competitionName: competition?.name,
+      competitionMatchdays: competition?.total_matchdays || 36,
       paidMatchdays: participant.paid_matchdays || []
     } as never);
+  };
+
+  // Check if current user is admin
+  const isAdmin = competition?.admin_id === user?.id;
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading competition...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!competition) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={48} color="#FF3B30" />
+          <Text style={styles.errorTitle}>Competition Not Found</Text>
+          <Text style={styles.errorText}>
+            The competition you're looking for doesn't exist or has been deleted.
+          </Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const getPaymentStatus = (participant: Participant) => {
+    const currentMatchday = competition.current_matchday || 1;
+    const isPaid = participant.paid_matchdays?.includes(currentMatchday) || false;
+    return {
+      status: isPaid ? 'paid' : 'pending',
+      color: isPaid ? '#34C759' : '#FF3B30',
+      text: isPaid ? 'Paid' : 'Pending'
+    };
   };
 
   const getPositionStyle = (position: number) => {
@@ -224,18 +210,10 @@ const CompetitionDetailScreen: React.FC = () => {
     return { backgroundColor: '#2C2C2E', color: '#FFFFFF' };
   };
 
-  const getPaymentStatus = (participant: Participant) => {
-    const isPaidCurrentMatchday = participant.paid_matchdays.includes(mockCompetition.current_matchday);
-    return {
-      status: isPaidCurrentMatchday ? 'paid' : 'pending',
-      color: isPaidCurrentMatchday ? '#34C759' : '#FF3B30',
-      text: isPaidCurrentMatchday ? t('competitions.paid') : t('competitions.pending')
-    };
-  };
-
   const renderParticipantRow = (participant: Participant, index: number) => {
     const paymentStatus = getPaymentStatus(participant);
-    const positionStyle = getPositionStyle(participant.position || index + 1);
+    const position = participant.position || index + 1;
+    const positionStyle = getPositionStyle(position);
     
     return (
       <TouchableOpacity
@@ -250,7 +228,7 @@ const CompetitionDetailScreen: React.FC = () => {
         <View style={styles.participantLeft}>
           <View style={[styles.positionBadge, { backgroundColor: positionStyle.backgroundColor }]}>
             <Text style={[styles.positionText, { color: positionStyle.color }]}>
-              {participant.position || index + 1}
+              {position}
             </Text>
           </View>
           <View style={styles.participantInfo}>
@@ -264,7 +242,7 @@ const CompetitionDetailScreen: React.FC = () => {
               )}
             </Text>
             <Text style={styles.participantPoints}>
-              {participant.points} {t('competitions.points')}
+              {participant.points || 0} points
             </Text>
           </View>
         </View>
@@ -291,7 +269,7 @@ const CompetitionDetailScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={styles.headerBackButton}
           onPress={() => navigation.goBack()}
           activeOpacity={0.8}
         >
@@ -301,26 +279,22 @@ const CompetitionDetailScreen: React.FC = () => {
         <View style={styles.headerContent}>
           <Text style={styles.competitionName}>{competition.name}</Text>
           <Text style={styles.matchdayText}>
-            {t('competitions.matchday')} {competition.current_matchday || 1}
+            Matchday {competition.current_matchday || 1}
           </Text>
         </View>
 
-        {/* Admin Info Button with Delete Option */}
+        {/* Admin Controls */}
         {isAdmin && (
           <TouchableOpacity
-            style={styles.infoButton}
+            style={styles.adminButton}
             onPress={() => {
               Alert.alert(
-                t('competitions.info'),
-                '',
+                'Admin Controls',
+                'What would you like to do?',
                 [
                   {
-                    text: t('competitions.copyInvite'),
+                    text: 'Copy Invite Code',
                     onPress: handleCopyInviteCode,
-                  },
-                  {
-                    text: 'Share Link',
-                    onPress: handleShareInviteLink,
                   },
                   {
                     text: 'Delete Competition',
@@ -328,7 +302,7 @@ const CompetitionDetailScreen: React.FC = () => {
                     onPress: handleDeleteCompetition,
                   },
                   {
-                    text: t('common.cancel'),
+                    text: 'Cancel',
                     style: 'cancel',
                   },
                 ]
@@ -356,17 +330,17 @@ const CompetitionDetailScreen: React.FC = () => {
         <View style={styles.statsSection}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{competition.participants?.length || 0}</Text>
-            <Text style={styles.statLabel}>{t('competitions.participants')}</Text>
+            <Text style={styles.statLabel}>Participants</Text>
           </View>
           
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>€{competition.wallet_balance || 0}</Text>
-            <Text style={styles.statLabel}>{t('competitions.wallet')}</Text>
+            <Text style={styles.statValue}>€{(competition.wallet_balance || 0).toFixed(2)}</Text>
+            <Text style={styles.statLabel}>Wallet</Text>
           </View>
           
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{competition.current_matchday || 1}</Text>
-            <Text style={styles.statLabel}>{t('competitions.matchday')}</Text>
+            <Text style={styles.statLabel}>Matchday</Text>
           </View>
         </View>
 
@@ -376,7 +350,7 @@ const CompetitionDetailScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Admin Controls</Text>
             <View style={styles.adminCard}>
               <View style={styles.adminInfo}>
-                <Text style={styles.inviteCodeLabel}>{t('competitions.inviteCodeLabel')}</Text>
+                <Text style={styles.inviteCodeLabel}>Invite Code:</Text>
                 <Text style={styles.inviteCodeValue}>{competition.invite_code}</Text>
               </View>
               <TouchableOpacity
@@ -390,51 +364,25 @@ const CompetitionDetailScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Participants Table */}
+        {/* Participants Section */}
         <View style={styles.participantsSection}>
-          <Text style={styles.sectionTitle}>{t('competitions.standings')}</Text>
+          <Text style={styles.sectionTitle}>Standings</Text>
           
-          {/* Table Header */}
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, { flex: 1 }]}>
-              {t('logs.position')}
-            </Text>
-            <Text style={[styles.tableHeaderText, { flex: 3 }]}>
-              {t('logs.player')}
-            </Text>
-            <Text style={[styles.tableHeaderText, { flex: 2 }]}>
-              {t('logs.points')}
-            </Text>
-            <Text style={[styles.tableHeaderText, { flex: 2 }]}>
-              Payment
-            </Text>
-          </View>
-
-          {/* Participants List */}
-          <View style={styles.participantsList}>
-            {competition.participants && competition.participants.length > 0 ? (
-              competition.participants
+          {competition.participants && competition.participants.length > 0 ? (
+            <View style={styles.participantsList}>
+              {competition.participants
                 .sort((a, b) => (a.position || 0) - (b.position || 0))
-                .map((participant, index) => renderParticipantRow(participant, index))
-            ) : (
-              <View style={styles.emptyParticipants}>
-                <Text style={styles.emptyParticipantsText}>No participants yet</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Instructions */}
-        <View style={styles.instructionsSection}>
-          <View style={styles.instructionCard}>
-            <Ionicons name="information-circle" size={24} color="#007AFF" />
-            <View style={styles.instructionContent}>
-              <Text style={styles.instructionTitle}>How to view payment details</Text>
-              <Text style={styles.instructionText}>
-                Tap on any participant's payment status to see their detailed payment history for each matchday.
+                .map((participant, index) => renderParticipantRow(participant, index))}
+            </View>
+          ) : (
+            <View style={styles.emptyParticipants}>
+              <Ionicons name="people-outline" size={48} color="#8E8E93" />
+              <Text style={styles.emptyTitle}>No participants yet</Text>
+              <Text style={styles.emptyText}>
+                Share the invite code to get people to join
               </Text>
             </View>
-          </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -453,7 +401,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#2C2C2E',
   },
-  backButton: {
+  headerBackButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -475,7 +423,7 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     marginTop: 2,
   },
-  infoButton: {
+  adminButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -488,6 +436,46 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#8E8E93',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF3B30',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  backButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   statsSection: {
     flexDirection: 'row',
@@ -554,25 +542,9 @@ const styles = StyleSheet.create({
   participantsSection: {
     marginBottom: 24,
   },
-  tableHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#007AFF',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  tableHeaderText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
   participantsList: {
     backgroundColor: '#1C1C1E',
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   participantRow: {
@@ -637,60 +609,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  instructionsSection: {
-    marginBottom: 24,
-  },
-  instructionCard: {
-    flexDirection: 'row',
-    padding: 16,
+  emptyParticipants: {
+    alignItems: 'center',
+    padding: 48,
     backgroundColor: '#1C1C1E',
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#007AFF',
   },
-  instructionContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  instructionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  instructionText: {
-    fontSize: 12,
-    color: '#8E8E93',
-    lineHeight: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  errorText: {
+  emptyTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FF3B30',
-    textAlign: 'center',
+    color: '#FFFFFF',
+    marginTop: 16,
+    marginBottom: 8,
   },
-  emptyParticipants: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  emptyParticipantsText: {
+  emptyText: {
     fontSize: 14,
     color: '#8E8E93',
+    textAlign: 'center',
   },
 });
 
