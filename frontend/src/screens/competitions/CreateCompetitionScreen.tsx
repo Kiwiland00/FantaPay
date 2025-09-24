@@ -60,6 +60,14 @@ const CreateCompetitionScreen: React.FC = () => {
   // Validation timeout for debouncing
   const [validationTimeout, setValidationTimeout] = useState<NodeJS.Timeout | null>(null);
 
+  // Auto-calculate total prize pool when participation cost or expected teams change
+  useEffect(() => {
+    const costPerTeam = parseFloat(participationCostPerTeam) || 0;
+    const numTeams = parseInt(expectedTeams) || 0;
+    const calculatedTotal = costPerTeam * numTeams;
+    setTotalPrizePool(calculatedTotal.toString());
+  }, [participationCostPerTeam, expectedTeams]);
+
   // Real-time name validation
   useEffect(() => {
     const validateName = async () => {
