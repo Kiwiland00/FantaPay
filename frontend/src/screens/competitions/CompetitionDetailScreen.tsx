@@ -41,6 +41,31 @@ interface Competition {
   wallet_balance?: number;
   is_active?: boolean;
   total_matchdays?: number;
+  daily_payment_enabled?: boolean;
+  daily_payment_amount?: number;
+}
+
+interface MatchdayPayment {
+  _id: string;
+  user_id: string;
+  competition_id: string;
+  matchday: number;
+  amount: number;
+  status: 'paid' | 'pending';
+  paid_at?: string;
+}
+
+interface PaymentStatusTableParticipant {
+  user_id: string;
+  username: string;
+  name: string;
+  email: string;
+  matchday_payments: Array<{
+    matchday: number;
+    status: 'paid' | 'pending';
+    amount: number;
+    paid_at?: string;
+  }>;
 }
 
 const CompetitionDetailScreen: React.FC = () => {
