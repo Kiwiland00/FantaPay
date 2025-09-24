@@ -38,6 +38,7 @@ const CreateCompetitionScreen: React.FC = () => {
   // Form data
   const [competitionName, setCompetitionName] = useState('');
   const [selectedRule, setSelectedRule] = useState<'daily' | 'final' | 'mixed'>('daily');
+  const [totalMatchdays, setTotalMatchdays] = useState('36'); // Serie A default
   const [dailyPrize, setDailyPrize] = useState('10');
   const [finalPrizes, setFinalPrizes] = useState([
     { position: 1, amount: '100', description: '1st Place' },
