@@ -251,13 +251,14 @@ const CreateCompetitionScreen: React.FC = () => {
     <View style={styles.stepContainer}>
       <View style={styles.stepHeader}>
         <Ionicons name="trophy" size={48} color="#007AFF" />
-        <Text style={styles.stepTitle}>{t('competitions.competitionName')}</Text>
+        <Text style={styles.stepTitle}>Competition Details</Text>
         <Text style={styles.stepDescription}>
-          Choose a unique name for your competition
+          Set up your competition name and duration
         </Text>
       </View>
 
       <View style={styles.inputSection}>
+        <Text style={styles.fieldLabel}>{t('competitions.competitionName')}</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={[
@@ -295,6 +296,23 @@ const CreateCompetitionScreen: React.FC = () => {
             </Text>
           </View>
         )}
+
+        {/* Total Matchdays Input */}
+        <Text style={[styles.fieldLabel, { marginTop: 24 }]}>Total Matchdays</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={totalMatchdays}
+            onChangeText={setTotalMatchdays}
+            placeholder="36"
+            placeholderTextColor="#8E8E93"
+            keyboardType="numeric"
+            maxLength={3}
+          />
+        </View>
+        <Text style={styles.helperText}>
+          Enter the total number of matchdays (e.g., 38 for Premier League, 36 for Serie A)
+        </Text>
       </View>
     </View>
   );
