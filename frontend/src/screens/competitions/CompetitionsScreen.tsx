@@ -43,7 +43,13 @@ const CompetitionsScreen: React.FC = () => {
     refetch,
   } = useQuery({
     queryKey: ['myCompetitions'],
-    queryFn: competitionAPI.getMyCompetitions,
+    queryFn: () => {
+      // TEMPORARY: Use mock API for testing
+      if (competitionAPI.getMyCompetitionsMock) {
+        return competitionAPI.getMyCompetitionsMock();
+      }
+      return competitionAPI.getMyCompetitions();
+    },
   });
 
   const handleRefresh = async () => {
