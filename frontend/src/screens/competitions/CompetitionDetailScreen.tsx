@@ -203,36 +203,59 @@ const CompetitionDetailScreen: React.FC = () => {
       console.log('💳 Loading payment data for competition:', competitionId);
       
       const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
-      const paymentKey = `payments_${userId}_${competitionId}`;
-      const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
+      
+      // NEW APPROACH: Use clean participant status map with namespaced keys
+      const participantStatusKey = `participant_status_${userId}_${competitionId}`;
+      const storedStatus = await CrossPlatformStorage.getItem(participantStatusKey);
       
       let payments: MatchdayPayment[] = [];
+      const totalMatchdays = competition?.total_matchdays || 36;
+      const dailyAmount = competition?.daily_payment_amount || 5;
       
-      if (storedPayments) {
-        payments = JSON.parse(storedPayments);
-        console.log('💳 Loaded stored payments:', payments.length);
-      } else {
-        // Generate default payment status for all matchdays - ALL START AS UNPAID
-        const totalMatchdays = competition?.total_matchdays || 36;
+      if (storedStatus) {
+        // Parse existing clean status
+        const statusMap = JSON.parse(storedStatus);
+        console.log('💳 Loaded existing participant status:', Object.keys(statusMap).length, 'matchdays');
         
+        // Convert status map to payment array
         for (let i = 1; i <= totalMatchdays; i++) {
+          const status = statusMap[i] || 'pending'; // Default to pending if missing
           payments.push({
             _id: `payment_${i}`,
             user_id: userId,
             competition_id: competitionId,
             matchday: i,
-            amount: competition?.daily_payment_amount || 5,
-            status: 'pending', // ALL matchdays start as UNPAID/pending
+            amount: dailyAmount,
+            status: status as 'paid' | 'pending',
+            paid_at: status === 'paid' ? new Date().toISOString() : undefined
+          });
+        }
+      } else {
+        // Initialize clean participant status - ALL PENDING
+        console.log('💳 Initializing clean participant status - ALL PENDING');
+        const cleanStatusMap: { [key: number]: string } = {};
+        
+        // Create clean status map: ALL matchdays are PENDING
+        for (let i = 1; i <= totalMatchdays; i++) {
+          cleanStatusMap[i] = 'pending';
+          payments.push({
+            _id: `payment_${i}`,
+            user_id: userId,
+            competition_id: competitionId,
+            matchday: i,
+            amount: dailyAmount,
+            status: 'pending',
             paid_at: undefined
           });
         }
         
-        // Store initial payment status
-        await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(payments));
-        console.log('💳 Generated initial payment records - ALL UNPAID for', totalMatchdays, 'matchdays');
+        // Store clean status map
+        await CrossPlatformStorage.setItem(participantStatusKey, JSON.stringify(cleanStatusMap));
+        console.log('💳 Stored clean participant status for', totalMatchdays, 'matchdays - ALL PENDING');
       }
       
       setUserPayments(payments);
+      console.log('💳 Payment data loaded - Paid:', payments.filter(p => p.status === 'paid').length, 'Pending:', payments.filter(p => p.status === 'pending').length);
       
       // If user is admin, load payment status table
       if (competition?.admin_id === user?.id) {
