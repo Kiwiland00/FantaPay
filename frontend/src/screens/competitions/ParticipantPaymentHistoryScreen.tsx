@@ -64,10 +64,30 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Mock participant payment data
+      // Get actual competition data from API or route params
+      let competitionName = 'Competition'; // Default fallback
+      
+      try {
+        // Try to get competition data from API first
+        const competitionResponse = await competitionAPI.getCompetition(competitionId);
+        competitionName = competitionResponse.name;
+      } catch (error) {
+        // If API fails, try to get from route params or navigation state
+        const routeState = navigation.getState();
+        const currentRoute = routeState.routes[routeState.index];
+        
+        if (currentRoute?.params?.competitionName) {
+          competitionName = currentRoute.params.competitionName;
+        } else if (route.params?.competitionName) {
+          competitionName = route.params.competitionName;
+        }
+        
+        console.log('Using competition name from params:', competitionName);
+      }
+      
       const mockCompetition: Competition = {
         _id: competitionId,
-        name: 'Serie A Fantasy League 2024',
+        name: competitionName, // Use actual competition name instead of hardcoded
         total_matchdays: 36,
         daily_payment_enabled: true,
         daily_payment_amount: 5.0
@@ -75,14 +95,13 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
       
       const mockPayments: MatchdayPayment[] = [];
       
-      // Generate payment history for all matchdays
+      // CRITICAL FIX: All matchdays start as PENDING (0€ paid initially)
       for (let i = 1; i <= mockCompetition.total_matchdays; i++) {
-        const isPaid = i <= 8 || (i >= 15 && i <= 20) || i === 25; // Mock payment pattern
         mockPayments.push({
           matchday: i,
           amount: mockCompetition.daily_payment_amount,
-          status: isPaid ? 'paid' : 'pending',
-          paid_at: isPaid ? new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() : undefined
+          status: 'pending', // ALL start as pending - no pre-filled payments
+          paid_at: undefined // No payment dates initially
         });
       }
       
@@ -94,8 +113,8 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         username: participantName || 'FantaPay User',
         name: participantName || 'FantaPay User',
         email: 'user@fantapay.com',
-        total_paid: paidPayments.length * mockCompetition.daily_payment_amount,
-        total_pending: pendingPayments.length * mockCompetition.daily_payment_amount,
+        total_paid: paidPayments.length * mockCompetition.daily_payment_amount, // Will be 0€ initially
+        total_pending: pendingPayments.length * mockCompetition.daily_payment_amount, // All matchdays pending
         matchday_payments: mockPayments
       };
       
