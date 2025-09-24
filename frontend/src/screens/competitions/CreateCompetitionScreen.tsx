@@ -40,7 +40,10 @@ const CreateCompetitionScreen: React.FC = () => {
   ]);
 
   const createCompetitionMutation = useMutation({
-    mutationFn: competitionAPI.create,
+    mutationFn: (data: any) => {
+      // TEMPORARY: Use mock API for testing
+      return competitionAPI.createMock ? competitionAPI.createMock(data) : competitionAPI.create(data);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
       Alert.alert(
@@ -55,7 +58,8 @@ const CreateCompetitionScreen: React.FC = () => {
       );
     },
     onError: (error: any) => {
-      Alert.alert(t('error'), error.response?.data?.detail || 'Failed to create competition');
+      const errorMessage = error.message || error.response?.data?.detail || 'Failed to create competition';
+      Alert.alert(t('error'), errorMessage);
     },
   });
 
