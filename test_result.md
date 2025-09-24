@@ -227,7 +227,17 @@ frontend:
         agent: "main"
         comment: "Fintech-style dashboard with action cards, wallet balance, recent activity"
 
-  - task: "Competition Screens"
+  - task: "Frontend Integration - Financial Configuration"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/services/api.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Updated frontend API interfaces to include financial configuration fields in both real API and mock API methods. Updated create competition type definitions and mock implementation to store and log all financial fields."
     implemented: true
     working: "NA"
     file: "/app/frontend/src/screens/competitions/"
