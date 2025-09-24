@@ -282,8 +282,7 @@ metadata:
 test_plan:
   current_focus:
     - "Financial Configuration API Support"
-    - "Competition Management APIs"
-    - "Authentication System"
+    - "Frontend Integration - Financial Configuration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
