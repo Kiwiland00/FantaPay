@@ -58,10 +58,7 @@ const HomeScreen: React.FC = () => {
       titleKey: 'home.logs',
       iconName: 'notifications',
       colors: ['#AF52DE', '#BF5AF2'],
-      onPress: () => {
-        // Navigate to logs/notifications screen (to be implemented)
-        console.log('Navigate to logs');
-      },
+      onPress: () => navigation.navigate('Logs' as never),
     },
   ];
 
