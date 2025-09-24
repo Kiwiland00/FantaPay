@@ -308,15 +308,92 @@ export const competitionAPI = {
       total_matchdays: newCompetition.total_matchdays,
       participation_cost_per_team: newCompetition.participation_cost_per_team,
       expected_teams: newCompetition.expected_teams,
-      total_prize_pool: newCompetition.total_prize_pool
+      total_prize_pool: newCompetition.total_prize_pool,
+      daily_payment_enabled: newCompetition.daily_payment_enabled,
+      daily_payment_amount: newCompetition.daily_payment_amount
     });
-    
-    console.log('✅ Competition created and logged! New total:', existingCompetitions.length);
-    console.log('🆔 Competition ID:', newCompetition._id);
+
+    console.log('✅ Mock Competition Created:', newCompetition.name);
     console.log('📝 Competition Name:', newCompetition.name);
-    console.log('📅 Matchdays configured:', newCompetition.total_matchdays);
+    console.log('💰 Daily Payment:', newCompetition.daily_payment_enabled ? `€${newCompetition.daily_payment_amount} per matchday` : 'Disabled');
+    console.log('🏆 Total Prize Pool:', `€${newCompetition.total_prize_pool}`);
+    console.log('🔑 Invite Code:', newCompetition.invite_code);
+
+    return { data: newCompetition };
+  },
+
+  // Mock matchday payment methods
+  payMatchdaysMock: async (competitionId: string, matchdays: number[]) => {
+    console.log('💳 Mock: Paying for matchdays', matchdays, 'in competition', competitionId);
     
-    return newCompetition;
+    // Simulate payment processing
+    const totalCost = matchdays.length * 5; // €5 per matchday
+    
+    // Mock payment success
+    return {
+      data: {
+        message: `Successfully paid for ${matchdays.length} matchdays`,
+        paid_matchdays: matchdays,
+        total_cost: totalCost,
+        new_user_balance: 150 - totalCost // Mock remaining balance
+      }
+    };
+  },
+
+  getMatchdayPaymentsMock: async (competitionId: string) => {
+    console.log('📊 Mock: Getting matchday payments for competition', competitionId);
+    
+    // Mock payment data
+    const mockPayments = [];
+    for (let i = 1; i <= 36; i++) {
+      mockPayments.push({
+        _id: `payment_${i}`,
+        user_id: '650f1f1f1f1f1f1f1f1f1f1f',
+        competition_id: competitionId,
+        matchday: i,
+        amount: 5,
+        status: i <= 3 ? 'paid' : 'pending',
+        paid_at: i <= 3 ? new Date().toISOString() : null,
+        created_at: new Date().toISOString()
+      });
+    }
+
+    return {
+      data: {
+        competition_id: competitionId,
+        daily_payment_enabled: true,
+        daily_payment_amount: 5,
+        total_matchdays: 36,
+        payments: mockPayments
+      }
+    };
+  },
+
+  getPaymentStatusTableMock: async (competitionId: string) => {
+    console.log('🔐 Mock: Getting payment status table for competition', competitionId);
+    
+    // Mock admin payment table
+    const mockTable = [{
+      user_id: '650f1f1f1f1f1f1f1f1f1f1f',
+      username: 'FantaPay Tester',
+      name: 'FantaPay Tester',
+      email: 'test@fantapay.com',
+      matchday_payments: Array.from({length: 36}, (_, i) => ({
+        matchday: i + 1,
+        status: (i < 3 ? 'paid' : 'pending'),
+        amount: 5,
+        paid_at: i < 3 ? new Date().toISOString() : null
+      }))
+    }];
+
+    return {
+      data: {
+        competition_name: 'Mock Fantasy League',
+        total_matchdays: 36,
+        daily_payment_amount: 5,
+        participants: mockTable
+      }
+    };
   },
 
   // Real-time name validation
