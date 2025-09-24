@@ -40,20 +40,59 @@ const WalletScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const {
+    data: balance,
+    refetch: refetchBalance,
+  } = useQuery({
+    queryKey: ['walletBalance'],
+    queryFn: async () => {
+      // TEMPORARY: Use mock data for testing
+      console.log('💰 Mock: Getting wallet balance');
+      return { balance: 150.00 };
+    },
+  });
+
+  const {
     data: transactions = [],
     isLoading: transactionsLoading,
     refetch: refetchTransactions,
   } = useQuery({
     queryKey: ['transactions'],
-    queryFn: walletAPI.getTransactions,
-  });
-
-  const {
-    data: balance,
-    refetch: refetchBalance,
-  } = useQuery({
-    queryKey: ['walletBalance'],
-    queryFn: walletAPI.getBalance,
+    queryFn: async () => {
+      // TEMPORARY: Use mock transaction data for testing
+      console.log('💰 Mock: Getting transactions');
+      return [
+        {
+          _id: 'trans_1',
+          type: 'deposit',
+          amount: 50.00,
+          description: 'Wallet Top-up',
+          from_wallet: '',
+          to_wallet: '',
+          status: 'completed',
+          created_at: '2024-01-15T10:30:00Z'
+        },
+        {
+          _id: 'trans_2', 
+          type: 'payment',
+          amount: 25.00,
+          description: 'Serie A Fantasy - Entry Fee',
+          from_wallet: '',
+          to_wallet: '',
+          status: 'completed',
+          created_at: '2024-01-10T14:20:00Z'
+        },
+        {
+          _id: 'trans_3',
+          type: 'prize',
+          amount: 100.00,
+          description: 'Champions League Fantasy - 1st Place',
+          from_wallet: '',
+          to_wallet: '',
+          status: 'completed',
+          created_at: '2024-01-05T16:45:00Z'
+        }
+      ];
+    },
   });
 
   const topUpMutation = useMutation({
