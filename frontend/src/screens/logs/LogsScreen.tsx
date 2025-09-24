@@ -573,6 +573,59 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     textAlign: 'center',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#8E8E93',
+  },
+  competitionInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  adminInfo: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 2,
+  },
+  matchdayInfo: {
+    fontSize: 12,
+    color: '#007AFF',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: 12,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  activityIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#3C3C3E',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  activityTime: {
+    fontSize: 12,
+    color: '#8E8E93',
+  },
 });
 
 export default LogsScreen;
