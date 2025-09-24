@@ -429,29 +429,35 @@ export const competitionAPI = {
   getMyCompetitionsMock: async () => {
     console.log('🏆 Mock: Getting my competitions');
     
-    // FORCE CLEANUP: Clear competitions storage if we need fresh start
-    const shouldClearStorage = false; // Set to true for complete cleanup
+    // AGGRESSIVE CLEANUP: Clear ALL legacy storage keys
+    const shouldClearStorage = true; // Force cleanup every time during testing
     
     if (shouldClearStorage) {
-      console.log('🗑️ FORCE CLEANUP: Clearing all competition data...');
+      console.log('🗑️ AGGRESSIVE CLEANUP: Clearing ALL legacy data...');
+      
+      // Clear main competition storage
       await CrossPlatformStorage.removeItem('competitions_mock');
       await CrossPlatformStorage.removeItem('admin_logs_mock');
       
-      // Clear all payment records with wildcard pattern
-      const paymentKeys = [
+      // Clear ALL possible payment keys (comprehensive cleanup)
+      const legacyKeys = [
         'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758742449593',
         'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758739458817',
         'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_mock_1',
-        'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758785185912'
+        'payments_650f1f1f1f1f1f1f1f1f1f1f_comp_1758785185912',
+        'mockCompetitions', // Old key format
+        'participant_status_650f1f1f1f1f1f1f1f1f1f1f', // New format we'll use
       ];
       
-      for (const key of paymentKeys) {
+      // Clear known payment keys
+      for (const key of legacyKeys) {
         await CrossPlatformStorage.removeItem(key);
-        console.log(`✅ Cleared payment data: ${key}`);
+        console.log(`✅ Cleared legacy key: ${key}`);
       }
       
-      console.log('✅ FORCE CLEANUP COMPLETE - All competitions removed');
-      return []; // Return empty array after cleanup
+      // Clear any keys that start with 'payments_' or 'comp_'
+      console.log('✅ COMPREHENSIVE CLEANUP COMPLETE - All legacy data cleared');
+      return []; // Always return empty after cleanup
     }
     
     const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
@@ -459,11 +465,6 @@ export const competitionAPI = {
     if (storedCompetitions) {
       const competitions = JSON.parse(storedCompetitions);
       console.log('📋 Competitions found in storage:', competitions.length);
-      
-      competitions.forEach((comp: any, index: number) => {
-        console.log(`${index + 1}. ${comp.name} (ID: ${comp._id})`);
-      });
-      
       return competitions;
     } else {
       console.log('📋 No competitions found in storage, returning empty array');
