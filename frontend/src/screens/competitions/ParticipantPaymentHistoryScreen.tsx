@@ -106,7 +106,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
               {item.status === 'paid' ? t('competitions.paid') : t('competitions.pending')}
             </Text>
           </View>
-        </div>
+        </View>
       </View>
     );
   };
