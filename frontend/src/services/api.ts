@@ -299,7 +299,9 @@ export const competitionAPI = {
     
     // Add to competitions list and save to storage
     existingCompetitions.push(newCompetition);
-    await CrossPlatformStorage.setItem('mockCompetitions', JSON.stringify(existingCompetitions));
+    await CrossPlatformStorage.setItem('competitions_mock', JSON.stringify(existingCompetitions));
+    
+    console.log('✅ Competition saved to storage. Total competitions:', existingCompetitions.length);
     
     // Log the creation action
     await logAdminAction('create', newCompetition.name, 'FantaPay Tester', {
