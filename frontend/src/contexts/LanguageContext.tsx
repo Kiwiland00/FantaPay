@@ -211,6 +211,7 @@ const resources = {
       'home.createCompetition': 'Crea Competizione',
       'home.joinCompetition': 'Unisciti Competizione',
       'home.wallet': 'Portafoglio',
+      'home.myWallet': 'Il mio Portafoglio',
       'home.logs': 'Log e Notifiche',
 
       // Competition
