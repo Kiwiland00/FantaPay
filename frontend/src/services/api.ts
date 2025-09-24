@@ -271,6 +271,8 @@ export const competitionAPI = {
       participation_cost_per_team: data.participation_cost_per_team || 210.0,
       expected_teams: data.expected_teams || 8,
       total_prize_pool: data.total_prize_pool || 1680.0,
+      daily_payment_enabled: data.daily_payment_enabled || false,
+      daily_payment_amount: data.daily_payment_amount || 0.0,
       rules: data.rules,
       invite_code: Math.random().toString(36).substr(2, 8).toUpperCase(),
       invite_link: `https://fantapay.app/join/${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
