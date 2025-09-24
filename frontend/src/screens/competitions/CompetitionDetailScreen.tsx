@@ -552,6 +552,11 @@ const styles = StyleSheet.create({
   participantInfo: {
     flex: 1,
   },
+  participantActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   participantName: {
     fontSize: 16,
     fontWeight: '500',
