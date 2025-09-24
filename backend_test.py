@@ -635,6 +635,94 @@ class FantaPayTester:
         
         return success
     
+    def test_financial_config_defaults(self):
+        """Test competition creation with default financial configuration"""
+        try:
+            competition_data = {
+                "name": "Default Financial Config League",
+                "rules": {
+                    "type": "daily",
+                    "daily_prize": 25.0
+                }
+                # No financial fields specified - should use defaults
+            }
+            
+            response = self.make_request("POST", "/competitions", competition_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify default financial fields are applied
+                defaults_correct = (
+                    data.get("total_matchdays") == 36 and
+                    data.get("participation_cost_per_team") == 210.0 and
+                    data.get("expected_teams") == 8 and
+                    data.get("total_prize_pool") == 1680.0
+                )
+                
+                if defaults_correct:
+                    self.log_test("Financial Config Defaults", True, 
+                                f"Default financial values correctly applied: matchdays={data['total_matchdays']}, cost={data['participation_cost_per_team']}, teams={data['expected_teams']}, pool={data['total_prize_pool']}")
+                    return True
+                else:
+                    self.log_test("Financial Config Defaults", False, 
+                                f"Default values incorrect: matchdays={data.get('total_matchdays')}, cost={data.get('participation_cost_per_team')}, teams={data.get('expected_teams')}, pool={data.get('total_prize_pool')}")
+                    return False
+            else:
+                self.log_test("Financial Config Defaults", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Financial Config Defaults", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_custom_financial_config(self):
+        """Test competition creation with custom financial configuration"""
+        try:
+            competition_data = {
+                "name": "Custom Financial Config League",
+                "rules": {
+                    "type": "final",
+                    "final_prize_pool": [
+                        {"position": 1, "amount": 1200.0, "description": "Winner"}
+                    ]
+                },
+                # Custom financial values different from defaults
+                "total_matchdays": 38,
+                "participation_cost_per_team": 150.0,
+                "expected_teams": 12,
+                "total_prize_pool": 1800.0
+            }
+            
+            response = self.make_request("POST", "/competitions", competition_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify custom financial fields are stored correctly
+                custom_values_correct = (
+                    data.get("total_matchdays") == 38 and
+                    data.get("participation_cost_per_team") == 150.0 and
+                    data.get("expected_teams") == 12 and
+                    data.get("total_prize_pool") == 1800.0
+                )
+                
+                if custom_values_correct:
+                    self.log_test("Custom Financial Config", True, 
+                                f"Custom financial values correctly stored: matchdays={data['total_matchdays']}, cost={data['participation_cost_per_team']}, teams={data['expected_teams']}, pool={data['total_prize_pool']}")
+                    return True
+                else:
+                    self.log_test("Custom Financial Config", False, 
+                                f"Custom values incorrect: matchdays={data.get('total_matchdays')}, cost={data.get('participation_cost_per_team')}, teams={data.get('expected_teams')}, pool={data.get('total_prize_pool')}")
+                    return False
+            else:
+                self.log_test("Custom Financial Config", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Custom Financial Config", False, f"Exception: {str(e)}")
+            return False
+    
     def run_comprehensive_test(self):
         """Run all tests in sequence"""
         print("🚀 Starting FantaPay Backend API Comprehensive Test Suite")
