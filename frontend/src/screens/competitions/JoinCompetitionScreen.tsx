@@ -133,7 +133,7 @@ const JoinCompetitionScreen: React.FC = () => {
             <TouchableOpacity style={styles.linkButton} disabled>
               <Ionicons name="link" size={20} color="#8E8E93" />
               <Text style={styles.linkButtonText}>
-                Use invite link (Coming soon)
+                {t('competitions.useLinkComingSoon')}
               </Text>
             </TouchableOpacity>
           </View>
