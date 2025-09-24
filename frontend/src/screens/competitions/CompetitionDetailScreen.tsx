@@ -90,6 +90,9 @@ const CompetitionDetailScreen: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showAdminPaymentTable, setShowAdminPaymentTable] = useState(false);
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+  
+  // Real Wallet Balance State
+  const [userBalance, setUserBalance] = useState(0);
 
   // Fetch competition data
   useEffect(() => {
