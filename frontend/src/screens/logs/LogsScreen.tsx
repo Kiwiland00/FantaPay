@@ -265,6 +265,55 @@ const LogsScreen: React.FC = () => {
     return position <= 3 ? { color: '#FFFFFF', fontWeight: 'bold' } : { color: '#FFFFFF' };
   };
 
+  const getActivityIcon = (action: string) => {
+    switch (action) {
+      case 'create': return 'add-circle';
+      case 'edit': return 'create';
+      case 'delete': return 'trash';
+      case 'award_daily_prize': return 'trophy';
+      case 'payment': return 'card';
+      default: return 'information-circle';
+    }
+  };
+
+  const getActivityColor = (action: string) => {
+    switch (action) {
+      case 'create': return '#34C759';
+      case 'edit': return '#007AFF';
+      case 'delete': return '#FF3B30';
+      case 'award_daily_prize': return '#FF9500';
+      case 'payment': return '#30B0C7';
+      default: return '#8E8E93';
+    }
+  };
+
+  const formatActivityMessage = (log: any) => {
+    switch (log.action) {
+      case 'create':
+        return `Competition "${log.competition_name}" created by ${log.admin_name}`;
+      case 'edit':
+        return `Competition "${log.competition_name}" updated by ${log.admin_name}`;
+      case 'delete':
+        return `Competition "${log.competition_name}" deleted by ${log.admin_name}`;
+      case 'award_daily_prize':
+        return `Daily prize (€${log.details?.amount}) awarded to ${log.details?.winner} for matchday ${log.details?.matchday}`;
+      case 'payment':
+        return `${log.details?.participant} paid €${log.details?.amount} for matchday ${log.details?.matchday}`;
+      default:
+        return `${log.action} action performed by ${log.admin_name}`;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading competitions and logs...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
