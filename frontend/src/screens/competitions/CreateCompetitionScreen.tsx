@@ -650,6 +650,56 @@ const CreateCompetitionScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Daily Payment Configuration */}
+        <View style={styles.prizeSection}>
+          <Text style={styles.prizeSectionTitle}>Daily Payment Options</Text>
+          <Text style={styles.prizeDescription}>
+            Configure if participants need to pay daily fees for matchdays
+          </Text>
+          
+          {/* Daily Payment Toggle */}
+          <TouchableOpacity 
+            style={[styles.toggleContainer, dailyPaymentEnabled && styles.toggleActive]}
+            onPress={() => setDailyPaymentEnabled(!dailyPaymentEnabled)}
+          >
+            <View style={styles.toggleRow}>
+              <Ionicons 
+                name={dailyPaymentEnabled ? "checkmark-circle" : "ellipse-outline"} 
+                size={24} 
+                color={dailyPaymentEnabled ? "#34C759" : "#8E8E93"} 
+              />
+              <View style={styles.toggleContent}>
+                <Text style={styles.toggleTitle}>Enable Daily Payments</Text>
+                <Text style={styles.toggleDescription}>
+                  Participants pay per matchday instead of upfront
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Daily Payment Amount (only show if enabled) */}
+          {dailyPaymentEnabled && (
+            <View style={styles.dailyAmountSection}>
+              <Text style={styles.inputLabel}>Amount per Matchday</Text>
+              <View style={styles.amountInputContainer}>
+                <Text style={styles.currencySymbol}>€</Text>
+                <TextInput
+                  style={[styles.input, styles.priceInput]}
+                  value={dailyPaymentAmount}
+                  onChangeText={setDailyPaymentAmount}
+                  placeholder="5"
+                  placeholderTextColor="#8E8E93"
+                  keyboardType="numeric"
+                />
+              </View>
+              <Text style={styles.helperText}>
+                Total cost per participant: €{(parseFloat(dailyPaymentAmount) || 0) * (parseInt(totalMatchdays) || 0)} 
+                ({totalMatchdays} matchdays × €{dailyPaymentAmount || '0'})
+              </Text>
+            </View>
+          )}
+        </View>
+
         {/* Prize Distribution Info */}
         <View style={styles.distributionSection}>
           <Text style={styles.distributionTitle}>Prize Distribution</Text>
