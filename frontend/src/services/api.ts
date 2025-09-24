@@ -185,6 +185,11 @@ export const competitionAPI = {
       daily_prize?: number;
       final_prize_pool?: Array<{ position: number; amount: number; description: string }>;
     };
+    // Financial configuration fields
+    total_matchdays?: number;
+    participation_cost_per_team?: number;
+    expected_teams?: number;
+    total_prize_pool?: number;
   }) => apiClient.post('/competitions', data),
   
   join: (inviteCode: string) =>
