@@ -128,10 +128,10 @@ const LogsScreen: React.FC = () => {
 
   const renderCompetitionCard = (competition: Competition) => (
     <TouchableOpacity
-      key={competition.id}
+      key={competition._id}
       style={styles.competitionCard}
       onPress={() => setSelectedCompetition(
-        selectedCompetition === competition.id ? null : competition.id
+        selectedCompetition === competition._id ? null : competition._id
       )}
       activeOpacity={0.8}
     >
@@ -139,19 +139,28 @@ const LogsScreen: React.FC = () => {
         <View style={styles.competitionIcon}>
           <Ionicons name="trophy" size={20} color="#007AFF" />
         </View>
-        <Text style={styles.competitionName}>{competition.name}</Text>
+        <View style={styles.competitionInfo}>
+          <Text style={styles.competitionName}>{competition.name}</Text>
+          <Text style={styles.adminInfo}>
+            Admin: {competition.admin_name || 'Unknown'}
+            {competition.admin_id === user?.id && ' (You)'}
+          </Text>
+        </View>
         <Ionicons 
-          name={selectedCompetition === competition.id ? "chevron-up" : "chevron-down"} 
+          name={selectedCompetition === competition._id ? "chevron-up" : "chevron-down"} 
           size={20} 
           color="#8E8E93" 
         />
       </View>
 
-      {selectedCompetition === competition.id && (
+      {selectedCompetition === competition._id && (
         <View style={styles.competitionDetails}>
           {/* Payment Logs */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>{t('logs.payments') || 'Payment Logs'}</Text>
+            <Text style={styles.matchdayInfo}>
+              Matchday {competition.current_matchday} of {competition.total_matchdays}
+            </Text>
             {competition.participants.map((participant, index) => (
               <View key={index} style={styles.logItem}>
                 <View style={styles.participantInfo}>
@@ -161,7 +170,7 @@ const LogsScreen: React.FC = () => {
                     { color: participant.paid ? '#34C759' : '#FF3B30' }
                   ]}>
                     {participant.paid 
-                      ? `${t('logs.paid') || 'Paid'} €${participant.amount}` 
+                      ? `${t('logs.paid') || 'Paid'} €${participant.amount || 25}` 
                       : t('logs.notPaid') || 'Not Paid'
                     }
                   </Text>
@@ -211,6 +220,35 @@ const LogsScreen: React.FC = () => {
               ))}
             </View>
           </View>
+
+          {/* Recent Activity Logs for this Competition */}
+          {activityLogs.filter(log => log.competition_name === competition.name).length > 0 && (
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Recent Activity</Text>
+              {activityLogs
+                .filter(log => log.competition_name === competition.name)
+                .slice(0, 5)
+                .map((log, index) => (
+                  <View key={index} style={styles.activityItem}>
+                    <View style={styles.activityIcon}>
+                      <Ionicons 
+                        name={getActivityIcon(log.action)} 
+                        size={16} 
+                        color={getActivityColor(log.action)} 
+                      />
+                    </View>
+                    <View style={styles.activityContent}>
+                      <Text style={styles.activityText}>
+                        {formatActivityMessage(log)}
+                      </Text>
+                      <Text style={styles.activityTime}>
+                        {new Date(log.timestamp).toLocaleDateString()} at {new Date(log.timestamp).toLocaleTimeString()}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+            </View>
+          )}
         </View>
       )}
     </TouchableOpacity>
