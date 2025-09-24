@@ -482,6 +482,7 @@ const CompetitionDetailScreen: React.FC = () => {
                 await CrossPlatformStorage.setItem(adminLogsKey, JSON.stringify(logs));
                 console.log('✅ STEP 5: Payment logs created for matchdays:', selectedMatchdays);
                 
+                // Clear selected matchdays and close modal
                 setSelectedMatchdays([]);
                 setShowPaymentModal(false);
                 
@@ -490,9 +491,14 @@ const CompetitionDetailScreen: React.FC = () => {
                 
                 Alert.alert(successTitle, successMessage);
                 
-                // Reload competition data to reflect balance changes
+                console.log('🎉 ATOMIC PAYMENT OPERATION COMPLETED SUCCESSFULLY');
+                console.log('💰 Balance:', userBalance, '→', newBalance);
+                console.log('💳 Matchdays paid:', selectedMatchdays);
+                
+                // Refresh data to ensure UI consistency (no stale cache)
                 await loadCompetition();
                 await loadUserBalance();
+                await loadPaymentData(); // Reload from source of truth
               } catch (error) {
                 console.error('💥 Payment error:', error);
                 Alert.alert(
