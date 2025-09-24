@@ -611,6 +611,33 @@ const CompetitionDetailScreen: React.FC = () => {
             Select matchdays to pay for (€{competition?.daily_payment_amount || 5} each)
           </Text>
           
+          {/* Payment Summary Display */}
+          <View style={styles.paymentSummaryDisplay}>
+            <View style={styles.paymentStatCard}>
+              <Text style={styles.paymentStatNumber}>
+                {userPayments.filter(p => p.status === 'paid').length}
+              </Text>
+              <Text style={styles.paymentStatLabel}>Paid</Text>
+              <View style={[styles.paymentStatDot, styles.paymentStatPaid]} />
+            </View>
+            
+            <View style={styles.paymentStatCard}>
+              <Text style={styles.paymentStatNumber}>
+                {userPayments.filter(p => p.status === 'pending').length}
+              </Text>
+              <Text style={styles.paymentStatLabel}>Pending</Text>
+              <View style={[styles.paymentStatDot, styles.paymentStatPending]} />
+            </View>
+            
+            <View style={styles.paymentStatCard}>
+              <Text style={styles.paymentStatNumber}>
+                €{(userPayments.filter(p => p.status === 'paid').length * (competition?.daily_payment_amount || 5)).toFixed(0)}
+              </Text>
+              <Text style={styles.paymentStatLabel}>Total Paid</Text>
+              <View style={[styles.paymentStatDot, styles.paymentStatTotal]} />
+            </View>
+          </View>
+          
           <View style={styles.matchdayGrid}>
             {Array.from({length: competition?.total_matchdays || 36}, (_, i) => {
               const matchday = i + 1;
