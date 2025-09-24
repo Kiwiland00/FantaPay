@@ -164,6 +164,11 @@ export default function RootNavigator() {
             component={CompetitionDetailScreen}
             options={{ title: 'Competition Details' }}
           />
+          <Stack.Screen 
+            name="Logs" 
+            component={LogsScreen}
+            options={{ title: 'Logs & Notifications' }}
+          />
         </>
       )}
     </Stack.Navigator>
