@@ -679,6 +679,24 @@ async def create_competition(competition_data: CompetitionCreate, current_user: 
     competition_dict["created_at"] = datetime.now(timezone.utc)
     competition_dict["updated_at"] = datetime.now(timezone.utc)
     
+    # Ensure financial fields have default values if not provided
+    competition_dict["total_matchdays"] = competition_dict.get("total_matchdays", 36)
+    competition_dict["participation_cost_per_team"] = competition_dict.get("participation_cost_per_team", 210.0)
+    competition_dict["expected_teams"] = competition_dict.get("expected_teams", 8)
+    competition_dict["total_prize_pool"] = competition_dict.get("total_prize_pool", 1680.0)
+    
+    # Log the competition creation with financial details
+    await db.admin_logs.insert_one({
+        "_id": ObjectId(),
+        "admin_id": current_user.id,
+        "admin_username": current_user.username or current_user.name,
+        "competition_id": competition_dict["_id"],
+        "competition_name": competition_dict["name"],
+        "action": "create_competition",
+        "details": f"Created competition with total prize pool €{competition_dict['total_prize_pool']}, cost per team €{competition_dict['participation_cost_per_team']}, {competition_dict['expected_teams']} expected teams",
+        "timestamp": datetime.now(timezone.utc)
+    })
+    
     result = await db.competitions.insert_one(competition_dict)
     competition = Competition(**competition_dict)
     
