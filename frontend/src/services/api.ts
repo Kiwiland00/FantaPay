@@ -284,7 +284,12 @@ export const competitionAPI = {
     const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
     let competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
     
-    console.log('📋 Competitions found:', competitions.length);
+    console.log('📋 Competitions found in storage:', competitions.length);
+    
+    // Log each competition for debugging
+    competitions.forEach((comp: any, index: number) => {
+      console.log(`${index + 1}. ${comp.name} (ID: ${comp._id})`);
+    });
     
     return competitions;
   },
