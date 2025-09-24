@@ -140,13 +140,13 @@ const CompetitionDetailScreen: React.FC = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh delay
-    setTimeout(() => setRefreshing(false), 1000);
+    await loadCompetition();
+    setRefreshing(false);
   };
 
   const handleCopyInviteCode = async () => {
     try {
-      await Clipboard.setStringAsync(mockCompetition.invite_code);
+      await Clipboard.setStringAsync(competition.invite_code);
       Alert.alert(t('success'), 'Invite code copied to clipboard!');
     } catch (error) {
       Alert.alert(t('error'), 'Failed to copy invite code');
@@ -156,20 +156,39 @@ const CompetitionDetailScreen: React.FC = () => {
   const handleShareInviteLink = async () => {
     try {
       await Share.share({
-        message: `Join my FantaPay competition: ${mockCompetition.name}\n\nInvite Code: ${mockCompetition.invite_code}\nLink: ${mockCompetition.invite_link}`,
-        title: `Join ${mockCompetition.name}`,
+        message: `Join my FantaPay competition: ${competition.name}\n\nInvite Code: ${competition.invite_code}\nLink: ${competition.invite_link}`,
+        title: `Join ${competition.name}`,
       });
     } catch (error) {
       Alert.alert(t('error'), 'Failed to share invite link');
     }
   };
 
+  const handleDeleteCompetition = () => {
+    Alert.alert(
+      'Delete Competition',
+      `Are you sure you want to delete "${competition.name}"? This action cannot be undone.`,
+      [
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteCompetitionMutation.mutate(competition._id),
+        },
+      ]
+    );
+  };
+
   const handleViewPaymentHistory = (participant: Participant) => {
     navigation.navigate('ParticipantPaymentHistory' as never, {
       participantId: participant.id,
       participantName: participant.name,
-      competitionName: mockCompetition.name,
-      paymentHistory: []  // Will be populated in the screen
+      competitionName: competition.name,
+      competitionMatchdays: competition.total_matchdays || 36,
+      paidMatchdays: participant.paid_matchdays || []
     } as never);
   };
 
