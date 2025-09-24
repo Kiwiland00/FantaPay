@@ -20,6 +20,7 @@ import CompetitionsScreen from '../screens/competitions/CompetitionsScreen';
 import CreateCompetitionScreen from '../screens/competitions/CreateCompetitionScreen';
 import JoinCompetitionScreen from '../screens/competitions/JoinCompetitionScreen';
 import CompetitionDetailScreen from '../screens/competitions/CompetitionDetailScreen';
+import PaymentSummaryScreen from '../screens/competitions/PaymentSummaryScreen';
 import WalletScreen from '../screens/wallet/WalletScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
