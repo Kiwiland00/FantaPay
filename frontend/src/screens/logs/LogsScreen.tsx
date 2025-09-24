@@ -41,45 +41,89 @@ const LogsScreen: React.FC = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCompetition, setSelectedCompetition] = useState<string | null>(null);
+  const [joinedCompetitions, setJoinedCompetitions] = useState<Competition[]>([]);
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock joined competitions data
-  const joinedCompetitions: Competition[] = [
-    {
-      id: 'comp_1',
-      name: 'Serie A Fantasy 2024',
-      participants: [
-        { name: 'FantaPay Tester', paid: true, amount: 25 },
-        { name: 'Marco Rossi', paid: true, amount: 25 },
-        { name: 'Luca Bianchi', paid: false },
-        { name: 'Sofia Verde', paid: true, amount: 25 },
-      ],
-      standings: [
-        { position: 1, name: 'Marco Rossi', points: 87 },
-        { position: 2, name: 'FantaPay Tester', points: 82 },
-        { position: 3, name: 'Sofia Verde', points: 76 },
-        { position: 4, name: 'Luca Bianchi', points: 71 },
-      ]
-    },
-    {
-      id: 'comp_2', 
-      name: 'Champions League Fantasy',
-      participants: [
-        { name: 'FantaPay Tester', paid: true, amount: 50 },
-        { name: 'Andrea Nero', paid: false },
-        { name: 'Giulia Giallo', paid: true, amount: 50 },
-      ],
-      standings: [
-        { position: 1, name: 'FantaPay Tester', points: 94 },
-        { position: 2, name: 'Giulia Giallo', points: 89 },
-        { position: 3, name: 'Andrea Nero', points: 73 },
-      ]
+  // Load user's competitions and activity logs
+  useEffect(() => {
+    loadUserCompetitionsAndLogs();
+  }, []);
+
+  const loadUserCompetitionsAndLogs = async () => {
+    try {
+      setIsLoading(true);
+      console.log('📋 Loading competitions for user:', user?.id);
+      
+      // Get all competitions
+      const allCompetitions = await competitionAPI.getMyCompetitionsMock();
+      console.log('🔍 All competitions found:', allCompetitions.length);
+      
+      // Filter to only competitions the user is part of
+      const userCompetitions = allCompetitions.filter((comp: any) => {
+        const isParticipant = comp.participants?.some((p: any) => p.id === user?.id);
+        const isAdmin = comp.admin_id === user?.id;
+        console.log(`🔎 ${comp.name}: isParticipant=${isParticipant}, isAdmin=${isAdmin}`);
+        return isParticipant || isAdmin;
+      });
+      
+      console.log('✅ User competitions found:', userCompetitions.length);
+      
+      // Transform competitions data and add admin names
+      const transformedCompetitions: Competition[] = userCompetitions.map((comp: any) => {
+        const adminParticipant = comp.participants?.find((p: any) => p.id === comp.admin_id);
+        const adminName = adminParticipant?.name || 'Unknown Admin';
+        
+        return {
+          _id: comp._id,
+          name: comp.name,
+          admin_id: comp.admin_id,
+          admin_name: adminName,
+          current_matchday: comp.current_matchday || 1,
+          total_matchdays: comp.total_matchdays || 36,
+          participants: comp.participants?.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            paid: p.paid_matchdays?.includes(comp.current_matchday || 1) || false,
+            amount: p.paid_matchdays?.includes(comp.current_matchday || 1) ? 25 : undefined,
+            paid_matchdays: p.paid_matchdays || []
+          })) || [],
+          standings: comp.standings?.map((s: any, index: number) => ({
+            position: s.position || index + 1,
+            name: s.name,
+            points: s.points || 0
+          })) || []
+        };
+      });
+      
+      setJoinedCompetitions(transformedCompetitions);
+      
+      // Load activity logs
+      await loadActivityLogs();
+      
+    } catch (error) {
+      console.error('💥 Error loading competitions and logs:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const loadActivityLogs = async () => {
+    try {
+      // Load admin action logs from storage
+      const storedLogs = await competitionAPI.getAdminLogsMock?.() || [];
+      console.log('📝 Activity logs loaded:', storedLogs.length);
+      setActivityLogs(storedLogs);
+    } catch (error) {
+      console.error('💥 Error loading activity logs:', error);
+      setActivityLogs([]);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh delay
-    setTimeout(() => setRefreshing(false), 1000);
+    await loadUserCompetitionsAndLogs();
+    setRefreshing(false);
   };
 
   const renderCompetitionCard = (competition: Competition) => (
