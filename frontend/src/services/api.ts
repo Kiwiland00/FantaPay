@@ -623,4 +623,24 @@ export const walletAPI = {
   getTransactions: () => apiClient.get('/transactions'),
 };
 
+// Database reset utility (admin only)
+export const databaseAPI = {
+  resetDatabase: async () => {
+    console.log('🗑️ Resetting database - clearing all stored data');
+    
+    try {
+      await CrossPlatformStorage.removeItem('competitions_mock');
+      await CrossPlatformStorage.removeItem('admin_logs_mock');
+      await CrossPlatformStorage.removeItem('wallet_balance_650f1f1f1f1f1f1f1f1f1f1f');
+      await CrossPlatformStorage.removeItem('transactions_650f1f1f1f1f1f1f1f1f1f1f');
+      
+      console.log('✅ Database reset complete - all data cleared');
+      return { success: true, message: 'Database reset complete' };
+    } catch (error) {
+      console.error('❌ Database reset failed:', error);
+      return { success: false, message: 'Reset failed' };
+    }
+  },
+};
+
 export default apiClient;
