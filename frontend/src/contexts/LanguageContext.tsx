@@ -53,6 +53,7 @@ const resources = {
       'home.createCompetition': 'Create Competition',
       'home.joinCompetition': 'Join Competition',
       'home.wallet': 'Wallet',
+      'home.myWallet': 'My Wallet',
       'home.logs': 'Logs & Notifications',
 
       // Competition
