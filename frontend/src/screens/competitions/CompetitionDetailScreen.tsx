@@ -1292,6 +1292,49 @@ const styles = StyleSheet.create({
   paymentStatusPending: {
     backgroundColor: '#2A0A0A',
   },
+  // Payment Summary Display Styles
+  paymentSummaryDisplay: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    gap: 12,
+  },
+  paymentStatCard: {
+    flex: 1,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  paymentStatNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  paymentStatLabel: {
+    fontSize: 12,
+    color: '#8E8E93',
+    textAlign: 'center',
+  },
+  paymentStatDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  paymentStatPaid: {
+    backgroundColor: '#34C759',
+  },
+  paymentStatPending: {
+    backgroundColor: '#FF9500',
+  },
+  paymentStatTotal: {
+    backgroundColor: '#007AFF',
+  },
   // Admin Actions Styles
   adminCard: {
     backgroundColor: '#1C1C1E',
