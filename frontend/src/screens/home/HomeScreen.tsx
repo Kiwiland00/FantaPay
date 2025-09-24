@@ -15,7 +15,6 @@ import { useNavigation } from '@react-navigation/native';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { databaseAPI } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
