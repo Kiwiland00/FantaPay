@@ -200,6 +200,12 @@ const resources = {
       'competitions.info': 'Info',
       'competitions.copyInvite': 'Copia Link Invito',
       'competitions.inviteCodeLabel': 'Codice Invito:',
+      'competitions.joinSuccess': 'Ti sei unito alla competizione con successo!',
+      'competitions.enterCodeError': 'Inserisci un codice invito',
+      'competitions.validCodeError': 'Inserisci un codice invito valido',
+      'competitions.enterCodeDescription': 'Inserisci il codice invito condiviso dall\'amministratore della competizione per unirti',
+      'competitions.askAdminForCode': 'Chiedi il codice invito all\'amministratore della competizione',
+      'competitions.useLinkComingSoon': 'Usa link invito (Prossimamente)',
       
       // Wallet
       'wallet.balance': 'Saldo',
