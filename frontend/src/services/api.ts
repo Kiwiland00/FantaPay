@@ -1,6 +1,45 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+
+// Cross-platform storage utility
+class CrossPlatformStorage {
+  static async getItem(key: string): Promise<string | null> {
+    try {
+      // Try AsyncStorage first (works on both platforms)
+      return await AsyncStorage.getItem(key);
+    } catch (error) {
+      // Fallback to localStorage on web if AsyncStorage fails
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+      return null;
+    }
+  }
+
+  static async setItem(key: string, value: string): Promise<void> {
+    try {
+      // Try AsyncStorage first (works on both platforms)
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      // Fallback to localStorage on web if AsyncStorage fails
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, value);
+      }
+    }
+  }
+
+  static async removeItem(key: string): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch (error) {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  }
+}
 
 // Get backend URL from environment
 const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'https://fintech-fantapay.preview.emergentagent.com';
