@@ -198,6 +198,33 @@ const CompetitionDetailScreen: React.FC = () => {
     }
   };
 
+  const handleDeleteCompetition = () => {
+    Alert.alert(
+      'Delete Competition',
+      `Are you sure you want to delete "${competition?.name}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('🗑️ Deleting competition:', competition?._id);
+              
+              // Mock deletion - in real implementation, call API
+              Alert.alert('Success', 'Competition deleted successfully', [
+                { text: 'OK', onPress: () => navigation.goBack() }
+              ]);
+            } catch (error) {
+              console.error('💥 Error deleting competition:', error);
+              Alert.alert('Error', 'Failed to delete competition');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handlePayMatchdays = async () => {
     if (selectedMatchdays.length === 0) {
       Alert.alert('Error', 'Please select at least one matchday to pay for');
