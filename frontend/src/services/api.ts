@@ -216,6 +216,9 @@ export const competitionAPI = {
   createMock: async (data: {
     name: string;
     total_matchdays?: number;
+    participation_cost_per_team?: number;
+    expected_teams?: number;
+    total_prize_pool?: number;
     rules: {
       type: string;
       daily_prize?: number;
