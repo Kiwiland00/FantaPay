@@ -1272,6 +1272,56 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  // Daily Payment Configuration Styles
+  toggleContainer: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
+  },
+  toggleActive: {
+    borderColor: '#34C759',
+    backgroundColor: '#0A2A12',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  toggleContent: {
+    flex: 1,
+  },
+  toggleTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  toggleDescription: {
+    fontSize: 12,
+    color: '#8E8E93',
+    lineHeight: 16,
+  },
+  dailyAmountSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#2C2C2E',
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 8,
+    lineHeight: 16,
+  },
 });
 
 export default CreateCompetitionScreen;
