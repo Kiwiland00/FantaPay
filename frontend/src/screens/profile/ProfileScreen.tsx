@@ -49,20 +49,35 @@ const ProfileScreen: React.FC = () => {
     loadUserData();
   }, []);
 
-  const loadUserData = async () => {
+  // Real-time wallet balance sync - refresh every time screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUserBalance();
+    }, [])
+  );
+
+  const loadUserBalance = async () => {
     try {
-      // Load wallet balance
       const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
       const balanceKey = `wallet_balance_${userId}`;
       const storedBalance = await CrossPlatformStorage.getItem(balanceKey);
       
       if (storedBalance !== null) {
-        setUserBalance(parseFloat(storedBalance));
+        const newBalance = parseFloat(storedBalance);
+        setUserBalance(newBalance);
+        console.log('💰 Profile balance updated:', newBalance);
       } else {
         setUserBalance(0);
       }
+    } catch (error) {
+      console.error('💥 Error loading balance:', error);
+    }
+  };
 
+  const loadUserData = async () => {
+    try {
       // Load profile image preference
+      const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
       const profileImageKey = `profile_image_${userId}`;
       const storedProfileImage = await CrossPlatformStorage.getItem(profileImageKey);
       
@@ -70,7 +85,10 @@ const ProfileScreen: React.FC = () => {
         setSelectedProfileImage(storedProfileImage);
       }
       
-      console.log('👤 Profile data loaded - Balance:', storedBalance, 'Image:', storedProfileImage);
+      // Load initial balance
+      await loadUserBalance();
+      
+      console.log('👤 Profile data loaded - Image:', storedProfileImage);
     } catch (error) {
       console.error('💥 Error loading profile data:', error);
     }
