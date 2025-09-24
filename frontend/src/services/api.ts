@@ -240,6 +240,8 @@ export const competitionAPI = {
     participation_cost_per_team?: number;
     expected_teams?: number;
     total_prize_pool?: number;
+    daily_payment_enabled?: boolean;
+    daily_payment_amount?: number;
     rules: {
       type: string;
       daily_prize?: number;
