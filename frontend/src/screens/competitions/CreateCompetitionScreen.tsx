@@ -180,6 +180,8 @@ const CreateCompetitionScreen: React.FC = () => {
       participation_cost_per_team: parseFloat(participationCostPerTeam) || 210,
       expected_teams: parseInt(expectedTeams) || 8,
       total_prize_pool: parseFloat(totalPrizePool) || 1680,
+      daily_payment_enabled: dailyPaymentEnabled,
+      daily_payment_amount: dailyPaymentEnabled ? (parseFloat(dailyPaymentAmount) || 5) : 0,
       rules: getRulesData(),
     };
 
