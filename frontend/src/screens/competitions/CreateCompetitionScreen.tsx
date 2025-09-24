@@ -401,7 +401,7 @@ const CreateCompetitionScreen: React.FC = () => {
         <Ionicons name="cash" size={48} color="#007AFF" />
         <Text style={styles.stepTitle}>Configure Prizes</Text>
         <Text style={styles.stepDescription}>
-          Set the prize amounts for your competition
+          Set up your prize structure
         </Text>
       </View>
 
@@ -410,13 +410,16 @@ const CreateCompetitionScreen: React.FC = () => {
         {(selectedRule === 'daily' || selectedRule === 'mixed') && (
           <View style={styles.prizeSection}>
             <Text style={styles.prizeSectionTitle}>Daily Prize Amount</Text>
+            <Text style={styles.prizeDescription}>
+              Winner of each matchday receives this amount automatically
+            </Text>
             <View style={styles.amountInputContainer}>
               <Text style={styles.currencySymbol}>€</Text>
               <TextInput
                 style={[styles.input, styles.priceInput]}
                 value={dailyPrize}
                 onChangeText={setDailyPrize}
-                placeholder="10"
+                placeholder="5"
                 placeholderTextColor="#8E8E93"
                 keyboardType="numeric"
               />
@@ -424,15 +427,45 @@ const CreateCompetitionScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Final Prize Configuration */}
+        {/* Final Prize Slots Configuration */}
         {(selectedRule === 'final' || selectedRule === 'mixed') && (
           <View style={styles.prizeSection}>
-            <Text style={styles.prizeSectionTitle}>Final Prize Pool</Text>
+            <View style={styles.prizeSectionHeader}>
+              <Text style={styles.prizeSectionTitle}>Final Prize Pool</Text>
+              <TouchableOpacity
+                style={styles.addSlotButton}
+                onPress={addPrizeSlot}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="add-circle" size={24} color="#007AFF" />
+                <Text style={styles.addSlotText}>Add Slot</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.prizeDescription}>
+              Prizes distributed at competition end based on final standings
+            </Text>
+
             {finalPrizes.map((prize, index) => (
-              <View key={index} style={styles.prizeRow}>
-                <View style={styles.positionBadge}>
-                  <Text style={styles.positionText}>{prize.position}</Text>
+              <View key={index} style={styles.prizeSlot}>
+                <View style={styles.prizeSlotHeader}>
+                  <View style={styles.positionBadge}>
+                    <Text style={styles.positionText}>{prize.position}</Text>
+                  </View>
+                  <Text style={styles.slotTitle}>
+                    {getOrdinalSuffix(prize.position)} Place
+                  </Text>
+                  {finalPrizes.length > 1 && (
+                    <TouchableOpacity
+                      style={styles.removeSlotButton}
+                      onPress={() => removePrizeSlot(index)}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                    </TouchableOpacity>
+                  )}
                 </View>
+
                 <View style={styles.prizeInputs}>
                   <View style={styles.amountInputContainer}>
                     <Text style={styles.currencySymbol}>€</Text>
@@ -455,8 +488,46 @@ const CreateCompetitionScreen: React.FC = () => {
                 </View>
               </View>
             ))}
+
+            {finalPrizes.length === 0 && (
+              <View style={styles.emptyPrizesState}>
+                <Ionicons name="trophy-outline" size={48} color="#8E8E93" />
+                <Text style={styles.emptyPrizesText}>No prize slots added</Text>
+                <Text style={styles.emptyPrizesSubtext}>
+                  Tap "Add Slot" to create prize positions
+                </Text>
+              </View>
+            )}
           </View>
         )}
+
+        {/* Preview Summary */}
+        <View style={styles.previewSection}>
+          <Text style={styles.previewTitle}>Prize Summary</Text>
+          <View style={styles.previewCard}>
+            {(selectedRule === 'daily' || selectedRule === 'mixed') && (
+              <View style={styles.previewItem}>
+                <Ionicons name="calendar" size={16} color="#007AFF" />
+                <Text style={styles.previewText}>
+                  Daily: €{dailyPrize || '0'} per matchday winner
+                </Text>
+              </View>
+            )}
+            {(selectedRule === 'final' || selectedRule === 'mixed') && (
+              <View style={styles.previewItem}>
+                <Ionicons name="trophy" size={16} color="#007AFF" />
+                <Text style={styles.previewText}>
+                  Final: {finalPrizes.length} prize slot{finalPrizes.length !== 1 ? 's' : ''}
+                </Text>
+              </View>
+            )}
+            {finalPrizes.length > 0 && (
+              <Text style={styles.previewTotal}>
+                Total Pool: €{finalPrizes.reduce((sum, prize) => sum + (parseFloat(prize.amount) || 0), 0)}
+              </Text>
+            )}
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
