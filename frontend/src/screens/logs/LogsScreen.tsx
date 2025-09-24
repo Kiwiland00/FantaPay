@@ -4,377 +4,335 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Switch,
   RefreshControl,
+  TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { competitionAPI } from '../../services/api';
+
+interface ActivityLog {
+  _id: string;
+  admin_id: string;
+  admin_username: string;
+  competition_id: string;
+  competition_name: string;
+  action: 'create_competition' | 'edit_competition' | 'delete_competition' | 'matchday_payment' | 'daily_prize' | 'join_competition';
+  details: string;
+  timestamp: string;
+}
 
 interface Competition {
   _id: string;
   name: string;
   admin_id: string;
-  admin_name?: string;
-  participants: Array<{ 
-    id: string;
-    name: string; 
-    paid: boolean; 
-    amount?: number;
-    paid_matchdays?: number[];
-  }>;
-  standings: Array<{ position: number; name: string; points: number }>;
-  current_matchday: number;
-  total_matchdays: number;
+  participants?: Array<{ id: string; name: string; email: string }>;
 }
 
 const LogsScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { user } = useAuth();
   const { t } = useLanguage();
+  const { user } = useAuth();
   
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [selectedCompetition, setSelectedCompetition] = useState<string | null>(null);
-  const [joinedCompetitions, setJoinedCompetitions] = useState<Competition[]>([]);
-  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [userCompetitions, setUserCompetitions] = useState<Competition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'payments' | 'admin'>('all');
 
-  // Load user's competitions and activity logs
   useEffect(() => {
-    loadUserCompetitionsAndLogs();
+    loadLogs();
   }, []);
 
-  const loadUserCompetitionsAndLogs = async () => {
+  const loadLogs = async () => {
     try {
       setIsLoading(true);
-      console.log('📋 Loading competitions for user:', user?.id);
       
-      // Get all competitions
-      const allCompetitions = await competitionAPI.getMyCompetitionsMock();
-      console.log('🔍 All competitions found:', allCompetitions.length);
+      // Get user's competitions first
+      const competitions = await competitionAPI.getMyCompetitionsMock();
+      setUserCompetitions(competitions);
       
-      // Filter to only competitions the user is part of
-      const userCompetitions = allCompetitions.filter((comp: any) => {
-        const isParticipant = comp.participants?.some((p: any) => p.id === user?.id);
-        const isAdmin = comp.admin_id === user?.id;
-        console.log(`🔎 ${comp.name}: isParticipant=${isParticipant}, isAdmin=${isAdmin}`);
-        return isParticipant || isAdmin;
-      });
+      // Get all admin logs
+      const allLogs = await competitionAPI.getAdminLogsMock();
       
-      console.log('✅ User competitions found:', userCompetitions.length);
+      // Filter logs to only show competitions the user is involved in
+      const userCompetitionIds = competitions.map((comp: Competition) => comp._id);
+      const filteredLogs = allLogs.filter((log: ActivityLog) => 
+        userCompetitionIds.includes(log.competition_id)
+      );
       
-      // Transform competitions data and add admin names
-      const transformedCompetitions: Competition[] = userCompetitions.map((comp: any) => {
-        const adminParticipant = comp.participants?.find((p: any) => p.id === comp.admin_id);
-        const adminName = adminParticipant?.name || 'Unknown Admin';
-        
-        return {
-          _id: comp._id,
-          name: comp.name,
-          admin_id: comp.admin_id,
-          admin_name: adminName,
-          current_matchday: comp.current_matchday || 1,
-          total_matchdays: comp.total_matchdays || 36,
-          participants: comp.participants?.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            paid: p.paid_matchdays?.includes(comp.current_matchday || 1) || false,
-            amount: p.paid_matchdays?.includes(comp.current_matchday || 1) ? 25 : undefined,
-            paid_matchdays: p.paid_matchdays || []
-          })) || [],
-          standings: comp.standings?.map((s: any, index: number) => ({
-            position: s.position || index + 1,
-            name: s.name,
-            points: s.points || 0
-          })) || []
-        };
-      });
-      
-      setJoinedCompetitions(transformedCompetitions);
-      
-      // Load activity logs
-      await loadActivityLogs();
-      
+      console.log('📝 Activity logs loaded:', filteredLogs.length);
+      setLogs(filteredLogs);
     } catch (error) {
-      console.error('💥 Error loading competitions and logs:', error);
+      console.error('💥 Error loading logs:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loadActivityLogs = async () => {
-    try {
-      // Load admin action logs from storage
-      const storedLogs = await competitionAPI.getAdminLogsMock?.() || [];
-      console.log('📝 Activity logs loaded:', storedLogs.length);
-      setActivityLogs(storedLogs);
-    } catch (error) {
-      console.error('💥 Error loading activity logs:', error);
-      setActivityLogs([]);
-    }
-  };
-
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadUserCompetitionsAndLogs();
+    await loadLogs();
     setRefreshing(false);
   };
 
-  const renderCompetitionCard = (competition: Competition) => (
-    <TouchableOpacity
-      key={competition._id}
-      style={styles.competitionCard}
-      onPress={() => setSelectedCompetition(
-        selectedCompetition === competition._id ? null : competition._id
-      )}
-      activeOpacity={0.8}
-    >
-      <View style={styles.competitionHeader}>
-        <View style={styles.competitionIcon}>
-          <Ionicons name="trophy" size={20} color="#007AFF" />
-        </View>
-        <View style={styles.competitionInfo}>
-          <Text style={styles.competitionName}>{competition.name}</Text>
-          <Text style={styles.adminInfo}>
-            Admin: {competition.admin_name || 'Unknown'}
-            {competition.admin_id === user?.id && ' (You)'}
-          </Text>
-        </View>
-        <Ionicons 
-          name={selectedCompetition === competition._id ? "chevron-up" : "chevron-down"} 
-          size={20} 
-          color="#8E8E93" 
-        />
-      </View>
+  const getFilteredLogs = () => {
+    switch (selectedFilter) {
+      case 'payments':
+        return logs.filter(log => log.action === 'matchday_payment');
+      case 'admin':
+        return logs.filter(log => ['create_competition', 'edit_competition', 'delete_competition', 'daily_prize'].includes(log.action));
+      default:
+        return logs;
+    }
+  };
 
-      {selectedCompetition === competition._id && (
-        <View style={styles.competitionDetails}>
-          {/* Payment Logs */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>{t('logs.payments') || 'Payment Logs'}</Text>
-            <Text style={styles.matchdayInfo}>
-              Matchday {competition.current_matchday} of {competition.total_matchdays}
-            </Text>
-            {competition.participants.map((participant, index) => (
-              <View key={index} style={styles.logItem}>
-                <View style={styles.participantInfo}>
-                  <Text style={styles.participantName}>{participant.name}</Text>
-                  <Text style={[
-                    styles.paymentStatus,
-                    { color: participant.paid ? '#34C759' : '#FF3B30' }
-                  ]}>
-                    {participant.paid 
-                      ? `${t('logs.paid') || 'Paid'} €${participant.amount || 25}` 
-                      : t('logs.notPaid') || 'Not Paid'
-                    }
-                  </Text>
-                </View>
+  const getActionIcon = (action: string) => {
+    switch (action) {
+      case 'create_competition':
+        return { name: 'add-circle', color: '#34C759' };
+      case 'edit_competition':
+        return { name: 'pencil', color: '#007AFF' };
+      case 'delete_competition':
+        return { name: 'trash', color: '#FF3B30' };
+      case 'matchday_payment':
+        return { name: 'card', color: '#30D158' };
+      case 'daily_prize':
+        return { name: 'trophy', color: '#FF9500' };
+      case 'join_competition':
+        return { name: 'person-add', color: '#5AC8FA' };
+      default:
+        return { name: 'information-circle', color: '#8E8E93' };
+    }
+  };
+
+  const getActionColor = (action: string) => {
+    switch (action) {
+      case 'create_competition':
+      case 'matchday_payment':
+        return '#34C759';
+      case 'edit_competition':
+        return '#007AFF';
+      case 'delete_competition':
+        return '#FF3B30';
+      case 'daily_prize':
+        return '#FF9500';
+      case 'join_competition':
+        return '#5AC8FA';
+      default:
+        return '#8E8E93';
+    }
+  };
+
+  const getActionDisplayName = (action: string) => {
+    switch (action) {
+      case 'create_competition':
+        return 'Competition Created';
+      case 'edit_competition':
+        return 'Competition Edited';
+      case 'delete_competition':
+        return 'Competition Deleted';
+      case 'matchday_payment':
+        return 'Matchday Payment';
+      case 'daily_prize':
+        return 'Daily Prize Awarded';
+      case 'join_competition':
+        return 'User Joined';
+      default:
+        return 'Activity';
+    }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffInHours < 168) { // 7 days
+      return date.toLocaleDateString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+  };
+
+  const isPaymentAction = (action: string) => {
+    return action === 'matchday_payment';
+  };
+
+  const getPaymentStatus = (details: string) => {
+    // Extract payment information from details
+    if (details.includes('Paid for matchdays:')) {
+      return 'paid';
+    }
+    return 'pending';
+  };
+
+  const renderLogItem = ({ item }: { item: ActivityLog }) => {
+    const actionIcon = getActionIcon(item.action);
+    const actionColor = getActionColor(item.action);
+    const isPayment = isPaymentAction(item.action);
+    const paymentStatus = isPayment ? getPaymentStatus(item.details) : null;
+
+    return (
+      <View style={styles.logItem}>
+        <View style={styles.logHeader}>
+          <View style={styles.logIconContainer}>
+            <View style={[styles.logIconBg, { backgroundColor: `${actionColor}20` }]}>
+              <Ionicons name={actionIcon.name as any} size={20} color={actionColor} />
+            </View>
+            {isPayment && (
+              <View style={[
+                styles.paymentStatusIndicator,
+                paymentStatus === 'paid' ? styles.paymentStatusPaid : styles.paymentStatusPending
+              ]}>
                 <Ionicons
-                  name={participant.paid ? "checkmark-circle" : "close-circle"}
-                  size={20}
-                  color={participant.paid ? '#34C759' : '#FF3B30'}
+                  name={paymentStatus === 'paid' ? "checkmark" : "time"}
+                  size={12}
+                  color={paymentStatus === 'paid' ? "#34C759" : "#FF9500"}
                 />
               </View>
-            ))}
+            )}
           </View>
-
-          {/* Standings Table */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>{t('logs.standings') || 'Current Standings'}</Text>
-            <View style={styles.standingsTable}>
-              <View style={styles.standingsHeader}>
-                <Text style={[styles.standingsHeaderText, { flex: 1 }]}>
-                  {t('logs.position') || 'Pos'}
-                </Text>
-                <Text style={[styles.standingsHeaderText, { flex: 3 }]}>
-                  {t('logs.player') || 'Player'}
-                </Text>
-                <Text style={[styles.standingsHeaderText, { flex: 2 }]}>
-                  {t('logs.points') || 'Points'}
-                </Text>
-              </View>
-              {competition.standings.map((standing, index) => (
-                <View key={index} style={[
-                  styles.standingsRow,
-                  standing.name === user?.name && styles.myStandingRow
+          
+          <View style={styles.logContent}>
+            <View style={styles.logTitleRow}>
+              <Text style={styles.logAction}>{getActionDisplayName(item.action)}</Text>
+              <Text style={styles.logTimestamp}>{formatTimestamp(item.timestamp)}</Text>
+            </View>
+            
+            <Text style={styles.logCompetition}>{item.competition_name}</Text>
+            
+            <View style={styles.logDetailsRow}>
+              <Text style={styles.logAdmin}>Admin: {item.admin_username}</Text>
+              {isPayment && (
+                <View style={[
+                  styles.paymentBadge,
+                  paymentStatus === 'paid' ? styles.paymentBadgePaid : styles.paymentBadgePending
                 ]}>
-                  <View style={[styles.positionBadge, getPositionStyle(standing.position)]}>
-                    <Text style={[styles.positionText, getPositionTextStyle(standing.position)]}>
-                      {standing.position}
-                    </Text>
-                  </View>
                   <Text style={[
-                    styles.standingPlayerName,
-                    standing.name === user?.name && styles.myPlayerName
+                    styles.paymentBadgeText,
+                    paymentStatus === 'paid' ? styles.paymentBadgeTextPaid : styles.paymentBadgeTextPending
                   ]}>
-                    {standing.name}
+                    {paymentStatus === 'paid' ? '✓ PAID' : '⏳ PENDING'}
                   </Text>
-                  <Text style={styles.standingPoints}>{standing.points}</Text>
                 </View>
-              ))}
+              )}
             </View>
+            
+            <Text style={styles.logDetails}>{item.details}</Text>
           </View>
-
-          {/* Recent Activity Logs for this Competition */}
-          {activityLogs.filter(log => log.competition_name === competition.name).length > 0 && (
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-              {activityLogs
-                .filter(log => log.competition_name === competition.name)
-                .slice(0, 5)
-                .map((log, index) => (
-                  <View key={index} style={styles.activityItem}>
-                    <View style={styles.activityIcon}>
-                      <Ionicons 
-                        name={getActivityIcon(log.action)} 
-                        size={16} 
-                        color={getActivityColor(log.action)} 
-                      />
-                    </View>
-                    <View style={styles.activityContent}>
-                      <Text style={styles.activityText}>
-                        {formatActivityMessage(log)}
-                      </Text>
-                      <Text style={styles.activityTime}>
-                        {new Date(log.timestamp).toLocaleDateString()} at {new Date(log.timestamp).toLocaleTimeString()}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-            </View>
-          )}
         </View>
-      )}
+      </View>
+    );
+  };
+
+  const renderFilterButton = (filter: string, label: string, count?: number) => (
+    <TouchableOpacity
+      style={[
+        styles.filterButton,
+        selectedFilter === filter && styles.filterButtonActive
+      ]}
+      onPress={() => setSelectedFilter(filter as any)}
+    >
+      <Text style={[
+        styles.filterButtonText,
+        selectedFilter === filter && styles.filterButtonTextActive
+      ]}>
+        {label}
+        {count !== undefined && ` (${count})`}
+      </Text>
     </TouchableOpacity>
   );
 
-  const getPositionStyle = (position: number) => {
-    if (position === 1) return { backgroundColor: '#FFD700' };
-    if (position === 2) return { backgroundColor: '#C0C0C0' };
-    if (position === 3) return { backgroundColor: '#CD7F32' };
-    return { backgroundColor: '#8E8E93' };
-  };
-
-  const getPositionTextStyle = (position: number) => {
-    return position <= 3 ? { color: '#FFFFFF', fontWeight: 'bold' } : { color: '#FFFFFF' };
-  };
-
-  const getActivityIcon = (action: string) => {
-    switch (action) {
-      case 'create': return 'add-circle';
-      case 'edit': return 'create';
-      case 'delete': return 'trash';
-      case 'award_daily_prize': return 'trophy';
-      case 'payment': return 'card';
-      default: return 'information-circle';
-    }
-  };
-
-  const getActivityColor = (action: string) => {
-    switch (action) {
-      case 'create': return '#34C759';
-      case 'edit': return '#007AFF';
-      case 'delete': return '#FF3B30';
-      case 'award_daily_prize': return '#FF9500';
-      case 'payment': return '#30B0C7';
-      default: return '#8E8E93';
-    }
-  };
-
-  const formatActivityMessage = (log: any) => {
-    switch (log.action) {
-      case 'create':
-        return `Competition "${log.competition_name}" created by ${log.admin_name}`;
-      case 'edit':
-        return `Competition "${log.competition_name}" updated by ${log.admin_name}`;
-      case 'delete':
-        return `Competition "${log.competition_name}" deleted by ${log.admin_name}`;
-      case 'award_daily_prize':
-        return `Daily prize (€${log.details?.amount}) awarded to ${log.details?.winner} for matchday ${log.details?.matchday}`;
-      case 'payment':
-        return `${log.details?.participant} paid €${log.details?.amount} for matchday ${log.details?.matchday}`;
-      default:
-        return `${log.action} action performed by ${log.admin_name}`;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading competitions and logs...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const filteredLogs = getFilteredLogs();
+  const paymentLogsCount = logs.filter(log => log.action === 'matchday_payment').length;
+  const adminLogsCount = logs.filter(log => ['create_competition', 'edit_competition', 'delete_competition', 'daily_prize'].includes(log.action)).length;
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            tintColor="#007AFF"
-          />
-        }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>{t('nav.logs') || 'Logs & Notifications'}</Text>
-        </View>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Logs & Notifications</Text>
+        <View style={{ width: 24 }} />
+      </View>
 
-        {/* Notifications Toggle */}
-        <View style={styles.notificationSection}>
-          <View style={styles.notificationCard}>
-            <View style={styles.notificationHeader}>
-              <Ionicons name="notifications" size={24} color="#007AFF" />
-              <Text style={styles.notificationTitle}>
-                {t('settings.notifications') || 'App Notifications'}
-              </Text>
-            </View>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-              trackColor={{ false: '#2C2C2E', true: '#007AFF' }}
-              thumbColor={notificationsEnabled ? '#FFFFFF' : '#8E8E93'}
-            />
+      {/* Filter Tabs */}
+      <View style={styles.filtersContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersContent}>
+          {renderFilterButton('all', 'All', logs.length)}
+          {renderFilterButton('payments', 'Payments', paymentLogsCount)}
+          {renderFilterButton('admin', 'Admin Actions', adminLogsCount)}
+        </ScrollView>
+      </View>
+
+      {/* Stats Cards */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Ionicons name="card" size={20} color="#34C759" />
+          <View style={styles.statContent}>
+            <Text style={styles.statNumber}>{paymentLogsCount}</Text>
+            <Text style={styles.statLabel}>Payments</Text>
           </View>
-          <Text style={styles.notificationSubtitle}>
-            {t('logs.notificationDesc') || 'Receive updates about competitions, payments, and standings'}
-          </Text>
         </View>
+        
+        <View style={styles.statCard}>
+          <Ionicons name="settings" size={20} color="#007AFF" />
+          <View style={styles.statContent}>
+            <Text style={styles.statNumber}>{adminLogsCount}</Text>
+            <Text style={styles.statLabel}>Admin Actions</Text>
+          </View>
+        </View>
+        
+        <View style={styles.statCard}>
+          <Ionicons name="people" size={20} color="#5AC8FA" />
+          <View style={styles.statContent}>
+            <Text style={styles.statNumber}>{userCompetitions.length}</Text>
+            <Text style={styles.statLabel}>Competitions</Text>
+          </View>
+        </View>
+      </View>
 
-        {/* Joined Competitions */}
-        <View style={styles.competitionsSection}>
-          <Text style={styles.sectionHeader}>
-            {t('logs.joinedCompetitions') || 'My Competitions'}
-          </Text>
-          {joinedCompetitions.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="trophy-outline" size={48} color="#8E8E93" />
-              <Text style={styles.emptyTitle}>
-                {t('logs.noCompetitions') || 'No competitions joined'}
-              </Text>
-              <Text style={styles.emptyDescription}>
-                {t('logs.joinFirst') || 'Join a competition to see logs and standings here'}
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.competitionsList}>
-              {joinedCompetitions.map(renderCompetitionCard)}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+      {/* Logs List */}
+      <View style={styles.logsContainer}>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading activity logs...</Text>
+          </View>
+        ) : filteredLogs.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="document-text-outline" size={48} color="#48484A" />
+            <Text style={styles.emptyTitle}>No Activity Yet</Text>
+            <Text style={styles.emptySubtitle}>
+              {selectedFilter === 'all'
+                ? 'Create or join competitions to see activity logs'
+                : selectedFilter === 'payments'
+                ? 'No payment activities found'
+                : 'No admin actions recorded'
+              }
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredLogs}
+            keyExtractor={(item) => item._id}
+            renderItem={renderLogItem}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            }
+            contentContainerStyle={styles.logsList}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -384,194 +342,76 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
-  },
   header: {
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  notificationSection: {
-    marginBottom: 32,
-  },
-  notificationCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1C1C1E',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  notificationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  notificationTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  notificationSubtitle: {
-    fontSize: 12,
-    color: '#8E8E93',
-    paddingHorizontal: 4,
-  },
-  competitionsSection: {
-    flex: 1,
-  },
-  sectionHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 16,
-  },
-  competitionsList: {
-    gap: 12,
-  },
-  competitionCard: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
-    padding: 16,
-  },
-  competitionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  competitionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#2C2C2E',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  competitionName: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  competitionDetails: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#2C2C2E',
-  },
-  sectionContainer: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#007AFF',
-    marginBottom: 12,
-  },
-  logItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#2C2C2E',
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  participantInfo: {
-    flex: 1,
-  },
-  participantName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  paymentStatus: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  standingsTable: {
-    backgroundColor: '#2C2C2E',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  standingsHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  standingsHeaderText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  standingsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#3C3C3E',
+    borderBottomColor: '#2C2C2E',
   },
-  myStandingRow: {
-    backgroundColor: '#007AFF20',
-  },
-  positionBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  positionText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  standingPlayerName: {
-    flex: 3,
-    fontSize: 14,
-    color: '#FFFFFF',
-    paddingRight: 16,
-  },
-  myPlayerName: {
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  standingPoints: {
-    flex: 2,
-    fontSize: 14,
+  headerTitle: {
+    fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
-    textAlign: 'center',
   },
-  emptyState: {
-    alignItems: 'center',
-    padding: 32,
+  filtersContainer: {
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
   },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginTop: 16,
-    marginBottom: 8,
+  filtersContent: {
+    paddingHorizontal: 20,
+    gap: 12,
   },
-  emptyDescription: {
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#2C2C2E',
+  },
+  filterButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  filterButtonText: {
     fontSize: 14,
+    fontWeight: '500',
     color: '#8E8E93',
-    textAlign: 'center',
+  },
+  filterButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 12,
+  },
+  statContent: {
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#8E8E93',
+  },
+  logsContainer: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -582,49 +422,129 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#8E8E93',
   },
-  competitionInfo: {
+  emptyContainer: {
     flex: 1,
-    marginLeft: 12,
-  },
-  adminInfo: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  matchdayInfo: {
-    fontSize: 12,
-    color: '#007AFF',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 12,
-    backgroundColor: '#2C2C2E',
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  activityIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#3C3C3E',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#6D6D70',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  logsList: {
+    paddingVertical: 8,
+  },
+  logItem: {
+    backgroundColor: '#1C1C1E',
+    marginHorizontal: 16,
+    marginVertical: 4,
+    borderRadius: 12,
+    padding: 16,
+  },
+  logHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  logIconContainer: {
+    position: 'relative',
     marginRight: 12,
   },
-  activityContent: {
+  logIconBg: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentStatusIndicator: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#1C1C1E',
+  },
+  paymentStatusPaid: {
+    backgroundColor: '#0A2A12',
+  },
+  paymentStatusPending: {
+    backgroundColor: '#2A1F0A',
+  },
+  logContent: {
     flex: 1,
   },
-  activityText: {
-    fontSize: 14,
-    color: '#FFFFFF',
+  logTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
-  activityTime: {
+  logAction: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  logTimestamp: {
     fontSize: 12,
     color: '#8E8E93',
+  },
+  logCompetition: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginBottom: 8,
+  },
+  logDetailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  logAdmin: {
+    fontSize: 12,
+    color: '#8E8E93',
+  },
+  paymentBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  paymentBadgePaid: {
+    backgroundColor: '#0A2A12',
+    borderColor: '#34C759',
+  },
+  paymentBadgePending: {
+    backgroundColor: '#2A1F0A',
+    borderColor: '#FF9500',
+  },
+  paymentBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  paymentBadgeTextPaid: {
+    color: '#34C759',
+  },
+  paymentBadgeTextPending: {
+    color: '#FF9500',
+  },
+  logDetails: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    lineHeight: 20,
   },
 });
 
