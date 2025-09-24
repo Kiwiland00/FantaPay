@@ -48,6 +48,7 @@ const CompetitionDetailScreen: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const queryClient = useQueryClient();
+  const navigation = useNavigation();
 
   const [refreshing, setRefreshing] = useState(false);
   const [showPayModal, setShowPayModal] = useState(false);
