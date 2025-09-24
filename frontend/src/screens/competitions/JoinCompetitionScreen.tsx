@@ -52,7 +52,7 @@ const JoinCompetitionScreen: React.FC = () => {
     const code = inviteCode.trim().toUpperCase();
     
     if (!code) {
-      Alert.alert(t('error'), 'Please enter an invite code');
+      Alert.alert(t('error'), t('competitions.enterCodeError'));
       return;
     }
 
