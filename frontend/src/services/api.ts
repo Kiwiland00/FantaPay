@@ -285,7 +285,10 @@ export const competitionAPI = {
     await logAdminAction('create', newCompetition.name, 'FantaPay Tester', {
       competition_id: newCompetition._id,
       rules: newCompetition.rules,
-      total_matchdays: newCompetition.total_matchdays
+      total_matchdays: newCompetition.total_matchdays,
+      participation_cost_per_team: newCompetition.participation_cost_per_team,
+      expected_teams: newCompetition.expected_teams,
+      total_prize_pool: newCompetition.total_prize_pool
     });
     
     console.log('✅ Competition created and logged! New total:', existingCompetitions.length);
