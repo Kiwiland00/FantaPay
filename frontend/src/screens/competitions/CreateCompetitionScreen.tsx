@@ -607,6 +607,14 @@ const CreateCompetitionScreen: React.FC = () => {
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
+          {currentStep === 4 && renderStep4()}
+        </Animated.View>
+
+        {/* Content */}
+        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
         </Animated.View>
 
         {/* Navigation Buttons */}
