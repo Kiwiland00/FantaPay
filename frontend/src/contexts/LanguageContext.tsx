@@ -261,6 +261,8 @@ const resources = {
       'competitions.useLinkComingSoon': 'Usa link invito (Prossimamente)',
       'competitions.paymentInstructions': 'Istruzioni di Pagamento',
       'competitions.paymentInstructionsDetail': 'Il pagamento per ogni giornata è richiesto prima dell\'inizio. Contatta l\'amministratore se hai problemi di pagamento.',
+      'competitions.nameAvailable': 'Nome disponibile',
+      'competitions.nameExists': 'Nome già esistente',
       
       // Wallet
       'wallet.balance': 'Saldo',
