@@ -231,7 +231,7 @@ export const competitionAPI = {
       ],
       wallet_balance: 0,
       is_active: true,
-      current_matchday: 3,
+      current_matchday: 1, // Start at matchday 1
       standings: [
         { position: 1, player_id: '650f1f1f1f1f1f1f1f1f1f1f', name: 'FantaPay Tester', points: 0 }
       ],
