@@ -114,7 +114,7 @@ const CreateCompetitionScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
       Alert.alert(
         t('success'),
-        `${t('competitions.createNew')} "${competitionName}" created successfully!\n\n${t('competitions.inviteCodeLabel')} ${data.invite_code}`,
+        `Competition "${competitionName}" created successfully!\n\nInvite Code: ${data.invite_code}\nTotal Prize Pool: €${totalPrizePool}`,
         [
           {
             text: t('common.ok'),
@@ -173,6 +173,9 @@ const CreateCompetitionScreen: React.FC = () => {
     const competitionData = {
       name: competitionName.trim(),
       total_matchdays: parseInt(totalMatchdays) || 36,
+      participation_cost_per_team: parseFloat(participationCostPerTeam) || 210,
+      expected_teams: parseInt(expectedTeams) || 8,
+      total_prize_pool: parseFloat(totalPrizePool) || 1680,
       rules: getRulesData(),
     };
 
@@ -184,7 +187,7 @@ const CreateCompetitionScreen: React.FC = () => {
       case 'daily':
         return {
           type: 'daily',
-          daily_prize: parseFloat(dailyPrize) || 10,
+          daily_prize: parseFloat(dailyPrize) || 5,
         };
       case 'final':
         return {
@@ -198,7 +201,7 @@ const CreateCompetitionScreen: React.FC = () => {
       case 'mixed':
         return {
           type: 'mixed',
-          daily_prize: parseFloat(dailyPrize) || 10,
+          daily_prize: parseFloat(dailyPrize) || 5,
           final_prize_pool: finalPrizes.map(prize => ({
             position: prize.position,
             amount: parseFloat(prize.amount) || 0,
@@ -206,7 +209,7 @@ const CreateCompetitionScreen: React.FC = () => {
           })),
         };
       default:
-        return { type: 'daily', daily_prize: 10 };
+        return { type: 'daily', daily_prize: 5 };
     }
   };
 
@@ -573,6 +576,113 @@ const CreateCompetitionScreen: React.FC = () => {
     </View>
   );
 
+  const renderStep4 = () => (
+    <View style={styles.stepContainer}>
+      <View style={styles.stepHeader}>
+        <Ionicons name="calculator" size={48} color="#007AFF" />
+        <Text style={styles.stepTitle}>Financial Configuration</Text>
+        <Text style={styles.stepDescription}>
+          Set participation cost and total prize pool
+        </Text>
+      </View>
+
+      <ScrollView style={styles.prizeConfigContainer} showsVerticalScrollIndicator={false}>
+        {/* Team Participation Cost */}
+        <View style={styles.prizeSection}>
+          <Text style={styles.prizeSectionTitle}>Participation Cost Per Team</Text>
+          <Text style={styles.prizeDescription}>
+            How much does each team pay to join the competition?
+          </Text>
+          <View style={styles.amountInputContainer}>
+            <Text style={styles.currencySymbol}>€</Text>
+            <TextInput
+              style={[styles.input, styles.priceInput]}
+              value={participationCostPerTeam}
+              onChangeText={setParticipationCostPerTeam}
+              placeholder="210"
+              placeholderTextColor="#8E8E93"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+
+        {/* Expected Teams */}
+        <View style={styles.prizeSection}>
+          <Text style={styles.prizeSectionTitle}>Expected Number of Teams</Text>
+          <Text style={styles.prizeDescription}>
+            How many teams do you expect to participate?
+          </Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={expectedTeams}
+              onChangeText={setExpectedTeams}
+              placeholder="8"
+              placeholderTextColor="#8E8E93"
+              keyboardType="numeric"
+              maxLength={3}
+            />
+          </View>
+        </View>
+
+        {/* Total Prize Pool Calculation */}
+        <View style={styles.calculationSection}>
+          <Text style={styles.calculationTitle}>Prize Pool Calculation</Text>
+          <View style={styles.calculationCard}>
+            <View style={styles.calculationRow}>
+              <Text style={styles.calculationLabel}>Cost per team:</Text>
+              <Text style={styles.calculationValue}>€{participationCostPerTeam || '0'}</Text>
+            </View>
+            <View style={styles.calculationRow}>
+              <Text style={styles.calculationLabel}>Expected teams:</Text>
+              <Text style={styles.calculationValue}>{expectedTeams || '0'} teams</Text>
+            </View>
+            <View style={[styles.calculationRow, styles.totalRow]}>
+              <Text style={styles.totalLabel}>Total Prize Pool:</Text>
+              <Text style={styles.totalValue}>€{totalPrizePool}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Prize Distribution Info */}
+        <View style={styles.distributionSection}>
+          <Text style={styles.distributionTitle}>Prize Distribution</Text>
+          <View style={styles.distributionCard}>
+            <View style={styles.distributionItem}>
+              <Ionicons name="calendar" size={20} color="#007AFF" />
+              <View style={styles.distributionContent}>
+                <Text style={styles.distributionLabel}>Daily Prizes</Text>
+                <Text style={styles.distributionText}>
+                  €{dailyPrize} × {totalMatchdays} matchdays = €{(parseFloat(dailyPrize) || 0) * (parseInt(totalMatchdays) || 0)}
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.distributionItem}>
+              <Ionicons name="trophy" size={20} color="#FF9500" />
+              <View style={styles.distributionContent}>
+                <Text style={styles.distributionLabel}>Final Prize Pool</Text>
+                <Text style={styles.distributionText}>
+                  Remaining amount distributed at season end
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.distributionItem}>
+              <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+              <View style={styles.distributionContent}>
+                <Text style={styles.distributionLabel}>Automatic Distribution</Text>
+                <Text style={styles.distributionText}>
+                  Winners receive prizes automatically in their wallets
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
   const canProceed = () => {
     if (currentStep === 1) {
       return competitionName.trim() && validation.isAvailable;
@@ -609,8 +719,6 @@ const CreateCompetitionScreen: React.FC = () => {
           {currentStep === 3 && renderStep3()}
           {currentStep === 4 && renderStep4()}
         </Animated.View>
-
-
 
         {/* Navigation Buttons */}
         <View style={styles.navigationContainer}>
@@ -775,6 +883,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  fieldLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 8,
+    lineHeight: 16,
+  },
   rulesContainer: {
     gap: 16,
   },
@@ -819,116 +939,17 @@ const styles = StyleSheet.create({
   prizeSection: {
     marginBottom: 24,
   },
-  prizeSectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 16,
-  },
-  currencySymbol: {
-    position: 'absolute',
-    left: 20,
-    top: 20,
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#007AFF',
-    zIndex: 1,
-  },
-  priceInput: {
-    paddingLeft: 50,
-  },
-  prizeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  positionBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  positionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  prizeInputs: {
-    flex: 1,
-    gap: 12,
-  },
-  amountInputContainer: {
-    position: 'relative',
-    marginBottom: 12,
-  },
-  amountInput: {
-    paddingLeft: 50,
-  },
-  descriptionInput: {
-    // No additional styles needed
-  },
-  navigationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#2C2C2E',
-    backgroundColor: '#000000',
-  },
-  previousButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  previousButtonText: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  nextButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    minWidth: 120,
-  },
-  nextButtonDisabled: {
-    opacity: 0.5,
-  },
-  nextButtonGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    gap: 8,
-  },
-  nextButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  fieldLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  helperText: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 8,
-    lineHeight: 16,
-  },
   prizeSectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+  },
+  prizeSectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
   },
   addSlotButton: {
     flexDirection: 'row',
@@ -1030,6 +1051,170 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     marginTop: 8,
     textAlign: 'right',
+  },
+  currencySymbol: {
+    position: 'absolute',
+    left: 20,
+    top: 20,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#007AFF',
+    zIndex: 1,
+  },
+  priceInput: {
+    paddingLeft: 50,
+  },
+  positionBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  positionText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  prizeInputs: {
+    gap: 12,
+  },
+  amountInputContainer: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  amountInput: {
+    paddingLeft: 50,
+  },
+  descriptionInput: {
+    // No additional styles needed
+  },
+  calculationSection: {
+    marginBottom: 24,
+  },
+  calculationTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  calculationCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#34C759',
+  },
+  calculationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  calculationLabel: {
+    fontSize: 14,
+    color: '#8E8E93',
+  },
+  calculationValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  totalRow: {
+    borderTopWidth: 1,
+    borderTopColor: '#2C2C2E',
+    marginTop: 8,
+    paddingTop: 16,
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#34C759',
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#34C759',
+  },
+  distributionSection: {
+    marginBottom: 24,
+  },
+  distributionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  distributionCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  distributionItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  distributionContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  distributionLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  distributionText: {
+    fontSize: 12,
+    color: '#8E8E93',
+    lineHeight: 16,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#2C2C2E',
+    backgroundColor: '#000000',
+  },
+  previousButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  previousButtonText: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  nextButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    minWidth: 120,
+  },
+  nextButtonDisabled: {
+    opacity: 0.5,
+  },
+  nextButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  nextButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
 
