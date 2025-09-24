@@ -57,35 +57,45 @@ const CompetitionDetailScreen: React.FC = () => {
 
   // Fetch actual competition data
   useEffect(() => {
-    loadCompetition();
+    if (competitionId) {
+      loadCompetition();
+    } else {
+      console.error('No competition ID provided');
+      setIsLoading(false);
+    }
   }, [competitionId]);
 
   const loadCompetition = async () => {
     try {
       setIsLoading(true);
+      console.log('🔍 Loading competition with ID:', competitionId);
+      
       // Get competitions from storage and find the specific one
       const competitions = await competitionAPI.getMyCompetitionsMock();
-      const foundCompetition = competitions.find((comp: any) => comp._id === competitionId);
+      console.log('📋 All competitions loaded:', competitions.length);
+      
+      const foundCompetition = competitions.find((comp: any) => {
+        console.log('🔎 Checking competition:', comp._id, 'vs target:', competitionId);
+        return comp._id === competitionId;
+      });
       
       if (foundCompetition) {
+        console.log('✅ Competition found:', foundCompetition.name);
+        console.log('🔑 Invite code:', foundCompetition.invite_code);
+        console.log('👤 Admin ID:', foundCompetition.admin_id);
+        console.log('👥 Participants:', foundCompetition.participants?.length || 0);
+        
         setCompetition(foundCompetition);
       } else {
-        // Fallback to default data if not found
-        setCompetition({
-          _id: competitionId || 'comp_default_1',
-          name: 'Competition Not Found',
-          admin_id: 'other_user_123',
-          invite_code: 'NOTFOUND',
-          invite_link: 'https://fantapay.app/join/NOTFOUND',
-          participants: [],
-          current_matchday: 1,
-          standings: [],
-          wallet_balance: 0,
-          is_active: false,
-        });
+        console.error('❌ Competition not found with ID:', competitionId);
+        console.log('📋 Available competition IDs:', competitions.map((c: any) => c._id));
+        
+        // Show error - competition not found
+        setCompetition(null);
       }
     } catch (error) {
-      console.error('Error loading competition:', error);
+      console.error('💥 Error loading competition:', error);
+      setCompetition(null);
     } finally {
       setIsLoading(false);
     }
