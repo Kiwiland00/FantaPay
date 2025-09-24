@@ -5,290 +5,260 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  Alert,
   RefreshControl,
+  Alert,
+  Share,
+  Clipboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { competitionAPI } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
-type RouteParams = {
-  CompetitionDetail: {
-    competitionId: string;
-  };
-};
+interface Participant {
+  id: string;
+  name: string;
+  email: string;
+  is_admin: boolean;
+  paid_matchdays: number[];
+  points: number;
+  position?: number;
+}
 
 interface Competition {
   _id: string;
   name: string;
   admin_id: string;
-  rules: {
-    type: string;
-    daily_prize?: number;
-    final_prize_pool?: Array<{ position: number; amount: number; description: string }>;
-  };
-  participants: Array<{ id: string; name: string; email: string }>;
+  invite_code: string;
+  invite_link: string;
+  participants: Participant[];
+  current_matchday: number;
+  standings: any[];
   wallet_balance: number;
   is_active: boolean;
-  current_matchday: number;
-  standings: any;
-  invite_code: string;
-  created_at: string;
 }
 
 const CompetitionDetailScreen: React.FC = () => {
-  const route = useRoute<RouteProp<RouteParams, 'CompetitionDetail'>>();
-  const { competitionId } = route.params;
-  const { user } = useAuth();
+  const navigation = useNavigation();
+  const route = useRoute();
   const { t } = useLanguage();
-  const queryClient = useQueryClient();
-
+  const { user } = useAuth();
+  
+  const competitionId = (route.params as any)?.competitionId;
   const [refreshing, setRefreshing] = useState(false);
-  const [showPayModal, setShowPayModal] = useState(false);
-  const [payAmount, setPayAmount] = useState('');
-  const [showStandingsModal, setShowStandingsModal] = useState(false);
 
-  const {
-    data: competition,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ['competition', competitionId],
-    queryFn: () => competitionAPI.getCompetition(competitionId),
-    enabled: !!competitionId,
-  });
+  // Mock competition data with enhanced participant info
+  const mockCompetition: Competition = {
+    _id: competitionId || 'comp_default_1',
+    name: 'Serie A Fantasy 2024',
+    admin_id: competitionId === 'comp_default_1' ? 'other_user_123' : '650f1f1f1f1f1f1f1f1f1f1f',
+    invite_code: 'SERIA24',
+    invite_link: 'https://fantapay.app/join/SERIA24',
+    participants: [
+      { 
+        id: '650f1f1f1f1f1f1f1f1f1f1f', 
+        name: 'FantaPay Tester', 
+        email: 'test@fantapay.com', 
+        is_admin: competitionId !== 'comp_default_1',
+        paid_matchdays: [1, 2], 
+        points: 82,
+        position: 2
+      },
+      { 
+        id: 'user_2', 
+        name: 'Marco Rossi', 
+        email: 'marco@email.com', 
+        is_admin: false, 
+        paid_matchdays: [1, 2, 3], 
+        points: 87,
+        position: 1
+      },
+      { 
+        id: 'user_3', 
+        name: 'Luca Bianchi', 
+        email: 'luca@email.com', 
+        is_admin: false, 
+        paid_matchdays: [1], 
+        points: 71,
+        position: 4
+      },
+      { 
+        id: 'user_4', 
+        name: 'Sofia Verde', 
+        email: 'sofia@email.com', 
+        is_admin: false, 
+        paid_matchdays: [1, 2], 
+        points: 76,
+        position: 3
+      }
+    ],
+    current_matchday: 3,
+    standings: [],
+    wallet_balance: 75,
+    is_active: true,
+  };
 
-  const {
-    data: transactions = [],
-    refetch: refetchTransactions,
-  } = useQuery({
-    queryKey: ['competitionTransactions', competitionId],
-    queryFn: () => competitionAPI.getTransactions(competitionId),
-    enabled: !!competitionId,
-  });
-
-  const payFeeMutation = useMutation({
-    mutationFn: (amount: number) => competitionAPI.payFee(competitionId, amount),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['competition', competitionId] });
-      queryClient.invalidateQueries({ queryKey: ['competitionTransactions', competitionId] });
-      queryClient.invalidateQueries({ queryKey: ['walletBalance'] });
-      setShowPayModal(false);
-      setPayAmount('');
-      Alert.alert(t('success'), 'Payment successful!');
-    },
-    onError: (error: any) => {
-      Alert.alert(t('error'), error.response?.data?.detail || 'Payment failed');
-    },
-  });
+  // Check if current user is admin
+  const isAdmin = mockCompetition.admin_id === user?.id;
+  const currentUser = mockCompetition.participants.find(p => p.id === user?.id);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([refetch(), refetchTransactions()]);
-    setRefreshing(false);
+    // Simulate refresh delay
+    setTimeout(() => setRefreshing(false), 1000);
   };
 
-  const handlePayFee = () => {
-    const amount = parseFloat(payAmount);
-    if (isNaN(amount) || amount <= 0) {
-      Alert.alert(t('error'), 'Please enter a valid amount');
-      return;
+  const handleCopyInviteCode = async () => {
+    try {
+      await Clipboard.setStringAsync(mockCompetition.invite_code);
+      Alert.alert(t('success'), 'Invite code copied to clipboard!');
+    } catch (error) {
+      Alert.alert(t('error'), 'Failed to copy invite code');
     }
-    if (amount > (user?.wallet_balance || 0)) {
-      Alert.alert(t('error'), 'Insufficient balance in your wallet');
-      return;
+  };
+
+  const handleShareInviteLink = async () => {
+    try {
+      await Share.share({
+        message: `Join my FantaPay competition: ${mockCompetition.name}\n\nInvite Code: ${mockCompetition.invite_code}\nLink: ${mockCompetition.invite_link}`,
+        title: `Join ${mockCompetition.name}`,
+      });
+    } catch (error) {
+      Alert.alert(t('error'), 'Failed to share invite link');
     }
-    payFeeMutation.mutate(amount);
   };
 
-  const isAdmin = user?.id === competition?.admin_id;
-  
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const handleViewPaymentHistory = (participant: Participant) => {
+    navigation.navigate('ParticipantPaymentHistory' as never, {
+      participantId: participant.id,
+      participantName: participant.name,
+      competitionName: mockCompetition.name,
+      paymentHistory: []  // Will be populated in the screen
+    } as never);
   };
 
-  const renderPrizeStructure = () => {
-    if (!competition) return null;
+  const getPositionStyle = (position: number) => {
+    if (position === 1) return { backgroundColor: '#FFD700', color: '#000000' };
+    if (position === 2) return { backgroundColor: '#C0C0C0', color: '#000000' };
+    if (position === 3) return { backgroundColor: '#CD7F32', color: '#000000' };
+    return { backgroundColor: '#2C2C2E', color: '#FFFFFF' };
+  };
 
+  const getPaymentStatus = (participant: Participant) => {
+    const isPaidCurrentMatchday = participant.paid_matchdays.includes(mockCompetition.current_matchday);
+    return {
+      status: isPaidCurrentMatchday ? 'paid' : 'pending',
+      color: isPaidCurrentMatchday ? '#34C759' : '#FF3B30',
+      text: isPaidCurrentMatchday ? t('competitions.paid') : t('competitions.pending')
+    };
+  };
+
+  const renderParticipantRow = (participant: Participant, index: number) => {
+    const paymentStatus = getPaymentStatus(participant);
+    const positionStyle = getPositionStyle(participant.position || index + 1);
+    
     return (
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Prize Structure</Text>
-        <View style={styles.prizeCard}>
-          {competition.rules.type === 'daily' && (
-            <View style={styles.prizeRow}>
-              <Ionicons name="calendar" size={20} color="#34C759" />
-              <Text style={styles.prizeText}>
-                Daily Prize: {t('currency.euro')}{competition.rules.daily_prize?.toFixed(2)}
-              </Text>
-            </View>
-          )}
-          
-          {competition.rules.type === 'final' && competition.rules.final_prize_pool && (
-            <View>
-              <View style={styles.prizeHeader}>
-                <Ionicons name="trophy" size={20} color="#FFD700" />
-                <Text style={styles.prizeHeaderText}>Final Prize Pool</Text>
-              </View>
-              {competition.rules.final_prize_pool.map((prize, index) => (
-                <View key={index} style={styles.prizeRow}>
-                  <Text style={styles.prizePosition}>{prize.position}.</Text>
-                  <Text style={styles.prizeDescription}>{prize.description}</Text>
-                  <Text style={styles.prizeAmount}>
-                    {t('currency.euro')}{prize.amount.toFixed(2)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-          
-          {competition.rules.type === 'mixed' && (
-            <View>
-              <View style={styles.prizeRow}>
-                <Ionicons name="calendar" size={20} color="#34C759" />
-                <Text style={styles.prizeText}>
-                  Daily Prize: {t('currency.euro')}{competition.rules.daily_prize?.toFixed(2)}
-                </Text>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.prizeHeader}>
-                <Ionicons name="trophy" size={20} color="#FFD700" />
-                <Text style={styles.prizeHeaderText}>Final Prize Pool</Text>
-              </View>
-              {competition.rules.final_prize_pool?.map((prize, index) => (
-                <View key={index} style={styles.prizeRow}>
-                  <Text style={styles.prizePosition}>{prize.position}.</Text>
-                  <Text style={styles.prizeDescription}>{prize.description}</Text>
-                  <Text style={styles.prizeAmount}>
-                    {t('currency.euro')}{prize.amount.toFixed(2)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
-
-  const renderParticipants = () => {
-    if (!competition) return null;
-
-    return (
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>
-          {t('competition.participants')} ({competition.participants.length})
-        </Text>
-        <View style={styles.participantsList}>
-          {competition.participants.map((participant, index) => (
-            <View key={participant.id} style={styles.participantItem}>
-              <View style={styles.participantAvatar}>
-                <Text style={styles.participantInitial}>
-                  {participant.name.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <View style={styles.participantInfo}>
-                <Text style={styles.participantName}>{participant.name}</Text>
-                {participant.id === competition.admin_id && (
-                  <Text style={styles.adminBadge}>Admin</Text>
-                )}
-              </View>
-              {participant.id === user?.id && (
-                <Ionicons name="person-circle" size={20} color="#007AFF" />
-              )}
-            </View>
-          ))}
-        </View>
-      </View>
-    );
-  };
-
-  const renderWalletInfo = () => {
-    if (!competition) return null;
-
-    return (
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('competition.wallet')}</Text>
-        <View style={styles.walletCard}>
-          <View style={styles.walletHeader}>
-            <Ionicons name="wallet" size={24} color="#007AFF" />
-            <Text style={styles.walletBalance}>
-              {t('currency.euro')}{competition.wallet_balance.toFixed(2)}
+      <TouchableOpacity
+        key={participant.id}
+        style={[
+          styles.participantRow,
+          participant.id === user?.id && styles.currentUserRow
+        ]}
+        onPress={() => handleViewPaymentHistory(participant)}
+        activeOpacity={0.8}
+      >
+        <View style={styles.participantLeft}>
+          <View style={[styles.positionBadge, { backgroundColor: positionStyle.backgroundColor }]}>
+            <Text style={[styles.positionText, { color: positionStyle.color }]}>
+              {participant.position || index + 1}
             </Text>
           </View>
-          
-          <TouchableOpacity
-            style={styles.payButton}
-            onPress={() => setShowPayModal(true)}
-          >
-            <Ionicons name="add-circle" size={20} color="#FFFFFF" />
-            <Text style={styles.payButtonText}>Pay to Competition</Text>
-          </TouchableOpacity>
+          <View style={styles.participantInfo}>
+            <Text style={[
+              styles.participantName,
+              participant.id === user?.id && styles.currentUserName
+            ]}>
+              {participant.name}
+              {participant.is_admin && (
+                <Text style={styles.adminBadge}> (Admin)</Text>
+              )}
+            </Text>
+            <Text style={styles.participantPoints}>
+              {participant.points} {t('competitions.points')}
+            </Text>
+          </View>
         </View>
-      </View>
+        
+        <TouchableOpacity
+          style={[styles.paymentStatusBadge, { backgroundColor: paymentStatus.color }]}
+          onPress={() => handleViewPaymentHistory(participant)}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name={paymentStatus.status === 'paid' ? 'checkmark' : 'time'}
+            size={16}
+            color="#FFFFFF"
+          />
+          <Text style={styles.paymentStatusText}>{paymentStatus.text}</Text>
+          <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
+        </TouchableOpacity>
+      </TouchableOpacity>
     );
   };
-
-  const renderRecentTransactions = () => {
-    if (!transactions.length) return null;
-
-    const recentTransactions = transactions.slice(0, 5);
-
-    return (
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        <View style={styles.transactionsList}>
-          {recentTransactions.map((transaction) => (
-            <View key={transaction._id} style={styles.transactionItem}>
-              <View style={styles.transactionInfo}>
-                <Text style={styles.transactionUser}>{transaction.user_name}</Text>
-                <Text style={styles.transactionDescription}>
-                  {transaction.description}
-                </Text>
-                <Text style={styles.transactionDate}>
-                  {formatDate(transaction.created_at)}
-                </Text>
-              </View>
-              <Text style={styles.transactionAmount}>
-                +{t('currency.euro')}{transaction.amount.toFixed(2)}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>{t('loading')}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (error || !competition) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Competition not found</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="chevron-back" size={24} color="#007AFF" />
+        </TouchableOpacity>
+        
+        <View style={styles.headerContent}>
+          <Text style={styles.competitionName}>{mockCompetition.name}</Text>
+          <Text style={styles.matchdayText}>
+            {t('competitions.matchday')} {mockCompetition.current_matchday}
+          </Text>
+        </View>
+
+        {/* Admin Info Button */}
+        {isAdmin && (
+          <TouchableOpacity
+            style={styles.infoButton}
+            onPress={() => {
+              Alert.alert(
+                t('competitions.info'),
+                '',
+                [
+                  {
+                    text: t('competitions.copyInvite'),
+                    onPress: handleCopyInviteCode,
+                  },
+                  {
+                    text: 'Share Link',
+                    onPress: handleShareInviteLink,
+                  },
+                  {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                  },
+                ]
+              );
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="information-circle" size={24} color="#007AFF" />
+          </TouchableOpacity>
+        )}
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -300,77 +270,85 @@ const CompetitionDetailScreen: React.FC = () => {
           />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.competitionName}>{competition.name}</Text>
-          <View style={styles.competitionMeta}>
-            <Text style={styles.matchdayText}>
-              Matchday {competition.current_matchday}
+        {/* Competition Stats */}
+        <View style={styles.statsSection}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{mockCompetition.participants.length}</Text>
+            <Text style={styles.statLabel}>{t('competitions.participants')}</Text>
+          </View>
+          
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>€{mockCompetition.wallet_balance}</Text>
+            <Text style={styles.statLabel}>{t('competitions.wallet')}</Text>
+          </View>
+          
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{mockCompetition.current_matchday}</Text>
+            <Text style={styles.statLabel}>{t('competitions.matchday')}</Text>
+          </View>
+        </View>
+
+        {/* Admin Section */}
+        {isAdmin && (
+          <View style={styles.adminSection}>
+            <Text style={styles.sectionTitle}>Admin Controls</Text>
+            <View style={styles.adminCard}>
+              <View style={styles.adminInfo}>
+                <Text style={styles.inviteCodeLabel}>{t('competitions.inviteCodeLabel')}</Text>
+                <Text style={styles.inviteCodeValue}>{mockCompetition.invite_code}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.copyButton}
+                onPress={handleCopyInviteCode}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="copy" size={20} color="#007AFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Participants Table */}
+        <View style={styles.participantsSection}>
+          <Text style={styles.sectionTitle}>{t('competitions.standings')}</Text>
+          
+          {/* Table Header */}
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderText, { flex: 1 }]}>
+              {t('logs.position')}
             </Text>
-            <View style={[
-              styles.statusBadge,
-              { backgroundColor: competition.is_active ? '#34C759' : '#8E8E93' }
-            ]}>
-              <Text style={styles.statusText}>
-                {competition.is_active ? 'Active' : 'Closed'}
+            <Text style={[styles.tableHeaderText, { flex: 3 }]}>
+              {t('logs.player')}
+            </Text>
+            <Text style={[styles.tableHeaderText, { flex: 2 }]}>
+              {t('logs.points')}
+            </Text>
+            <Text style={[styles.tableHeaderText, { flex: 2 }]}>
+              Payment
+            </Text>
+          </View>
+
+          {/* Participants List */}
+          <View style={styles.participantsList}>
+            {mockCompetition.participants
+              .sort((a, b) => (a.position || 0) - (b.position || 0))
+              .map((participant, index) => renderParticipantRow(participant, index))}
+          </View>
+        </View>
+
+        {/* Instructions */}
+        <View style={styles.instructionsSection}>
+          <View style={styles.instructionCard}>
+            <Ionicons name="information-circle" size={24} color="#007AFF" />
+            <View style={styles.instructionContent}>
+              <Text style={styles.instructionTitle}>How to view payment details</Text>
+              <Text style={styles.instructionText}>
+                Tap on any participant's payment status to see their detailed payment history for each matchday.
               </Text>
             </View>
           </View>
-          
-          {isAdmin && (
-            <View style={styles.inviteCodeContainer}>
-              <Text style={styles.inviteCodeLabel}>Invite Code:</Text>
-              <Text style={styles.inviteCodeText}>{competition.invite_code}</Text>
-            </View>
-          )}
         </View>
-
-        {renderPrizeStructure()}
-        {renderParticipants()}
-        {renderWalletInfo()}
-        {renderRecentTransactions()}
       </ScrollView>
-
-      {/* Pay Modal */}
-      {showPayModal && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Pay to Competition</Text>
-            <Text style={styles.modalSubtitle}>
-              Your balance: {t('currency.euro')}{user?.wallet_balance?.toFixed(2) || '0.00'}
-            </Text>
-            <TextInput
-              style={styles.amountInput}
-              placeholder="Enter amount"
-              placeholderTextColor="#8E8E93"
-              value={payAmount}
-              onChangeText={setPayAmount}
-              keyboardType="numeric"
-              autoFocus
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => {
-                  setShowPayModal(false);
-                  setPayAmount('');
-                }}
-              >
-                <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={handlePayFee}
-                disabled={payFeeMutation.isPending}
-              >
-                <Text style={styles.confirmButtonText}>
-                  {payFeeMutation.isPending ? t('loading') : 'Pay'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      )}
     </SafeAreaView>
   );
 };
@@ -380,301 +358,222 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#2C2C2E',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  competitionName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  matchdayText: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 2,
+  },
+  infoButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#2C2C2E',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 32,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 16,
-  },
-  header: {
+  statsSection: {
+    flexDirection: 'row',
+    gap: 12,
     marginBottom: 24,
   },
-  competitionName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  competitionMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  matchdayText: {
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  inviteCodeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  statCard: {
+    flex: 1,
+    padding: 16,
     backgroundColor: '#1C1C1E',
-    padding: 12,
-    borderRadius: 8,
-    gap: 8,
+    borderRadius: 12,
+    alignItems: 'center',
   },
-  inviteCodeLabel: {
-    fontSize: 14,
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
     color: '#8E8E93',
   },
-  inviteCodeText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    letterSpacing: 1,
-  },
-  section: {
+  adminSection: {
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 12,
   },
-  prizeCard: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
+  adminCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
-  },
-  prizeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
-  },
-  prizeHeaderText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  prizeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    gap: 8,
-  },
-  prizeText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  prizePosition: {
-    fontSize: 14,
-    color: '#8E8E93',
-    width: 20,
-  },
-  prizeDescription: {
-    flex: 1,
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
-  prizeAmount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#34C759',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#2C2C2E',
-    marginVertical: 12,
-  },
-  participantsList: {
     backgroundColor: '#1C1C1E',
     borderRadius: 12,
-    padding: 4,
+    borderWidth: 1,
+    borderColor: '#007AFF',
   },
-  participantItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    gap: 12,
+  adminInfo: {
+    flex: 1,
   },
-  participantAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#007AFF',
+  inviteCodeLabel: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginBottom: 4,
+  },
+  inviteCodeValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  copyButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#2C2C2E',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  participantInitial: {
-    fontSize: 16,
+  participantsSection: {
+    marginBottom: 24,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#007AFF',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  tableHeaderText: {
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  participantsList: {
+    backgroundColor: '#1C1C1E',
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    overflow: 'hidden',
+  },
+  participantRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+  },
+  currentUserRow: {
+    backgroundColor: '#007AFF15',
+  },
+  participantLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  positionBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  positionText: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   participantInfo: {
     flex: 1,
   },
   participantName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#FFFFFF',
+  },
+  currentUserName: {
+    color: '#007AFF',
   },
   adminBadge: {
     fontSize: 12,
-    color: '#007AFF',
-    marginTop: 2,
-  },
-  walletCard: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
-    padding: 16,
-  },
-  walletHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  walletBalance: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  payButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
-  },
-  payButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  transactionsList: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
-    padding: 4,
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 12,
-  },
-  transactionInfo: {
-    flex: 1,
-  },
-  transactionUser: {
-    fontSize: 16,
+    color: '#FF9500',
     fontWeight: '500',
-    color: '#FFFFFF',
   },
-  transactionDescription: {
+  participantPoints: {
     fontSize: 14,
     color: '#8E8E93',
     marginTop: 2,
   },
-  transactionDate: {
+  paymentStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 6,
+  },
+  paymentStatusText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  instructionsSection: {
+    marginBottom: 24,
+  },
+  instructionCard: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  instructionContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  instructionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  instructionText: {
     fontSize: 12,
     color: '#8E8E93',
-    marginTop: 2,
-  },
-  transactionAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#34C759',
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modal: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
-    maxWidth: 300,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  amountInput: {
-    backgroundColor: '#2C2C2E',
-    color: '#FFFFFF',
-    fontSize: 16,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#2C2C2E',
-  },
-  cancelButtonText: {
-    color: '#8E8E93',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  confirmButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#007AFF',
-  },
-  confirmButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    lineHeight: 16,
   },
 });
 
