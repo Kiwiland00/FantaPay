@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,12 +14,23 @@ import { useNavigation } from '@react-navigation/native';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { competitionAPI } from '../../services/api';
 
 interface Competition {
-  id: string;
+  _id: string;
   name: string;
-  participants: Array<{ name: string; paid: boolean; amount?: number }>;
+  admin_id: string;
+  admin_name?: string;
+  participants: Array<{ 
+    id: string;
+    name: string; 
+    paid: boolean; 
+    amount?: number;
+    paid_matchdays?: number[];
+  }>;
   standings: Array<{ position: number; name: string; points: number }>;
+  current_matchday: number;
+  total_matchdays: number;
 }
 
 const LogsScreen: React.FC = () => {
