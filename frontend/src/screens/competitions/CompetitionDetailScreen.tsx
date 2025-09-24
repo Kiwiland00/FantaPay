@@ -680,6 +680,20 @@ const CompetitionDetailScreen: React.FC = () => {
               </View>
             </View>
 
+            {/* Wallet Balance Display */}
+            <View style={styles.walletBalanceContainer}>
+              <View style={styles.walletBalanceRow}>
+                <Ionicons name="wallet-outline" size={20} color="#007AFF" />
+                <Text style={styles.walletBalanceLabel}>Your Wallet Balance:</Text>
+                <Text style={styles.walletBalanceAmount}>€{userBalance.toFixed(2)}</Text>
+              </View>
+              {userBalance < (competition.daily_payment_amount * 5) && (
+                <Text style={styles.lowBalanceWarning}>
+                  ⚠️ Low balance. Consider depositing funds for upcoming payments.
+                </Text>
+              )}
+            </View>
+
             <View style={styles.paymentActions}>
               <TouchableOpacity
                 style={styles.payButton}
