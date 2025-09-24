@@ -80,6 +80,12 @@ const resources = {
       'competitions.info': 'Info',
       'competitions.copyInvite': 'Copy Invite Link',
       'competitions.inviteCodeLabel': 'Invite Code:',
+      'competitions.joinSuccess': 'Successfully joined the competition!',
+      'competitions.enterCodeError': 'Please enter an invite code',
+      'competitions.validCodeError': 'Please enter a valid invite code',
+      'competitions.enterCodeDescription': 'Enter the invite code shared by the competition admin to join',
+      'competitions.askAdminForCode': 'Ask the competition admin for the invite code',
+      'competitions.useLinkComingSoon': 'Use invite link (Coming soon)',
       
       // Wallet
       'wallet.balance': 'Balance',
