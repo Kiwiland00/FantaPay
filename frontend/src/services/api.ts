@@ -252,7 +252,7 @@ export const competitionAPI = {
     console.log('📅 Total matchdays:', data.total_matchdays || 36);
     
     // Get existing competitions from cross-platform storage
-    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
     let existingCompetitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
     
     console.log('📋 Current competitions before creation:', existingCompetitions.length);
