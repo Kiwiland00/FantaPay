@@ -212,6 +212,34 @@ class TransactionCreate(BaseModel):
     from_wallet: str
     to_wallet: str
 
+# MatchdayPayment Models
+class MatchdayPayment(BaseModel):
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
+    user_id: PyObjectId
+    competition_id: PyObjectId
+    matchday: int  # Matchday number (1 to total_matchdays)
+    amount: float  # Amount for this matchday
+    status: str = "pending"  # "pending" or "paid"
+    paid_at: Optional[datetime] = None  # When payment was completed
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    class Config:
+        validate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+class MatchdayPaymentCreate(BaseModel):
+    competition_id: str
+    matchdays: List[int]  # List of matchdays to pay for
+
+class MatchdayPaymentStatus(BaseModel):
+    user_id: str
+    competition_id: str
+    matchday: int
+    status: str
+    amount: float
+    paid_at: Optional[datetime] = None
+
 # Authentication helpers
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt"""
