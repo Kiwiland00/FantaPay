@@ -45,8 +45,22 @@ interface Competition {
 }
 
 const CompetitionDetailScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
+  let navigation: any;
+  let route: any;
+  
+  try {
+    navigation = useNavigation();
+    route = useRoute();
+  } catch (error) {
+    console.error('Navigation hook error:', error);
+    // Fallback navigation
+    navigation = {
+      goBack: () => console.log('Go back'),
+      navigate: (name: string, params?: any) => console.log('Navigate to:', name, params)
+    };
+    route = { params: {} };
+  }
+
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
