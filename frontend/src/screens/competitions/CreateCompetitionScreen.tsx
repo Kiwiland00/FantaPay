@@ -39,12 +39,8 @@ const CreateCompetitionScreen: React.FC = () => {
   const [competitionName, setCompetitionName] = useState('');
   const [selectedRule, setSelectedRule] = useState<'daily' | 'final' | 'mixed'>('daily');
   const [totalMatchdays, setTotalMatchdays] = useState('36'); // Serie A default
-  const [dailyPrize, setDailyPrize] = useState('10');
-  const [finalPrizes, setFinalPrizes] = useState([
-    { position: 1, amount: '100', description: '1st Place' },
-    { position: 2, amount: '50', description: '2nd Place' },
-    { position: 3, amount: '25', description: '3rd Place' },
-  ]);
+  const [dailyPrize, setDailyPrize] = useState('5'); // Default to €5 as requested
+  const [finalPrizes, setFinalPrizes] = useState<Array<{ position: number; amount: string; description: string }>>([]);
   
   // Real-time validation state
   const [validation, setValidation] = useState<ValidationState>({
