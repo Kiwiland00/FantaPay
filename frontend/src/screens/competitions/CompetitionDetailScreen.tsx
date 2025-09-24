@@ -986,6 +986,39 @@ const styles = StyleSheet.create({
   paymentStatusPending: {
     backgroundColor: '#2A0A0A',
   },
+  // Admin Actions Styles
+  adminCard: {
+    backgroundColor: '#1C1C1E',
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 12,
+    padding: 20,
+  },
+  adminHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  adminTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 12,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF3B30',
+    paddingVertical: 14,
+    borderRadius: 10,
+    gap: 8,
+  },
+  deleteButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
 });
 
 export default CompetitionDetailScreen;
