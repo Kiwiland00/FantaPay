@@ -20,6 +20,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { competitionAPI } from '../../services/api';
+import CrossPlatformStorage from '../../utils/CrossPlatformStorage';
 
 interface Participant {
   id: string;
