@@ -362,7 +362,7 @@ class FantaPayTester:
             return False
     
     def test_get_competition_details(self):
-        """Test getting competition details"""
+        """Test getting competition details with financial configuration"""
         if not self.competition_id:
             self.log_test("Get Competition Details", False, "No competition ID available")
             return False
@@ -373,17 +373,31 @@ class FantaPayTester:
             if response.status_code == 200:
                 data = response.json()
                 if (data.get("_id") or data.get("id")) and data.get("participants"):
-                    self.log_test("Get Competition Details", True, f"Competition details retrieved", data)
-                    return True
+                    # Verify financial fields are present in retrieval
+                    financial_fields_present = all(
+                        field in data for field in [
+                            "total_matchdays", "participation_cost_per_team", 
+                            "expected_teams", "total_prize_pool"
+                        ]
+                    )
+                    
+                    if financial_fields_present:
+                        self.log_test("Get Competition Details with Financial Config", True, 
+                                    f"Competition details retrieved with financial fields: matchdays={data['total_matchdays']}, cost={data['participation_cost_per_team']}, teams={data['expected_teams']}, pool={data['total_prize_pool']}", data)
+                        return True
+                    else:
+                        self.log_test("Get Competition Details with Financial Config", False, 
+                                    f"Missing financial fields in competition details: {data}")
+                        return False
                 else:
-                    self.log_test("Get Competition Details", False, f"Unexpected response: {data}")
+                    self.log_test("Get Competition Details with Financial Config", False, f"Unexpected response: {data}")
                     return False
             else:
-                self.log_test("Get Competition Details", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Get Competition Details with Financial Config", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Get Competition Details", False, f"Exception: {str(e)}")
+            self.log_test("Get Competition Details with Financial Config", False, f"Exception: {str(e)}")
             return False
     
     def test_wallet_balance(self):
