@@ -166,36 +166,81 @@ export const competitionAPI = {
       throw new Error('Competition name already exists. Please choose another name.');
     }
     
-    // Simulate API response
-    return {
+    // Create new competition and add to storage
+    const newCompetition = {
       _id: `comp_${Date.now()}`,
       name: data.name,
       rules: data.rules,
       invite_code: Math.random().toString(36).substr(2, 8).toUpperCase(),
-      admin_id: '650f1f1f1f1f1f1f1f1f1f1f',
-      participants: ['650f1f1f1f1f1f1f1f1f1f1f'],
+      invite_link: `https://fantapay.app/join/${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+      admin_id: '650f1f1f1f1f1f1f1f1f1f1f', // Current mock user ID
+      participants: [
+        { 
+          id: '650f1f1f1f1f1f1f1f1f1f1f', 
+          name: 'FantaPay Tester', 
+          email: 'test@fantapay.com',
+          is_admin: true,
+          paid_matchdays: [1, 2], // Mock paid matchdays
+          points: 0
+        }
+      ],
       wallet_balance: 0,
       is_active: true,
-      current_matchday: 1,
-      created_at: new Date().toISOString()
+      current_matchday: 3,
+      standings: [
+        { position: 1, player_id: '650f1f1f1f1f1f1f1f1f1f1f', name: 'FantaPay Tester', points: 0 }
+      ],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
+    
+    // Store in mock storage
+    let mockCompetitions = JSON.parse(localStorage.getItem('mockCompetitions') || '[]');
+    mockCompetitions.push(newCompetition);
+    localStorage.setItem('mockCompetitions', JSON.stringify(mockCompetitions));
+    
+    return newCompetition;
   },
   
   getMyCompetitionsMock: async () => {
     console.log('🏆 Mock: Getting my competitions');
-    // Return mock competitions
-    return [
-      {
-        _id: 'comp_1',
-        name: 'Serie A Fantasy 2024',
-        rules: { type: 'mixed', daily_prize: 10, final_prize_pool: [{ position: 1, amount: 100, description: '1st Place' }] },
-        participants: [{ id: '1', name: 'FantaPay Tester', email: 'test@fantapay.com' }],
-        wallet_balance: 50,
-        is_active: true,
-        current_matchday: 5,
-        created_at: '2024-01-01T00:00:00Z'
-      }
-    ];
+    
+    // Get stored competitions + default ones
+    let mockCompetitions = JSON.parse(localStorage.getItem('mockCompetitions') || '[]');
+    
+    // Add default competitions if none exist
+    if (mockCompetitions.length === 0) {
+      mockCompetitions = [
+        {
+          _id: 'comp_default_1',
+          name: 'Serie A Fantasy 2024',
+          rules: { type: 'mixed', daily_prize: 10, final_prize_pool: [{ position: 1, amount: 100, description: '1st Place' }] },
+          invite_code: 'SERIA24',
+          invite_link: 'https://fantapay.app/join/SERIA24',
+          admin_id: 'other_user_123', // Not current user, so not admin
+          participants: [
+            { id: '650f1f1f1f1f1f1f1f1f1f1f', name: 'FantaPay Tester', email: 'test@fantapay.com', is_admin: false, paid_matchdays: [1, 2], points: 82 },
+            { id: 'user_2', name: 'Marco Rossi', email: 'marco@email.com', is_admin: false, paid_matchdays: [1, 2, 3], points: 87 },
+            { id: 'user_3', name: 'Luca Bianchi', email: 'luca@email.com', is_admin: false, paid_matchdays: [1], points: 71 },
+            { id: 'user_4', name: 'Sofia Verde', email: 'sofia@email.com', is_admin: false, paid_matchdays: [1, 2], points: 76 }
+          ],
+          wallet_balance: 75,
+          is_active: true,
+          current_matchday: 3,
+          standings: [
+            { position: 1, player_id: 'user_2', name: 'Marco Rossi', points: 87 },
+            { position: 2, player_id: '650f1f1f1f1f1f1f1f1f1f1f', name: 'FantaPay Tester', points: 82 },
+            { position: 3, player_id: 'user_4', name: 'Sofia Verde', points: 76 },
+            { position: 4, player_id: 'user_3', name: 'Luca Bianchi', points: 71 }
+          ],
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-15T00:00:00Z'
+        }
+      ];
+      localStorage.setItem('mockCompetitions', JSON.stringify(mockCompetitions));
+    }
+    
+    return mockCompetitions;
   },
   
   joinMock: async (inviteCode: string) => {
