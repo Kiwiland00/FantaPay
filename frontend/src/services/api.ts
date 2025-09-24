@@ -430,7 +430,7 @@ export const competitionAPI = {
     console.log('🏆 Mock: Getting my competitions');
     
     // FORCE CLEANUP: Clear competitions storage if we need fresh start
-    const shouldClearStorage = true; // Set to true for complete cleanup
+    const shouldClearStorage = false; // Set to true for complete cleanup
     
     if (shouldClearStorage) {
       console.log('🗑️ FORCE CLEANUP: Clearing all competition data...');
