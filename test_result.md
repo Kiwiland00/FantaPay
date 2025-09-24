@@ -268,11 +268,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Authentication System"
+    - "Financial Configuration API Support"
     - "Competition Management APIs"
-    - "Wallet & Transaction APIs"
+    - "Authentication System"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
