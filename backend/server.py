@@ -721,6 +721,49 @@ async def create_competition(competition_data: CompetitionCreate, current_user: 
     competition_dict["expected_teams"] = competition_dict.get("expected_teams", 8)
     competition_dict["total_prize_pool"] = competition_dict.get("total_prize_pool", 1680.0)
     
+    # Handle daily payment settings
+    competition_dict["daily_payment_enabled"] = competition_dict.get("daily_payment_enabled", False)
+    competition_dict["daily_payment_amount"] = competition_dict.get("daily_payment_amount", 0.0)
+    competition_dict["season_ended"] = False
+    
+    # Insert competition first
+    result = await db.competitions.insert_one(competition_dict)
+    competition_id = competition_dict["_id"]
+    
+    # Create matchday payment records if daily payments are enabled
+    if competition_dict["daily_payment_enabled"] and competition_dict["daily_payment_amount"] > 0:
+        matchday_payments = []
+        total_matchdays = competition_dict["total_matchdays"]
+        daily_amount = competition_dict["daily_payment_amount"]
+        
+        # Create payment records for admin (first participant) for all matchdays
+        for matchday in range(1, total_matchdays + 1):
+            payment_record = {
+                "_id": ObjectId(),
+                "user_id": current_user.id,
+                "competition_id": competition_id,
+                "matchday": matchday,
+                "amount": daily_amount,
+                "status": "pending",
+                "paid_at": None,
+                "created_at": datetime.now(timezone.utc)
+            }
+            matchday_payments.append(payment_record)
+        
+        # Insert all payment records
+        if matchday_payments:
+            await db.matchday_payments.insert_many(matchday_payments)
+            
+    # Create unique index for matchday payments if it doesn't exist
+    try:
+        await db.matchday_payments.create_index(
+            [("user_id", 1), ("competition_id", 1), ("matchday", 1)],
+            unique=True
+        )
+    except Exception:
+        # Index might already exist, ignore error
+        pass
+    
     # Log the competition creation with financial details
     await db.admin_logs.insert_one({
         "_id": ObjectId(),
