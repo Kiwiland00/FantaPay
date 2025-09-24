@@ -163,6 +163,7 @@ const CreateCompetitionScreen: React.FC = () => {
   const handleCreateCompetition = () => {
     const competitionData = {
       name: competitionName.trim(),
+      total_matchdays: parseInt(totalMatchdays) || 36,
       rules: getRulesData(),
     };
 
