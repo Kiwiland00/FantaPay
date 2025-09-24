@@ -262,7 +262,7 @@ const CreateCompetitionScreen: React.FC = () => {
 
   const renderProgressBar = () => (
     <View style={styles.progressContainer}>
-      {[1, 2, 3].map((step) => (
+      {[1, 2, 3, 4].map((step) => (
         <React.Fragment key={step}>
           <View style={[
             styles.progressStep,
