@@ -199,13 +199,17 @@ export const competitionAPI = {
   }) => {
     console.log('🏆 Mock: Creating competition:', data.name);
     
-    // Check for unique name (mock existing competitions)
-    const existingNames = ['test', 'serie a fantasy', 'champions league'];
+    // Get existing competitions from cross-platform storage
+    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    let existingCompetitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+    
+    // Check for unique name validation
+    const existingNames = existingCompetitions.map((comp: any) => comp.name.toLowerCase());
     if (existingNames.includes(data.name.toLowerCase())) {
       throw new Error('Competition name already exists. Please choose another name.');
     }
     
-    // Create new competition and add to storage
+    // Create new competition
     const newCompetition = {
       _id: `comp_${Date.now()}`,
       name: data.name,
@@ -233,53 +237,48 @@ export const competitionAPI = {
       updated_at: new Date().toISOString()
     };
     
-    // Store in mock storage
-    let mockCompetitions = JSON.parse(localStorage.getItem('mockCompetitions') || '[]');
-    mockCompetitions.push(newCompetition);
-    localStorage.setItem('mockCompetitions', JSON.stringify(mockCompetitions));
+    // Add to competitions list and save to storage
+    existingCompetitions.push(newCompetition);
+    await CrossPlatformStorage.setItem('mockCompetitions', JSON.stringify(existingCompetitions));
     
     return newCompetition;
+  },
+
+  // Real-time name validation
+  validateNameMock: async (name: string) => {
+    console.log('🏆 Mock: Validating competition name:', name);
+    
+    if (!name.trim()) {
+      return { available: true, message: '' };
+    }
+    
+    // Get existing competitions
+    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    let existingCompetitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+    
+    // Add some default competition names to check against
+    const defaultNames = ['Serie A Fantasy 2024', 'Champions League Fantasy', 'Premier League'];
+    const allNames = [
+      ...existingCompetitions.map((comp: any) => comp.name.toLowerCase()),
+      ...defaultNames.map(name => name.toLowerCase())
+    ];
+    
+    const isAvailable = !allNames.includes(name.toLowerCase());
+    
+    return {
+      available: isAvailable,
+      message: isAvailable ? 'Name available' : 'Name already exists'
+    };
   },
   
   getMyCompetitionsMock: async () => {
     console.log('🏆 Mock: Getting my competitions');
     
-    // Get stored competitions + default ones
-    let mockCompetitions = JSON.parse(localStorage.getItem('mockCompetitions') || '[]');
+    // Clear all competitions for fresh start as requested
+    await CrossPlatformStorage.removeItem('mockCompetitions');
     
-    // Add default competitions if none exist
-    if (mockCompetitions.length === 0) {
-      mockCompetitions = [
-        {
-          _id: 'comp_default_1',
-          name: 'Serie A Fantasy 2024',
-          rules: { type: 'mixed', daily_prize: 10, final_prize_pool: [{ position: 1, amount: 100, description: '1st Place' }] },
-          invite_code: 'SERIA24',
-          invite_link: 'https://fantapay.app/join/SERIA24',
-          admin_id: 'other_user_123', // Not current user, so not admin
-          participants: [
-            { id: '650f1f1f1f1f1f1f1f1f1f1f', name: 'FantaPay Tester', email: 'test@fantapay.com', is_admin: false, paid_matchdays: [1, 2], points: 82 },
-            { id: 'user_2', name: 'Marco Rossi', email: 'marco@email.com', is_admin: false, paid_matchdays: [1, 2, 3], points: 87 },
-            { id: 'user_3', name: 'Luca Bianchi', email: 'luca@email.com', is_admin: false, paid_matchdays: [1], points: 71 },
-            { id: 'user_4', name: 'Sofia Verde', email: 'sofia@email.com', is_admin: false, paid_matchdays: [1, 2], points: 76 }
-          ],
-          wallet_balance: 75,
-          is_active: true,
-          current_matchday: 3,
-          standings: [
-            { position: 1, player_id: 'user_2', name: 'Marco Rossi', points: 87 },
-            { position: 2, player_id: '650f1f1f1f1f1f1f1f1f1f1f', name: 'FantaPay Tester', points: 82 },
-            { position: 3, player_id: 'user_4', name: 'Sofia Verde', points: 76 },
-            { position: 4, player_id: 'user_3', name: 'Luca Bianchi', points: 71 }
-          ],
-          created_at: '2024-01-01T00:00:00Z',
-          updated_at: '2024-01-15T00:00:00Z'
-        }
-      ];
-      localStorage.setItem('mockCompetitions', JSON.stringify(mockCompetitions));
-    }
-    
-    return mockCompetitions;
+    // Return empty array for clean slate
+    return [];
   },
   
   joinMock: async (inviteCode: string) => {
