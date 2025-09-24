@@ -887,6 +887,34 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#34C759',
   },
+  walletBalanceContainer: {
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 10,
+  },
+  walletBalanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  walletBalanceLabel: {
+    flex: 1,
+    fontSize: 14,
+    color: '#8E8E93',
+  },
+  walletBalanceAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  lowBalanceWarning: {
+    fontSize: 12,
+    color: '#FF9500',
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
   paymentActions: {
     flexDirection: 'row',
     gap: 12,
