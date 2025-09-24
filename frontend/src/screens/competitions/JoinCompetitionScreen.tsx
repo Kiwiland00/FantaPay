@@ -57,7 +57,7 @@ const JoinCompetitionScreen: React.FC = () => {
     }
 
     if (code.length < 6) {
-      Alert.alert(t('error'), 'Please enter a valid invite code');
+      Alert.alert(t('error'), t('competitions.validCodeError'));
       return;
     }
 
