@@ -191,6 +191,7 @@ export const competitionAPI = {
   // TEMPORARY: Mock API calls for testing without authentication
   createMock: async (data: {
     name: string;
+    total_matchdays?: number;
     rules: {
       type: string;
       daily_prize?: number;
@@ -198,6 +199,7 @@ export const competitionAPI = {
     };
   }) => {
     console.log('🏆 Mock: Creating competition:', data.name);
+    console.log('📅 Total matchdays:', data.total_matchdays || 36);
     
     // Get existing competitions from cross-platform storage
     const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
@@ -215,6 +217,7 @@ export const competitionAPI = {
     const newCompetition = {
       _id: `comp_${Date.now()}`,
       name: data.name,
+      total_matchdays: data.total_matchdays || 36,
       rules: data.rules,
       invite_code: Math.random().toString(36).substr(2, 8).toUpperCase(),
       invite_link: `https://fantapay.app/join/${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
@@ -246,6 +249,7 @@ export const competitionAPI = {
     console.log('✅ Competition created and saved! New total:', existingCompetitions.length);
     console.log('🆔 Competition ID:', newCompetition._id);
     console.log('📝 Competition Name:', newCompetition.name);
+    console.log('📅 Matchdays configured:', newCompetition.total_matchdays);
     
     return newCompetition;
   },
