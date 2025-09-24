@@ -190,6 +190,9 @@ export const competitionAPI = {
     participation_cost_per_team?: number;
     expected_teams?: number;
     total_prize_pool?: number;
+    // Daily payment configuration
+    daily_payment_enabled?: boolean;
+    daily_payment_amount?: number;
   }) => apiClient.post('/competitions', data),
   
   join: (inviteCode: string) =>
