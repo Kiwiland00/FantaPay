@@ -131,11 +131,8 @@ const CreateCompetitionScreen: React.FC = () => {
           {
             text: 'Copy Code',
             onPress: () => {
-              // Import Clipboard at the top of the file
-              import('expo-clipboard').then((Clipboard) => {
-                Clipboard.setString(inviteCode);
-                Alert.alert('Copied!', `Invite code "${inviteCode}" copied to clipboard!`);
-              });
+              Clipboard.setString(inviteCode);
+              Alert.alert('Copied!', `Invite code "${inviteCode}" copied to clipboard!`);
             },
           },
           {
