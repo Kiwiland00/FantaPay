@@ -801,6 +801,30 @@ async def join_competition(join_data: CompetitionJoin, current_user: User = Depe
         {"$push": {"participants": current_user.id}}
     )
     
+    # Create matchday payment records if daily payments are enabled
+    if competition.get("daily_payment_enabled", False) and competition.get("daily_payment_amount", 0) > 0:
+        matchday_payments = []
+        total_matchdays = competition.get("total_matchdays", 36)
+        daily_amount = competition.get("daily_payment_amount", 0.0)
+        
+        # Create payment records for new participant for all matchdays
+        for matchday in range(1, total_matchdays + 1):
+            payment_record = {
+                "_id": ObjectId(),
+                "user_id": current_user.id,
+                "competition_id": competition["_id"],
+                "matchday": matchday,
+                "amount": daily_amount,
+                "status": "pending",
+                "paid_at": None,
+                "created_at": datetime.now(timezone.utc)
+            }
+            matchday_payments.append(payment_record)
+        
+        # Insert all payment records
+        if matchday_payments:
+            await db.matchday_payments.insert_many(matchday_payments)
+    
     return {"message": "Successfully joined competition"}
 
 @api_router.get("/competitions/my")
