@@ -47,6 +47,10 @@ const CreateCompetitionScreen: React.FC = () => {
   const [expectedTeams, setExpectedTeams] = useState('8'); // 8 teams default
   const [totalPrizePool, setTotalPrizePool] = useState('1680'); // Calculated automatically
   
+  // Daily payment configuration
+  const [dailyPaymentEnabled, setDailyPaymentEnabled] = useState(false); // Whether daily payments are required
+  const [dailyPaymentAmount, setDailyPaymentAmount] = useState('5'); // Amount per matchday if enabled
+  
   // Real-time validation state
   const [validation, setValidation] = useState<ValidationState>({
     isValidating: false,
