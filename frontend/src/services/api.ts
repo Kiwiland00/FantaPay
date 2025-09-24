@@ -392,6 +392,76 @@ export const competitionAPI = {
     console.log('✅ Competition updated successfully');
     return competitions[competitionIndex];
   },
+
+  // Award daily prize (admin only)
+  awardDailyPrizeMock: async (competitionId: string, matchday: number, winnerId: string) => {
+    console.log('🏆 Mock: Awarding daily prize for matchday', matchday, 'to user', winnerId);
+    
+    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    let competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+    
+    const competitionIndex = competitions.findIndex((comp: any) => comp._id === competitionId);
+    if (competitionIndex === -1) {
+      throw new Error('Competition not found');
+    }
+
+    const competition = competitions[competitionIndex];
+    
+    // Check if user is admin
+    if (competition.admin_id !== '650f1f1f1f1f1f1f1f1f1f1f') {
+      throw new Error('Only admin can award daily prizes');
+    }
+
+    // Check if competition has daily prizes
+    if (!competition.rules || !['daily', 'mixed'].includes(competition.rules.type)) {
+      throw new Error('This competition does not have daily prizes');
+    }
+
+    const dailyPrizeAmount = competition.rules.daily_prize || 5;
+    const winner = competition.participants.find((p: any) => p.id === winnerId);
+    
+    if (!winner) {
+      throw new Error('Winner not found in competition');
+    }
+
+    // Initialize daily winners if not exists
+    if (!competition.daily_winners) {
+      competition.daily_winners = {};
+    }
+
+    // Check if prize already awarded for this matchday
+    if (competition.daily_winners[matchday]) {
+      throw new Error(`Daily prize for matchday ${matchday} already awarded to ${competition.daily_winners[matchday].name}`);
+    }
+
+    // Award the prize
+    competition.daily_winners[matchday] = {
+      user_id: winnerId,
+      name: winner.name,
+      amount: dailyPrizeAmount,
+      awarded_at: new Date().toISOString()
+    };
+
+    // Update competition
+    competitions[competitionIndex] = competition;
+    await CrossPlatformStorage.setItem('mockCompetitions', JSON.stringify(competitions));
+    
+    // Log the action
+    await logAdminAction('award_daily_prize', competition.name, 'FantaPay Tester', {
+      matchday,
+      winner: winner.name,
+      amount: dailyPrizeAmount
+    });
+
+    // Simulate wallet credit (in a real app, this would update the user's wallet)
+    console.log(`💰 ${winner.name} awarded €${dailyPrizeAmount} for winning matchday ${matchday}`);
+    
+    console.log('✅ Daily prize awarded successfully');
+    return {
+      message: `Daily prize of €${dailyPrizeAmount} awarded to ${winner.name} for matchday ${matchday}`,
+      competition: competition
+    };
+  },
 };
 
 // Wallet API
