@@ -76,6 +76,20 @@ const resources = {
       
       // Currency
       'currency.euro': '€',
+      
+      // Logs and Notifications
+      'nav.logs': 'Logs & Notifications',
+      'logs.payments': 'Payment Logs',
+      'logs.paid': 'Paid',
+      'logs.notPaid': 'Not Paid',
+      'logs.standings': 'Current Standings',
+      'logs.position': 'Pos',
+      'logs.player': 'Player',
+      'logs.points': 'Points',
+      'logs.joinedCompetitions': 'My Competitions',
+      'logs.noCompetitions': 'No competitions joined',
+      'logs.joinFirst': 'Join a competition to see logs and standings here',
+      'logs.notificationDesc': 'Receive updates about competitions, payments, and standings',
     },
   },
   it: {
