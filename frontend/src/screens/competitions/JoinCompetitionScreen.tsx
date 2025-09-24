@@ -25,7 +25,10 @@ const JoinCompetitionScreen: React.FC = () => {
   const [inviteCode, setInviteCode] = useState('');
 
   const joinCompetitionMutation = useMutation({
-    mutationFn: competitionAPI.join,
+    mutationFn: (inviteCode: string) => {
+      // TEMPORARY: Use mock API for testing
+      return competitionAPI.joinMock ? competitionAPI.joinMock(inviteCode) : competitionAPI.join(inviteCode);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
       Alert.alert(
@@ -40,7 +43,7 @@ const JoinCompetitionScreen: React.FC = () => {
       );
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.detail || 'Failed to join competition';
+      const errorMessage = error.message || error.response?.data?.detail || 'Failed to join competition';
       Alert.alert(t('error'), errorMessage);
     },
   });
