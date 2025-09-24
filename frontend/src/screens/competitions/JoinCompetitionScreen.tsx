@@ -94,7 +94,7 @@ const JoinCompetitionScreen: React.FC = () => {
           {/* Title */}
           <Text style={styles.title}>{t('competition.join.title')}</Text>
           <Text style={styles.subtitle}>
-            Enter the invite code shared by the competition admin to join
+            {t('competitions.enterCodeDescription')}
           </Text>
 
           {/* Invite Code Input */}
