@@ -607,6 +607,24 @@ const CompetitionDetailScreen: React.FC = () => {
             showsVerticalScrollIndicator={false}
           />
         </View>
+
+        {/* Admin Actions */}
+        {isAdmin && (
+          <View style={styles.adminCard}>
+            <View style={styles.adminHeader}>
+              <Ionicons name="settings-outline" size={24} color="#FF3B30" />
+              <Text style={styles.adminTitle}>Admin Actions</Text>
+            </View>
+            
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeleteCompetition}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+              <Text style={styles.deleteButtonText}>Delete Competition</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
 
       {renderPaymentModal()}
