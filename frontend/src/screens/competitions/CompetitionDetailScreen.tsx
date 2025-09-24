@@ -289,24 +289,46 @@ const CompetitionDetailScreen: React.FC = () => {
       return;
     }
 
+    const totalCost = selectedMatchdays.length * (competition?.daily_payment_amount || 5);
+    
+    // Check if user has sufficient balance
+    if (userBalance < totalCost) {
+      Alert.alert(
+        'Insufficient Balance', 
+        `You need €${totalCost.toFixed(2)} but only have €${userBalance.toFixed(2)}. Please deposit funds to your wallet first.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Go to Wallet', 
+            onPress: () => {
+              setShowPaymentModal(false);
+              navigation.navigate('Wallet' as never);
+            }
+          }
+        ]
+      );
+      return;
+    }
+
     try {
       setIsPaymentLoading(true);
       
-      const totalCost = selectedMatchdays.length * (competition?.daily_payment_amount || 5);
-      
       Alert.alert(
         'Confirm Payment',
-        `Pay €${totalCost} for ${selectedMatchdays.length} matchdays?\n\nMatchdays: ${selectedMatchdays.sort((a, b) => a - b).join(', ')}`,
+        `Pay €${totalCost.toFixed(2)} for ${selectedMatchdays.length} matchdays?\n\nMatchdays: ${selectedMatchdays.sort((a, b) => a - b).join(', ')}\n\nYour balance: €${userBalance.toFixed(2)}`,
         [
           { text: 'Cancel', style: 'cancel' },
           {
-            text: 'Pay',
+            text: 'Pay Now',
             onPress: async () => {
               try {
-                // Mock payment success
                 console.log('💳 Processing payment for matchdays:', selectedMatchdays);
                 
-                // Update payment status
+                // Update user balance
+                const newBalance = userBalance - totalCost;
+                await updateUserBalance(newBalance);
+                
+                // Update payment status for selected matchdays
                 const updatedPayments = userPayments.map(payment => {
                   if (selectedMatchdays.includes(payment.matchday)) {
                     return {
@@ -319,10 +341,27 @@ const CompetitionDetailScreen: React.FC = () => {
                 });
                 
                 setUserPayments(updatedPayments);
+                
+                // Add transaction record
+                await addTransactionRecord({
+                  type: 'matchday_payment',
+                  amount: totalCost,
+                  description: `Payment for matchdays ${selectedMatchdays.join(', ')} - ${competition?.name}`,
+                  from_wallet: 'personal',
+                  to_wallet: 'competition',
+                  status: 'completed',
+                  created_at: new Date().toISOString(),
+                });
+
+                // Store updated payment status 
+                const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+                const paymentKey = `payments_${userId}_${competitionId}`;
+                await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(updatedPayments));
+                
                 setSelectedMatchdays([]);
                 setShowPaymentModal(false);
                 
-                Alert.alert('Success', `Payment successful! Paid €${totalCost} for ${selectedMatchdays.length} matchdays.`);
+                Alert.alert('Payment Successful!', `€${totalCost.toFixed(2)} paid for ${selectedMatchdays.length} matchdays.\n\nNew balance: €${newBalance.toFixed(2)}`);
                 
                 // Reload competition data to reflect balance changes
                 loadCompetition();
