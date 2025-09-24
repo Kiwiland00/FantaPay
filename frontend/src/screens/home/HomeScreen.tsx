@@ -87,6 +87,13 @@ const HomeScreen: React.FC = () => {
       colors: ['#AF52DE', '#BF5AF2'],
       onPress: () => navigation.navigate('Logs' as never),
     },
+    {
+      id: 'reset-db',
+      titleKey: 'Reset DB',
+      iconName: 'refresh-circle',
+      colors: ['#FF3B30', '#FF6961'],
+      onPress: handleResetDatabase,
+    },
   ];
 
   const renderActionCard = (card: ActionCard) => (
