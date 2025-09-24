@@ -462,6 +462,25 @@ export const competitionAPI = {
       competition: competition
     };
   },
+
+  // Get admin logs
+  getAdminLogsMock: async () => {
+    console.log('📝 Mock: Getting admin logs');
+    
+    try {
+      const logs = await CrossPlatformStorage.getItem('adminLogs') || '[]';
+      const adminLogs = JSON.parse(logs);
+      
+      // Sort by timestamp (newest first)
+      adminLogs.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      console.log('📋 Admin logs found:', adminLogs.length);
+      return adminLogs;
+    } catch (error) {
+      console.error('💥 Error getting admin logs:', error);
+      return [];
+    }
+  },
 };
 
 // Wallet API
