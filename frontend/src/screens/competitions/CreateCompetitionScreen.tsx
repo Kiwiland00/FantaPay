@@ -114,15 +114,33 @@ const CreateCompetitionScreen: React.FC = () => {
     mutationFn: (data: any) => {
       return competitionAPI.createMock ? competitionAPI.createMock(data) : competitionAPI.create(data);
     },
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
+      
+      const competition = response.data;
+      const inviteCode = competition.invite_code;
+      
+      console.log('🎉 Competition created successfully:', competition.name);
+      console.log('🔑 Invite Code:', inviteCode);
+      
       Alert.alert(
-        t('success'),
-        `Competition "${competitionName}" created successfully!\n\nInvite Code: ${data.invite_code}\nTotal Prize Pool: €${totalPrizePool}`,
+        '🎉 Success!',
+        `Competition "${competitionName}" created successfully!\n\n🔑 Invite Code: ${inviteCode}\n💰 Total Prize Pool: €${totalPrizePool}\n\nShare this code with participants!`,
         [
           {
-            text: t('common.ok'),
+            text: 'Copy Code',
+            onPress: () => {
+              // Import Clipboard at the top of the file
+              import('expo-clipboard').then((Clipboard) => {
+                Clipboard.setString(inviteCode);
+                Alert.alert('Copied!', `Invite code "${inviteCode}" copied to clipboard!`);
+              });
+            },
+          },
+          {
+            text: 'Done',
             onPress: () => navigation.goBack(),
+            style: 'default',
           },
         ]
       );
