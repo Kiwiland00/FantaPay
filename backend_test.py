@@ -723,6 +723,366 @@ class FantaPayTester:
             self.log_test("Custom Financial Config", False, f"Exception: {str(e)}")
             return False
     
+    # ===== MATCHDAY PAYMENT SYSTEM TESTS =====
+    
+    def test_competition_with_daily_payments_enabled(self):
+        """Test creating competition with daily payments enabled"""
+        try:
+            competition_data = {
+                "name": "Serie A Fantasy - Daily Payments",
+                "rules": {
+                    "type": "mixed",
+                    "daily_prize": 10.0,
+                    "final_prize_pool": [
+                        {"position": 1, "amount": 500.0, "description": "First Place"},
+                        {"position": 2, "amount": 300.0, "description": "Second Place"}
+                    ]
+                },
+                "total_matchdays": 38,
+                "participation_cost_per_team": 190.0,
+                "expected_teams": 10,
+                "total_prize_pool": 1900.0,
+                "daily_payment_enabled": True,
+                "daily_payment_amount": 5.0
+            }
+            
+            response = self.make_request("POST", "/competitions", competition_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Store for later tests
+                self.daily_payment_comp_id = data.get("_id") or data.get("id")
+                
+                # Verify daily payment fields
+                daily_payment_correct = (
+                    data.get("daily_payment_enabled") == True and
+                    data.get("daily_payment_amount") == 5.0
+                )
+                
+                if daily_payment_correct:
+                    self.log_test("Create Competition with Daily Payments", True, 
+                                f"Competition created with daily payments: €{data['daily_payment_amount']} per matchday")
+                    return True
+                else:
+                    self.log_test("Create Competition with Daily Payments", False, 
+                                f"Daily payment fields incorrect: enabled={data.get('daily_payment_enabled')}, amount={data.get('daily_payment_amount')}")
+                    return False
+            else:
+                self.log_test("Create Competition with Daily Payments", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Create Competition with Daily Payments", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_competition_without_daily_payments(self):
+        """Test creating competition with daily payments disabled"""
+        try:
+            competition_data = {
+                "name": "Serie A Fantasy - No Daily Payments",
+                "rules": {
+                    "type": "final",
+                    "final_prize_pool": [
+                        {"position": 1, "amount": 1000.0, "description": "Winner"}
+                    ]
+                },
+                "daily_payment_enabled": False,
+                "daily_payment_amount": 0.0
+            }
+            
+            response = self.make_request("POST", "/competitions", competition_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Store for later tests
+                self.no_daily_payment_comp_id = data.get("_id") or data.get("id")
+                
+                if data.get("daily_payment_enabled") == False:
+                    self.log_test("Create Competition without Daily Payments", True, 
+                                "Competition created without daily payments")
+                    return True
+                else:
+                    self.log_test("Create Competition without Daily Payments", False, 
+                                "Daily payment should be disabled")
+                    return False
+            else:
+                self.log_test("Create Competition without Daily Payments", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Create Competition without Daily Payments", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_matchday_payment_records_creation(self):
+        """Test that matchday payment records are automatically created"""
+        if not hasattr(self, 'daily_payment_comp_id') or not self.daily_payment_comp_id:
+            self.log_test("Matchday Payment Records Creation", False, "No daily payment competition available")
+            return False
+        
+        try:
+            response = self.make_request("GET", f"/competitions/{self.daily_payment_comp_id}/matchday-payments")
+            
+            if response.status_code == 200:
+                payment_data = response.json()
+                payments = payment_data.get("payments", [])
+                total_matchdays = payment_data.get("total_matchdays", 0)
+                
+                if len(payments) == total_matchdays:
+                    pending_payments = [p for p in payments if p["status"] == "pending"]
+                    self.log_test("Matchday Payment Records Creation", True, 
+                                f"Created {len(payments)} payment records, {len(pending_payments)} pending")
+                    return True
+                else:
+                    self.log_test("Matchday Payment Records Creation", False, 
+                                f"Expected {total_matchdays} records, got {len(payments)}")
+                    return False
+            else:
+                self.log_test("Matchday Payment Records Creation", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Matchday Payment Records Creation", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_matchday_payment_api(self):
+        """Test matchday payment API endpoints"""
+        if not hasattr(self, 'daily_payment_comp_id') or not self.daily_payment_comp_id:
+            self.log_test("Matchday Payment API", False, "No daily payment competition available")
+            return False
+        
+        try:
+            # First ensure user has sufficient balance
+            self.make_request("POST", "/wallet/topup?amount=100.0")
+            
+            # Test paying for multiple matchdays
+            payment_data = {
+                "competition_id": self.daily_payment_comp_id,
+                "matchdays": [1, 2, 3, 4, 5]
+            }
+            
+            response = self.make_request("POST", f"/competitions/{self.daily_payment_comp_id}/matchday-payments", payment_data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                paid_matchdays = result.get("paid_matchdays", [])
+                total_cost = result.get("total_cost", 0)
+                
+                if len(paid_matchdays) == 5 and total_cost == 25.0:  # 5 matchdays * €5
+                    self.log_test("Matchday Payment API", True, 
+                                f"Paid for {len(paid_matchdays)} matchdays, cost: €{total_cost}")
+                    return True
+                else:
+                    self.log_test("Matchday Payment API", False, 
+                                f"Unexpected result: {paid_matchdays}, cost: {total_cost}")
+                    return False
+            else:
+                self.log_test("Matchday Payment API", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Matchday Payment API", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_matchday_payment_status_retrieval(self):
+        """Test getting matchday payment status"""
+        if not hasattr(self, 'daily_payment_comp_id') or not self.daily_payment_comp_id:
+            self.log_test("Matchday Payment Status", False, "No daily payment competition available")
+            return False
+        
+        try:
+            response = self.make_request("GET", f"/competitions/{self.daily_payment_comp_id}/matchday-payments")
+            
+            if response.status_code == 200:
+                payment_data = response.json()
+                payments = payment_data.get("payments", [])
+                paid_payments = [p for p in payments if p["status"] == "paid"]
+                
+                if len(paid_payments) >= 5:  # From previous test
+                    self.log_test("Matchday Payment Status", True, 
+                                f"Retrieved payment status: {len(paid_payments)} paid matchdays")
+                    return True
+                else:
+                    self.log_test("Matchday Payment Status", False, 
+                                f"Expected at least 5 paid matchdays, got {len(paid_payments)}")
+                    return False
+            else:
+                self.log_test("Matchday Payment Status", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Matchday Payment Status", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_admin_payment_status_table(self):
+        """Test admin payment status table endpoint"""
+        if not hasattr(self, 'daily_payment_comp_id') or not self.daily_payment_comp_id:
+            self.log_test("Admin Payment Status Table", False, "No daily payment competition available")
+            return False
+        
+        try:
+            response = self.make_request("GET", f"/competitions/{self.daily_payment_comp_id}/payment-status-table")
+            
+            if response.status_code == 200:
+                status_table = response.json()
+                participants = status_table.get("participants", [])
+                
+                if len(participants) >= 1:  # At least the admin
+                    self.log_test("Admin Payment Status Table", True, 
+                                f"Retrieved status table for {len(participants)} participants")
+                    return True
+                else:
+                    self.log_test("Admin Payment Status Table", False, 
+                                f"Expected at least 1 participant, got {len(participants)}")
+                    return False
+            else:
+                self.log_test("Admin Payment Status Table", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Admin Payment Status Table", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_matchday_payment_validation(self):
+        """Test matchday payment validation and edge cases"""
+        if not hasattr(self, 'daily_payment_comp_id') or not self.daily_payment_comp_id:
+            self.log_test("Matchday Payment Validation", False, "No daily payment competition available")
+            return False
+        
+        validation_tests = []
+        
+        # Test invalid matchdays
+        try:
+            payment_data = {
+                "competition_id": self.daily_payment_comp_id,
+                "matchdays": [0, 50, 100]  # Invalid matchday numbers
+            }
+            
+            response = self.make_request("POST", f"/competitions/{self.daily_payment_comp_id}/matchday-payments", payment_data)
+            
+            if response.status_code == 400 and "Invalid matchdays" in response.text:
+                validation_tests.append(("Invalid Matchdays", True, "Correctly rejected invalid matchday numbers"))
+            else:
+                validation_tests.append(("Invalid Matchdays", False, f"Expected 400 with invalid matchdays error, got {response.status_code}"))
+        except Exception as e:
+            validation_tests.append(("Invalid Matchdays", False, f"Exception: {str(e)}"))
+        
+        # Test duplicate payments
+        try:
+            payment_data = {
+                "competition_id": self.daily_payment_comp_id,
+                "matchdays": [1, 2, 3]  # These should already be paid from earlier test
+            }
+            
+            response = self.make_request("POST", f"/competitions/{self.daily_payment_comp_id}/matchday-payments", payment_data)
+            
+            if response.status_code == 400 and "Already paid" in response.text:
+                validation_tests.append(("Duplicate Payments", True, "Correctly rejected duplicate payments"))
+            else:
+                validation_tests.append(("Duplicate Payments", False, f"Expected 400 with already paid error, got {response.status_code}"))
+        except Exception as e:
+            validation_tests.append(("Duplicate Payments", False, f"Exception: {str(e)}"))
+        
+        # Test payment on competition without daily payments
+        if hasattr(self, 'no_daily_payment_comp_id') and self.no_daily_payment_comp_id:
+            try:
+                payment_data = {
+                    "competition_id": self.no_daily_payment_comp_id,
+                    "matchdays": [1, 2]
+                }
+                
+                response = self.make_request("POST", f"/competitions/{self.no_daily_payment_comp_id}/matchday-payments", payment_data)
+                
+                if response.status_code == 400 and "Daily payments are not enabled" in response.text:
+                    validation_tests.append(("Payment on Non-Daily Competition", True, "Correctly rejected payment on competition without daily payments"))
+                else:
+                    validation_tests.append(("Payment on Non-Daily Competition", False, f"Expected 400 with daily payments not enabled error, got {response.status_code}"))
+            except Exception as e:
+                validation_tests.append(("Payment on Non-Daily Competition", False, f"Exception: {str(e)}"))
+        
+        # Log all validation test results
+        for test_name, success, details in validation_tests:
+            self.log_test(f"Validation - {test_name}", success, details)
+        
+        return all(result[1] for result in validation_tests)
+    
+    def test_payment_balance_updates(self):
+        """Test that payments correctly update user and competition balances"""
+        if not hasattr(self, 'daily_payment_comp_id') or not self.daily_payment_comp_id:
+            self.log_test("Payment Balance Updates", False, "No daily payment competition available")
+            return False
+        
+        try:
+            # Get initial balance
+            balance_response = self.make_request("GET", "/wallet/balance")
+            if balance_response.status_code != 200:
+                self.log_test("Payment Balance Updates", False, "Failed to get initial balance")
+                return False
+            
+            initial_balance = balance_response.json()["balance"]
+            
+            # Make payment for new matchdays
+            payment_data = {
+                "competition_id": self.daily_payment_comp_id,
+                "matchdays": [20, 21]  # New matchdays not paid before
+            }
+            
+            payment_response = self.make_request("POST", f"/competitions/{self.daily_payment_comp_id}/matchday-payments", payment_data)
+            
+            if payment_response.status_code == 200:
+                result = payment_response.json()
+                new_balance = result.get("new_user_balance", 0)
+                expected_balance = initial_balance - 10.0  # 2 matchdays * €5
+                
+                if abs(new_balance - expected_balance) < 0.01:
+                    self.log_test("Payment Balance Updates", True, 
+                                f"Balance correctly updated: {initial_balance} -> {new_balance}")
+                    return True
+                else:
+                    self.log_test("Payment Balance Updates", False, 
+                                f"Balance mismatch: expected {expected_balance}, got {new_balance}")
+                    return False
+            else:
+                self.log_test("Payment Balance Updates", False, f"Payment failed: {payment_response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Payment Balance Updates", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_matchday_payment_transactions(self):
+        """Test that matchday payments create proper transaction records"""
+        try:
+            response = self.make_request("GET", "/transactions")
+            
+            if response.status_code == 200:
+                transactions = response.json()
+                matchday_transactions = [t for t in transactions if t["type"] == "matchday_payment"]
+                
+                if len(matchday_transactions) > 0:
+                    latest_transaction = matchday_transactions[0]
+                    if (latest_transaction["from_wallet"] == "personal" and
+                        latest_transaction["to_wallet"] == "competition"):
+                        self.log_test("Matchday Payment Transactions", True, 
+                                    f"Found {len(matchday_transactions)} matchday payment transactions")
+                        return True
+                    else:
+                        self.log_test("Matchday Payment Transactions", False, 
+                                    f"Transaction details incorrect: {latest_transaction}")
+                        return False
+                else:
+                    self.log_test("Matchday Payment Transactions", False, 
+                                "No matchday payment transactions found")
+                    return False
+            else:
+                self.log_test("Matchday Payment Transactions", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Matchday Payment Transactions", False, f"Exception: {str(e)}")
+            return False
+    
     def run_comprehensive_test(self):
         """Run all tests in sequence"""
         print("🚀 Starting FantaPay Backend API Comprehensive Test Suite")
