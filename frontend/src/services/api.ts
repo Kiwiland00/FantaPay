@@ -220,6 +220,19 @@ export const competitionAPI = {
   getTransactions: (id: string) =>
     apiClient.get(`/competitions/${id}/transactions`),
   
+  // Matchday Payment APIs
+  payMatchdays: (competitionId: string, matchdays: number[]) =>
+    apiClient.post(`/competitions/${competitionId}/matchday-payments`, {
+      competition_id: competitionId,
+      matchdays,
+    }),
+  
+  getMatchdayPayments: (competitionId: string) =>
+    apiClient.get(`/competitions/${competitionId}/matchday-payments`),
+  
+  getPaymentStatusTable: (competitionId: string) =>
+    apiClient.get(`/competitions/${competitionId}/payment-status-table`),
+  
   // TEMPORARY: Mock API calls for testing without authentication
   createMock: async (data: {
     name: string;
