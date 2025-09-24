@@ -154,6 +154,11 @@ class Competition(BaseModel):
     participation_cost_per_team: float = 210.0  # Cost per team in euros
     expected_teams: int = 8  # Expected number of teams
     total_prize_pool: float = 1680.0  # Total prize pool in euros
+    # Daily payment configuration
+    daily_payment_enabled: bool = False  # Whether daily payments are required
+    daily_payment_amount: float = 0.0  # Amount per matchday if enabled
+    # Season status
+    season_ended: bool = False  # Whether final prizes have been distributed
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
