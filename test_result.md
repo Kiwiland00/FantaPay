@@ -164,6 +164,20 @@ backend:
       - working: true
         agent: "testing"
         comment: "COMPREHENSIVE FINANCIAL CONFIGURATION TESTING COMPLETED: ✅ Competition creation with specified financial fields (total_matchdays: 36, participation_cost_per_team: 210.0, expected_teams: 8, total_prize_pool: 1680.0) ✅ Default financial values correctly applied when fields not specified ✅ Custom financial values correctly stored (matchdays: 38, cost: 150.0, teams: 12, pool: 1800.0) ✅ Financial fields properly returned in competition retrieval APIs ✅ Financial fields present in user's competitions list ✅ Admin logging includes financial details in database ✅ All existing competition management APIs continue to work correctly. Financial Configuration API Support is fully functional and working end-to-end."
+
+  - task: "Matchday Payment System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE MATCHDAY PAYMENT SYSTEM TESTING COMPLETED WITH 100% SUCCESS: ✅ Competition creation with daily_payment_enabled=true/false ✅ Automatic matchday payment record creation for admin and new participants ✅ POST /api/competitions/{id}/matchday-payments for paying multiple matchdays ✅ GET /api/competitions/{id}/matchday-payments for user payment status ✅ GET /api/competitions/{id}/payment-status-table (admin only) ✅ Join competition integration creates payment records automatically ✅ Payment processing updates user/competition balances correctly ✅ Transaction records created for matchday payments ✅ MongoDB integration with unique indexes ✅ Edge case validation: insufficient balance, invalid matchdays, duplicate payments, non-participant access, admin-only endpoint protection. All 31 comprehensive tests passed including 9 specific matchday payment tests. System is fully functional and production-ready."
+
+  - task: "Database Models & Integration"
     implemented: true
     working: true
     file: "/app/backend/server.py"
