@@ -274,11 +274,13 @@ export const competitionAPI = {
   getMyCompetitionsMock: async () => {
     console.log('🏆 Mock: Getting my competitions');
     
-    // Clear all competitions for fresh start as requested
-    await CrossPlatformStorage.removeItem('mockCompetitions');
+    // Get stored competitions from cross-platform storage
+    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    let competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
     
-    // Return empty array for clean slate
-    return [];
+    console.log('📋 Competitions found:', competitions.length);
+    
+    return competitions;
   },
   
   joinMock: async (inviteCode: string) => {
