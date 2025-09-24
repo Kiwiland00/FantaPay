@@ -150,7 +150,17 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED: ✅ Wallet balance retrieval ✅ Wallet top-up (simulated) with balance updates ✅ Wallet withdrawal with balance validation ✅ Competition fee payments (wallet to competition transfer) ✅ Personal transaction history ✅ Competition-specific transaction history ✅ Proper insufficient balance error handling ✅ All transaction records properly created and stored. Complete wallet system working perfectly."
 
-  - task: "Database Models"
+  - task: "Financial Configuration API Support"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Added financial configuration fields to Competition and CompetitionCreate models: total_matchdays, participation_cost_per_team, expected_teams, total_prize_pool. Updated create_competition endpoint to handle and store these fields with proper logging."
     implemented: true
     working: true
     file: "/app/backend/server.py"
