@@ -15,7 +15,7 @@ import os
 from bson import ObjectId
 
 # Configuration
-BASE_URL = "https://fintech-fantapay.preview.emergentagent.com/api"
+BASE_URL = "https://fantasy-fintech.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 class FantaPayComprehensiveTester:

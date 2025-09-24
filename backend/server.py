@@ -149,6 +149,11 @@ class Competition(BaseModel):
     is_active: bool = True
     standings: Dict[str, Any] = {}
     current_matchday: int = 1
+    # Financial configuration fields
+    total_matchdays: int = 36  # Default Serie A matchdays
+    participation_cost_per_team: float = 210.0  # Cost per team in euros
+    expected_teams: int = 8  # Expected number of teams
+    total_prize_pool: float = 1680.0  # Total prize pool in euros
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
