@@ -94,20 +94,6 @@ const HomeScreen: React.FC = () => {
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeText}>{t('home.welcome')}</Text>
           <Text style={styles.userNameText}>{user?.name}</Text>
-          
-          {/* Quick Balance Card */}
-          <LinearGradient
-            colors={['#1C1C1E', '#2C2C2E']}
-            style={styles.balanceCard}
-          >
-            <View style={styles.balanceHeader}>
-              <Ionicons name="wallet-outline" size={24} color="#007AFF" />
-              <Text style={styles.balanceLabel}>{t('wallet.personal')}</Text>
-            </View>
-            <Text style={styles.balanceAmount}>
-              {t('currency.euro')}{user?.wallet_balance?.toFixed(2) || '0.00'}
-            </Text>
-          </LinearGradient>
         </View>
 
         {/* Action Cards Grid */}
