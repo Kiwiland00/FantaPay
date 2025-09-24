@@ -247,7 +247,7 @@ const CompetitionDetailScreen: React.FC = () => {
     try {
       console.log('🔐 Loading admin payment table');
       
-      // Mock admin payment table data
+      // Mock admin payment table data - ALL START AS UNPAID
       const mockTable: PaymentStatusTableParticipant[] = [
         {
           user_id: user?.id || '',
@@ -256,14 +256,15 @@ const CompetitionDetailScreen: React.FC = () => {
           email: 'test@fantapay.com',
           matchday_payments: Array.from({length: competition?.total_matchdays || 36}, (_, i) => ({
             matchday: i + 1,
-            status: (i < 3 ? 'paid' : 'pending') as 'paid' | 'pending',
+            status: 'pending' as const, // ALL start as unpaid/pending
             amount: competition?.daily_payment_amount || 5,
-            paid_at: i < 3 ? new Date().toISOString() : undefined
+            paid_at: undefined // None are paid initially
           }))
         }
       ];
       
       setPaymentStatusTable(mockTable);
+      console.log('🔐 Admin payment table loaded - ALL matchdays marked as UNPAID initially');
     } catch (error) {
       console.error('💥 Error loading admin payment table:', error);
     }
