@@ -392,10 +392,45 @@ const CompetitionDetailScreen: React.FC = () => {
                   created_at: new Date().toISOString(),
                 });
 
+                // Add detailed payment logs for each matchday
+                for (const matchday of selectedMatchdays) {
+                  await addTransactionRecord({
+                    type: 'matchday_payment_detail',
+                    amount: competition?.daily_payment_amount || 5,
+                    description: `${user?.name || 'FantaPay Tester'} paid matchday ${matchday}`,
+                    from_wallet: 'personal',
+                    to_wallet: 'competition',
+                    status: 'completed',
+                    created_at: new Date().toISOString(),
+                  });
+                }
+
                 // Store updated payment status 
                 const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
                 const paymentKey = `payments_${userId}_${competitionId}`;
                 await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(updatedPayments));
+                
+                // Update admin logs (competition-wide logs)
+                const adminLogsKey = 'admin_logs_mock';
+                const storedLogs = await CrossPlatformStorage.getItem(adminLogsKey);
+                const logs = storedLogs ? JSON.parse(storedLogs) : [];
+                
+                for (const matchday of selectedMatchdays) {
+                  const logEntry = {
+                    _id: `log_${Date.now()}_${matchday}`,
+                    admin_id: user?.id || '650f1f1f1f1f1f1f1f1f1f1f',
+                    admin_username: user?.name || 'FantaPay Tester',
+                    competition_id: competitionId,
+                    competition_name: competition?.name || 'Competition',
+                    action: 'matchday_payment',
+                    details: `${user?.name || 'FantaPay Tester'} paid matchday ${matchday} (€${competition?.daily_payment_amount || 5})`,
+                    timestamp: new Date().toISOString()
+                  };
+                  logs.unshift(logEntry); // Add to beginning
+                }
+                
+                await CrossPlatformStorage.setItem(adminLogsKey, JSON.stringify(logs));
+                console.log('📝 Added payment logs for matchdays:', selectedMatchdays);
                 
                 setSelectedMatchdays([]);
                 setShowPaymentModal(false);
