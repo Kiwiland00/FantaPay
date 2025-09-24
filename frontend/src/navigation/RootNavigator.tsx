@@ -22,6 +22,7 @@ import JoinCompetitionScreen from '../screens/competitions/JoinCompetitionScreen
 import CompetitionDetailScreen from '../screens/competitions/CompetitionDetailScreen';
 import WalletScreen from '../screens/wallet/WalletScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import LogsScreen from '../screens/logs/LogsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
