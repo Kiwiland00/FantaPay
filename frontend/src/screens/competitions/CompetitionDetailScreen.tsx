@@ -79,6 +79,14 @@ const CompetitionDetailScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Matchday Payment State
+  const [userPayments, setUserPayments] = useState<MatchdayPayment[]>([]);
+  const [paymentStatusTable, setPaymentStatusTable] = useState<PaymentStatusTableParticipant[]>([]);
+  const [selectedMatchdays, setSelectedMatchdays] = useState<number[]>([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showAdminPaymentTable, setShowAdminPaymentTable] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
   // Fetch competition data
   useEffect(() => {
