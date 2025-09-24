@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { databaseAPI } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
