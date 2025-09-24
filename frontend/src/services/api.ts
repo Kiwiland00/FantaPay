@@ -305,6 +305,69 @@ export const competitionAPI = {
     }
     return { message: 'Successfully joined competition!' };
   },
+
+  // Delete competition (admin only)
+  deleteMock: async (competitionId: string) => {
+    console.log('🗑️ Mock: Deleting competition:', competitionId);
+    
+    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    let competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+    
+    const competitionToDelete = competitions.find((comp: any) => comp._id === competitionId);
+    if (!competitionToDelete) {
+      throw new Error('Competition not found');
+    }
+
+    // Check if user is admin
+    if (competitionToDelete.admin_id !== '650f1f1f1f1f1f1f1f1f1f1f') {
+      throw new Error('Only admin can delete this competition');
+    }
+
+    // Remove competition from storage
+    competitions = competitions.filter((comp: any) => comp._id !== competitionId);
+    await CrossPlatformStorage.setItem('mockCompetitions', JSON.stringify(competitions));
+    
+    // Log the action
+    await logAdminAction('delete', competitionToDelete.name, 'FantaPay Tester');
+    
+    console.log('✅ Competition deleted successfully');
+    return { message: 'Competition deleted successfully' };
+  },
+
+  // Edit competition (admin only)
+  editMock: async (competitionId: string, updates: any) => {
+    console.log('✏️ Mock: Editing competition:', competitionId, updates);
+    
+    const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+    let competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+    
+    const competitionIndex = competitions.findIndex((comp: any) => comp._id === competitionId);
+    if (competitionIndex === -1) {
+      throw new Error('Competition not found');
+    }
+
+    const competition = competitions[competitionIndex];
+    
+    // Check if user is admin
+    if (competition.admin_id !== '650f1f1f1f1f1f1f1f1f1f1f') {
+      throw new Error('Only admin can edit this competition');
+    }
+
+    // Update competition
+    competitions[competitionIndex] = {
+      ...competition,
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    
+    await CrossPlatformStorage.setItem('mockCompetitions', JSON.stringify(competitions));
+    
+    // Log the action
+    await logAdminAction('edit', competition.name, 'FantaPay Tester', updates);
+    
+    console.log('✅ Competition updated successfully');
+    return competitions[competitionIndex];
+  },
 };
 
 // Wallet API
