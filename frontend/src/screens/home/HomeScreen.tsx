@@ -33,6 +33,31 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
 
+  const handleResetDatabase = async () => {
+    Alert.alert(
+      'Reset Database',
+      'Are you sure you want to clear all competitions, logs, and wallet data? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await databaseAPI.resetDatabase();
+              Alert.alert(
+                result.success ? 'Success' : 'Error',
+                result.message
+              );
+            } catch (error) {
+              Alert.alert('Error', 'Failed to reset database');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const actionCards: ActionCard[] = [
     {
       id: 'create-competition',
