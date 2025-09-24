@@ -175,6 +175,9 @@ class CompetitionCreate(BaseModel):
     participation_cost_per_team: Optional[float] = 210.0
     expected_teams: Optional[int] = 8
     total_prize_pool: Optional[float] = 1680.0
+    # Daily payment configuration
+    daily_payment_enabled: Optional[bool] = False
+    daily_payment_amount: Optional[float] = 0.0
 
 class CompetitionJoin(BaseModel):
     invite_code: str
