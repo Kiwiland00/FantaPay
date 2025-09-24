@@ -282,7 +282,33 @@ const CompetitionDetailScreen: React.FC = () => {
             try {
               console.log('🗑️ Deleting competition:', competition?._id);
               
-              // Mock deletion - in real implementation, call API
+              // Remove from stored competitions
+              const competitionsKey = 'competitions_mock';
+              const storedCompetitions = await CrossPlatformStorage.getItem(competitionsKey);
+              
+              if (storedCompetitions) {
+                const competitions = JSON.parse(storedCompetitions);
+                const updatedCompetitions = competitions.filter((comp: any) => comp._id !== competition?._id);
+                await CrossPlatformStorage.setItem(competitionsKey, JSON.stringify(updatedCompetitions));
+                console.log('✅ Competition removed from storage');
+              }
+
+              // Remove user's payment records for this competition
+              const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+              const paymentKey = `payments_${userId}_${competitionId}`;
+              await CrossPlatformStorage.removeItem(paymentKey);
+              
+              // Add deletion log entry
+              await addTransactionRecord({
+                type: 'competition_deleted',
+                amount: 0,
+                description: `Deleted competition: ${competition?.name}`,
+                from_wallet: 'system',
+                to_wallet: 'system',
+                status: 'completed',
+                created_at: new Date().toISOString(),
+              });
+
               Alert.alert('Success', 'Competition deleted successfully', [
                 { text: 'OK', onPress: () => navigation.goBack() }
               ]);
