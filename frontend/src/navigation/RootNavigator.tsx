@@ -164,6 +164,14 @@ export default function RootNavigator() {
             component={CompetitionDetailScreen}
             options={{ title: 'Competition Details' }}
           />
+          <Stack.Screen 
+            name="PaymentSummary" 
+            component={PaymentSummaryScreen}
+            options={{ 
+              title: 'Payment Summary',
+              headerShown: false // We handle the header in the component
+            }}
+          />
         </>
       )}
     </Stack.Navigator>
