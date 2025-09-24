@@ -274,13 +274,13 @@ const CompetitionDetailScreen: React.FC = () => {
         </TouchableOpacity>
         
         <View style={styles.headerContent}>
-          <Text style={styles.competitionName}>{mockCompetition.name}</Text>
+          <Text style={styles.competitionName}>{competition.name}</Text>
           <Text style={styles.matchdayText}>
-            {t('competitions.matchday')} {mockCompetition.current_matchday}
+            {t('competitions.matchday')} {competition.current_matchday || 1}
           </Text>
         </View>
 
-        {/* Admin Info Button */}
+        {/* Admin Info Button with Delete Option */}
         {isAdmin && (
           <TouchableOpacity
             style={styles.infoButton}
@@ -298,6 +298,11 @@ const CompetitionDetailScreen: React.FC = () => {
                     onPress: handleShareInviteLink,
                   },
                   {
+                    text: 'Delete Competition',
+                    style: 'destructive',
+                    onPress: handleDeleteCompetition,
+                  },
+                  {
                     text: t('common.cancel'),
                     style: 'cancel',
                   },
@@ -306,7 +311,7 @@ const CompetitionDetailScreen: React.FC = () => {
             }}
             activeOpacity={0.8}
           >
-            <Ionicons name="information-circle" size={24} color="#007AFF" />
+            <Ionicons name="ellipsis-horizontal" size={24} color="#007AFF" />
           </TouchableOpacity>
         )}
       </View>
