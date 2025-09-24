@@ -48,64 +48,95 @@ const CompetitionDetailScreen: React.FC = () => {
   const route = useRoute();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
   const competitionId = (route.params as any)?.competitionId;
   const [refreshing, setRefreshing] = useState(false);
+  const [competition, setCompetition] = useState<Competition | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock competition data with enhanced participant info
-  const mockCompetition: Competition = {
-    _id: competitionId || 'comp_default_1',
-    name: 'Serie A Fantasy 2024',
-    admin_id: competitionId === 'comp_default_1' ? 'other_user_123' : '650f1f1f1f1f1f1f1f1f1f1f',
-    invite_code: 'SERIA24',
-    invite_link: 'https://fantapay.app/join/SERIA24',
-    participants: [
-      { 
-        id: '650f1f1f1f1f1f1f1f1f1f1f', 
-        name: 'FantaPay Tester', 
-        email: 'test@fantapay.com', 
-        is_admin: competitionId !== 'comp_default_1',
-        paid_matchdays: [1, 2], 
-        points: 82,
-        position: 2
-      },
-      { 
-        id: 'user_2', 
-        name: 'Marco Rossi', 
-        email: 'marco@email.com', 
-        is_admin: false, 
-        paid_matchdays: [1, 2, 3], 
-        points: 87,
-        position: 1
-      },
-      { 
-        id: 'user_3', 
-        name: 'Luca Bianchi', 
-        email: 'luca@email.com', 
-        is_admin: false, 
-        paid_matchdays: [1], 
-        points: 71,
-        position: 4
-      },
-      { 
-        id: 'user_4', 
-        name: 'Sofia Verde', 
-        email: 'sofia@email.com', 
-        is_admin: false, 
-        paid_matchdays: [1, 2], 
-        points: 76,
-        position: 3
+  // Fetch actual competition data
+  useEffect(() => {
+    loadCompetition();
+  }, [competitionId]);
+
+  const loadCompetition = async () => {
+    try {
+      setIsLoading(true);
+      // Get competitions from storage and find the specific one
+      const competitions = await competitionAPI.getMyCompetitionsMock();
+      const foundCompetition = competitions.find((comp: any) => comp._id === competitionId);
+      
+      if (foundCompetition) {
+        setCompetition(foundCompetition);
+      } else {
+        // Fallback to default data if not found
+        setCompetition({
+          _id: competitionId || 'comp_default_1',
+          name: 'Competition Not Found',
+          admin_id: 'other_user_123',
+          invite_code: 'NOTFOUND',
+          invite_link: 'https://fantapay.app/join/NOTFOUND',
+          participants: [],
+          current_matchday: 1,
+          standings: [],
+          wallet_balance: 0,
+          is_active: false,
+        });
       }
-    ],
-    current_matchday: 3,
-    standings: [],
-    wallet_balance: 75,
-    is_active: true,
+    } catch (error) {
+      console.error('Error loading competition:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Delete competition mutation
+  const deleteCompetitionMutation = useMutation({
+    mutationFn: (competitionId: string) => {
+      return competitionAPI.deleteMock ? competitionAPI.deleteMock(competitionId) : Promise.reject('Delete not available');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
+      Alert.alert(
+        t('success'),
+        'Competition deleted successfully',
+        [
+          {
+            text: t('common.ok'),
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
+    },
+    onError: (error: any) => {
+      const errorMessage = error.message || 'Failed to delete competition';
+      Alert.alert(t('error'), errorMessage);
+    },
+  });
+
   // Check if current user is admin
-  const isAdmin = mockCompetition.admin_id === user?.id;
-  const currentUser = mockCompetition.participants.find(p => p.id === user?.id);
+  const isAdmin = competition?.admin_id === user?.id;
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>{t('common.loading')}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!competition) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Competition not found</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleRefresh = async () => {
     setRefreshing(true);
