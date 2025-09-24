@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,6 +31,11 @@ const CreateCompetitionScreen: React.FC = () => {
   const queryClient = useQueryClient();
   const { t } = useLanguage();
   
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+  
+  // Form data
   const [competitionName, setCompetitionName] = useState('');
   const [selectedRule, setSelectedRule] = useState<'daily' | 'final' | 'mixed'>('daily');
   const [dailyPrize, setDailyPrize] = useState('10');
@@ -46,6 +52,9 @@ const CreateCompetitionScreen: React.FC = () => {
     message: ''
   });
   
+  // Animation for step transitions
+  const [fadeAnim] = useState(new Animated.Value(1));
+  
   // Validation timeout for debouncing
   const [validationTimeout, setValidationTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -60,7 +69,6 @@ const CreateCompetitionScreen: React.FC = () => {
       setValidation(prev => ({ ...prev, isValidating: true }));
       
       try {
-        // Use the mock validation API
         const result = await competitionAPI.validateNameMock(competitionName);
         setValidation({
           isValidating: false,
@@ -76,12 +84,10 @@ const CreateCompetitionScreen: React.FC = () => {
       }
     };
 
-    // Clear existing timeout
     if (validationTimeout) {
       clearTimeout(validationTimeout);
     }
 
-    // Set new timeout for debounced validation
     const timeout = setTimeout(validateName, 500);
     setValidationTimeout(timeout);
 
@@ -92,7 +98,6 @@ const CreateCompetitionScreen: React.FC = () => {
 
   const createCompetitionMutation = useMutation({
     mutationFn: (data: any) => {
-      // Use mock API for testing
       return competitionAPI.createMock ? competitionAPI.createMock(data) : competitionAPI.create(data);
     },
     onSuccess: (data) => {
@@ -110,21 +115,51 @@ const CreateCompetitionScreen: React.FC = () => {
     },
     onError: (error: any) => {
       const errorMessage = error.message || error.response?.data?.detail || 'Failed to create competition';
-      Alert.alert(t('error'), errorMessage);
+      Alert.alert(t('common.error'), errorMessage);
     },
   });
 
+  const handleNext = () => {
+    if (currentStep === 1) {
+      if (!competitionName.trim()) {
+        Alert.alert(t('common.error'), 'Please enter a competition name');
+        return;
+      }
+      if (!validation.isAvailable) {
+        Alert.alert(t('common.error'), t('competitions.nameExists'));
+        return;
+      }
+    }
+    
+    if (currentStep < totalSteps) {
+      animateStepChange(() => setCurrentStep(currentStep + 1));
+    } else {
+      handleCreateCompetition();
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      animateStepChange(() => setCurrentStep(currentStep - 1));
+    }
+  };
+
+  const animateStepChange = (callback: () => void) => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      callback();
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
   const handleCreateCompetition = () => {
-    if (!competitionName.trim()) {
-      Alert.alert(t('error'), 'Please enter a competition name');
-      return;
-    }
-
-    if (!validation.isAvailable) {
-      Alert.alert(t('error'), t('competitions.nameExists'));
-      return;
-    }
-
     const competitionData = {
       name: competitionName.trim(),
       rules: getRulesData(),
@@ -170,32 +205,6 @@ const CreateCompetitionScreen: React.FC = () => {
     setFinalPrizes(updatedPrizes);
   };
 
-  const renderRuleOption = (ruleType: 'daily' | 'final' | 'mixed', title: string, description: string, icon: string) => (
-    <TouchableOpacity
-      key={ruleType}
-      style={[styles.ruleOption, selectedRule === ruleType && styles.selectedRuleOption]}
-      onPress={() => setSelectedRule(ruleType)}
-      activeOpacity={0.8}
-    >
-      <View style={styles.ruleHeader}>
-        <View style={[styles.ruleIcon, selectedRule === ruleType && styles.selectedRuleIcon]}>
-          <Ionicons name={icon as any} size={24} color={selectedRule === ruleType ? '#FFFFFF' : '#007AFF'} />
-        </View>
-        <View style={styles.ruleContent}>
-          <Text style={[styles.ruleTitle, selectedRule === ruleType && styles.selectedRuleTitle]}>
-            {title}
-          </Text>
-          <Text style={[styles.ruleDescription, selectedRule === ruleType && styles.selectedRuleDescription]}>
-            {description}
-          </Text>
-        </View>
-        {selectedRule === ruleType && (
-          <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-
   const getValidationStatusColor = () => {
     if (validation.isValidating) return '#8E8E93';
     if (!competitionName.trim()) return 'transparent';
@@ -206,6 +215,237 @@ const CreateCompetitionScreen: React.FC = () => {
     if (validation.isValidating) return 'hourglass';
     if (!competitionName.trim()) return null;
     return validation.isAvailable ? 'checkmark-circle' : 'close-circle';
+  };
+
+  const renderProgressBar = () => (
+    <View style={styles.progressContainer}>
+      {[1, 2, 3].map((step) => (
+        <React.Fragment key={step}>
+          <View style={[
+            styles.progressStep,
+            {
+              backgroundColor: step <= currentStep ? '#007AFF' : '#2C2C2E',
+              borderColor: step <= currentStep ? '#007AFF' : '#2C2C2E',
+            }
+          ]}>
+            <Text style={[
+              styles.progressStepText,
+              { color: step <= currentStep ? '#FFFFFF' : '#8E8E93' }
+            ]}>
+              {step}
+            </Text>
+          </View>
+          {step < totalSteps && (
+            <View style={[
+              styles.progressLine,
+              { backgroundColor: step < currentStep ? '#007AFF' : '#2C2C2E' }
+            ]} />
+          )}
+        </React.Fragment>
+      ))}
+    </View>
+  );
+
+  const renderStep1 = () => (
+    <View style={styles.stepContainer}>
+      <View style={styles.stepHeader}>
+        <Ionicons name="trophy" size={48} color="#007AFF" />
+        <Text style={styles.stepTitle}>{t('competitions.competitionName')}</Text>
+        <Text style={styles.stepDescription}>
+          Choose a unique name for your competition
+        </Text>
+      </View>
+
+      <View style={styles.inputSection}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              !validation.isAvailable && competitionName.trim() && styles.inputError
+            ]}
+            value={competitionName}
+            onChangeText={setCompetitionName}
+            placeholder="e.g. Premier League Fantasy"
+            placeholderTextColor="#8E8E93"
+            maxLength={50}
+            autoFocus
+          />
+          {getValidationStatusIcon() && (
+            <View style={styles.inputIcon}>
+              <Ionicons
+                name={getValidationStatusIcon()!}
+                size={20}
+                color={getValidationStatusColor()}
+              />
+            </View>
+          )}
+        </View>
+        
+        {validation.message && (
+          <View style={styles.validationContainer}>
+            <Text style={[
+              styles.validationMessage,
+              { color: getValidationStatusColor() }
+            ]}>
+              {validation.isAvailable 
+                ? t('competitions.nameAvailable') 
+                : t('competitions.nameExists')
+              }
+            </Text>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+
+  const renderStep2 = () => (
+    <View style={styles.stepContainer}>
+      <View style={styles.stepHeader}>
+        <Ionicons name="settings" size={48} color="#007AFF" />
+        <Text style={styles.stepTitle}>{t('competitions.selectRules')}</Text>
+        <Text style={styles.stepDescription}>
+          How do you want to distribute prizes?
+        </Text>
+      </View>
+
+      <View style={styles.rulesContainer}>
+        <TouchableOpacity
+          style={[styles.ruleCard, selectedRule === 'daily' && styles.selectedRuleCard]}
+          onPress={() => setSelectedRule('daily')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.ruleHeader}>
+            <Ionicons name="calendar" size={32} color={selectedRule === 'daily' ? '#007AFF' : '#8E8E93'} />
+            <View style={styles.ruleContent}>
+              <Text style={[styles.ruleTitle, selectedRule === 'daily' && styles.selectedRuleTitle]}>
+                {t('competitions.dailyPrize')}
+              </Text>
+              <Text style={[styles.ruleDescription, selectedRule === 'daily' && styles.selectedRuleDescription]}>
+                Prize for daily winners
+              </Text>
+            </View>
+            {selectedRule === 'daily' && (
+              <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            )}
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.ruleCard, selectedRule === 'final' && styles.selectedRuleCard]}
+          onPress={() => setSelectedRule('final')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.ruleHeader}>
+            <Ionicons name="trophy" size={32} color={selectedRule === 'final' ? '#007AFF' : '#8E8E93'} />
+            <View style={styles.ruleContent}>
+              <Text style={[styles.ruleTitle, selectedRule === 'final' && styles.selectedRuleTitle]}>
+                {t('competitions.finalPrize')}
+              </Text>
+              <Text style={[styles.ruleDescription, selectedRule === 'final' && styles.selectedRuleDescription]}>
+                Prize pool for final positions
+              </Text>
+            </View>
+            {selectedRule === 'final' && (
+              <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            )}
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.ruleCard, selectedRule === 'mixed' && styles.selectedRuleCard]}
+          onPress={() => setSelectedRule('mixed')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.ruleHeader}>
+            <Ionicons name="star" size={32} color={selectedRule === 'mixed' ? '#007AFF' : '#8E8E93'} />
+            <View style={styles.ruleContent}>
+              <Text style={[styles.ruleTitle, selectedRule === 'mixed' && styles.selectedRuleTitle]}>
+                {t('competitions.mixedRules')}
+              </Text>
+              <Text style={[styles.ruleDescription, selectedRule === 'mixed' && styles.selectedRuleDescription]}>
+                Both daily and final prizes
+              </Text>
+            </View>
+            {selectedRule === 'mixed' && (
+              <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderStep3 = () => (
+    <View style={styles.stepContainer}>
+      <View style={styles.stepHeader}>
+        <Ionicons name="cash" size={48} color="#007AFF" />
+        <Text style={styles.stepTitle}>Configure Prizes</Text>
+        <Text style={styles.stepDescription}>
+          Set the prize amounts for your competition
+        </Text>
+      </View>
+
+      <ScrollView style={styles.prizeConfigContainer} showsVerticalScrollIndicator={false}>
+        {/* Daily Prize Configuration */}
+        {(selectedRule === 'daily' || selectedRule === 'mixed') && (
+          <View style={styles.prizeSection}>
+            <Text style={styles.prizeSectionTitle}>Daily Prize Amount</Text>
+            <View style={styles.amountInputContainer}>
+              <Text style={styles.currencySymbol}>€</Text>
+              <TextInput
+                style={[styles.input, styles.priceInput]}
+                value={dailyPrize}
+                onChangeText={setDailyPrize}
+                placeholder="10"
+                placeholderTextColor="#8E8E93"
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+        )}
+
+        {/* Final Prize Configuration */}
+        {(selectedRule === 'final' || selectedRule === 'mixed') && (
+          <View style={styles.prizeSection}>
+            <Text style={styles.prizeSectionTitle}>Final Prize Pool</Text>
+            {finalPrizes.map((prize, index) => (
+              <View key={index} style={styles.prizeRow}>
+                <View style={styles.positionBadge}>
+                  <Text style={styles.positionText}>{prize.position}</Text>
+                </View>
+                <View style={styles.prizeInputs}>
+                  <View style={styles.amountInputContainer}>
+                    <Text style={styles.currencySymbol}>€</Text>
+                    <TextInput
+                      style={[styles.input, styles.amountInput]}
+                      value={prize.amount}
+                      onChangeText={(value) => updateFinalPrize(index, 'amount', value)}
+                      placeholder="100"
+                      placeholderTextColor="#8E8E93"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <TextInput
+                    style={[styles.input, styles.descriptionInput]}
+                    value={prize.description}
+                    onChangeText={(value) => updateFinalPrize(index, 'description', value)}
+                    placeholder="Prize description"
+                    placeholderTextColor="#8E8E93"
+                  />
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+
+  const canProceed = () => {
+    if (currentStep === 1) {
+      return competitionName.trim() && validation.isAvailable;
+    }
+    return true;
   };
 
   return (
@@ -221,142 +461,65 @@ const CreateCompetitionScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
             activeOpacity={0.8}
           >
-            <Ionicons name="chevron-back" size={24} color="#007AFF" />
+            <Ionicons name="close" size={24} color="#8E8E93" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('competitions.createNew')}</Text>
-          <View style={styles.placeholder} />
+          <Text style={styles.stepIndicator}>{currentStep}/{totalSteps}</Text>
         </View>
 
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-          {/* Competition Name */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('competitions.competitionName')}</Text>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={[
-                  styles.input,
-                  !validation.isAvailable && competitionName.trim() && styles.inputError
-                ]}
-                value={competitionName}
-                onChangeText={setCompetitionName}
-                placeholder="Enter competition name"
-                placeholderTextColor="#8E8E93"
-                maxLength={50}
-              />
-              {getValidationStatusIcon() && (
-                <View style={styles.inputIcon}>
-                  <Ionicons
-                    name={getValidationStatusIcon()!}
-                    size={20}
-                    color={getValidationStatusColor()}
-                  />
-                </View>
-              )}
-            </View>
-            
-            {/* Validation Message */}
-            {validation.message && (
-              <View style={styles.validationContainer}>
-                <Text style={[
-                  styles.validationMessage,
-                  { color: getValidationStatusColor() }
-                ]}>
-                  {validation.isAvailable 
-                    ? t('competitions.nameAvailable') 
-                    : t('competitions.nameExists')
-                  }
-                </Text>
-              </View>
-            )}
-          </View>
+        {/* Progress Bar */}
+        {renderProgressBar()}
 
-          {/* Prize Rules */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('competitions.selectRules')}</Text>
-            <View style={styles.rulesContainer}>
-              {renderRuleOption('daily', t('competitions.dailyPrize'), 'Prize for daily winners', 'calendar')}
-              {renderRuleOption('final', t('competitions.finalPrize'), 'Prize pool for final positions', 'trophy')}
-              {renderRuleOption('mixed', t('competitions.mixedRules'), 'Both daily and final prizes', 'star')}
-            </View>
-          </View>
+        {/* Content */}
+        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+        </Animated.View>
 
-          {/* Daily Prize Configuration */}
-          {(selectedRule === 'daily' || selectedRule === 'mixed') && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Daily Prize Amount</Text>
-              <View style={styles.inputContainer}>
-                <Text style={styles.currencySymbol}>€</Text>
-                <TextInput
-                  style={[styles.input, styles.priceInput]}
-                  value={dailyPrize}
-                  onChangeText={setDailyPrize}
-                  placeholder="10"
-                  placeholderTextColor="#8E8E93"
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
+        {/* Navigation Buttons */}
+        <View style={styles.navigationContainer}>
+          {currentStep > 1 && (
+            <TouchableOpacity
+              style={styles.previousButton}
+              onPress={handlePrevious}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="chevron-back" size={20} color="#007AFF" />
+              <Text style={styles.previousButtonText}>Back</Text>
+            </TouchableOpacity>
           )}
-
-          {/* Final Prize Configuration */}
-          {(selectedRule === 'final' || selectedRule === 'mixed') && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Final Prize Pool</Text>
-              <View style={styles.prizePoolContainer}>
-                {finalPrizes.map((prize, index) => (
-                  <View key={index} style={styles.prizeRow}>
-                    <View style={styles.positionContainer}>
-                      <Text style={styles.positionText}>{prize.position}</Text>
-                    </View>
-                    <View style={styles.prizeInputs}>
-                      <View style={styles.amountInputContainer}>
-                        <Text style={styles.currencySymbol}>€</Text>
-                        <TextInput
-                          style={[styles.input, styles.amountInput]}
-                          value={prize.amount}
-                          onChangeText={(value) => updateFinalPrize(index, 'amount', value)}
-                          placeholder="100"
-                          placeholderTextColor="#8E8E93"
-                          keyboardType="numeric"
-                        />
-                      </View>
-                      <TextInput
-                        style={[styles.input, styles.descriptionInput]}
-                        value={prize.description}
-                        onChangeText={(value) => updateFinalPrize(index, 'description', value)}
-                        placeholder="Prize description"
-                        placeholderTextColor="#8E8E93"
-                      />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-        </ScrollView>
-
-        {/* Create Button */}
-        <View style={styles.buttonContainer}>
+          
+          <View style={{ flex: 1 }} />
+          
           <TouchableOpacity
             style={[
-              styles.createButton,
-              (!competitionName.trim() || !validation.isAvailable || createCompetitionMutation.isPending) && styles.createButtonDisabled,
+              styles.nextButton,
+              (!canProceed() || createCompetitionMutation.isPending) && styles.nextButtonDisabled,
             ]}
-            onPress={handleCreateCompetition}
-            disabled={!competitionName.trim() || !validation.isAvailable || createCompetitionMutation.isPending}
+            onPress={handleNext}
+            disabled={!canProceed() || createCompetitionMutation.isPending}
             activeOpacity={0.8}
           >
             <LinearGradient
               colors={
-                competitionName.trim() && validation.isAvailable && !createCompetitionMutation.isPending
+                canProceed() && !createCompetitionMutation.isPending
                   ? ['#007AFF', '#0056CC']
                   : ['#2C2C2E', '#1C1C1E']
               }
-              style={styles.createButtonGradient}
+              style={styles.nextButtonGradient}
             >
-              <Text style={styles.createButtonText}>
-                {createCompetitionMutation.isPending ? t('common.loading') : t('competitions.create')}
+              <Text style={styles.nextButtonText}>
+                {createCompetitionMutation.isPending 
+                  ? t('common.loading')
+                  : currentStep === totalSteps 
+                    ? t('competitions.create') 
+                    : 'Next'
+                }
               </Text>
+              {currentStep < totalSteps && (
+                <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+              )}
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -373,8 +536,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#2C2C2E',
   },
@@ -387,42 +551,77 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    flex: 1,
-    textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
-    marginHorizontal: 16,
   },
-  placeholder: {
+  stepIndicator: {
+    fontSize: 14,
+    color: '#8E8E93',
+    fontWeight: '500',
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+  },
+  progressStep: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  progressStepText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  progressLine: {
     width: 40,
+    height: 2,
+    marginHorizontal: 8,
   },
-  scrollView: {
+  content: {
     flex: 1,
   },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
+  stepContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
   },
-  section: {
-    marginBottom: 24,
+  stepHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+  stepTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 12,
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  stepDescription: {
+    fontSize: 16,
+    color: '#8E8E93',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  inputSection: {
+    marginBottom: 24,
   },
   inputContainer: {
     position: 'relative',
   },
   input: {
     backgroundColor: '#1C1C1E',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
+    borderRadius: 16,
+    padding: 20,
+    fontSize: 18,
     color: '#FFFFFF',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#2C2C2E',
   },
   inputError: {
@@ -430,28 +629,28 @@ const styles = StyleSheet.create({
   },
   inputIcon: {
     position: 'absolute',
-    right: 16,
-    top: 16,
+    right: 20,
+    top: 20,
   },
   validationContainer: {
-    marginTop: 8,
+    marginTop: 12,
     paddingLeft: 4,
   },
   validationMessage: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
   },
   rulesContainer: {
-    gap: 12,
+    gap: 16,
   },
-  ruleOption: {
+  ruleCard: {
     backgroundColor: '#1C1C1E',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 2,
     borderColor: '#2C2C2E',
   },
-  selectedRuleOption: {
+  selectedRuleCard: {
     borderColor: '#007AFF',
     backgroundColor: '#007AFF15',
   },
@@ -459,23 +658,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  ruleIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#2C2C2E',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  selectedRuleIcon: {
-    backgroundColor: '#007AFF',
-  },
   ruleContent: {
     flex: 1,
+    marginLeft: 16,
   },
   ruleTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
   },
@@ -483,80 +671,109 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
   ruleDescription: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#8E8E93',
-    marginTop: 2,
+    marginTop: 4,
   },
   selectedRuleDescription: {
     color: '#B3D9FF',
   },
+  prizeConfigContainer: {
+    flex: 1,
+  },
+  prizeSection: {
+    marginBottom: 24,
+  },
+  prizeSectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
   currencySymbol: {
     position: 'absolute',
-    left: 16,
-    top: 16,
-    fontSize: 16,
+    left: 20,
+    top: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: '#007AFF',
     zIndex: 1,
   },
   priceInput: {
-    paddingLeft: 40,
-  },
-  prizePoolContainer: {
-    gap: 12,
+    paddingLeft: 50,
   },
   prizeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    marginBottom: 16,
   },
-  positionContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  positionBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 16,
   },
   positionText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
   prizeInputs: {
     flex: 1,
-    flexDirection: 'row',
     gap: 12,
   },
   amountInputContainer: {
     position: 'relative',
-    flex: 1,
+    marginBottom: 12,
   },
   amountInput: {
-    paddingLeft: 40,
+    paddingLeft: 50,
   },
   descriptionInput: {
-    flex: 2,
+    // No additional styles needed
   },
-  buttonContainer: {
-    padding: 16,
+  navigationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderTopWidth: 1,
     borderTopColor: '#2C2C2E',
+    backgroundColor: '#000000',
   },
-  createButton: {
-    borderRadius: 12,
+  previousButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  previousButtonText: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  nextButton: {
+    borderRadius: 16,
     overflow: 'hidden',
+    minWidth: 120,
   },
-  createButtonDisabled: {
+  nextButtonDisabled: {
     opacity: 0.5,
   },
-  createButtonGradient: {
-    padding: 16,
+  nextButtonGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 8,
   },
-  createButtonText: {
-    fontSize: 18,
+  nextButtonText: {
+    fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
   },
