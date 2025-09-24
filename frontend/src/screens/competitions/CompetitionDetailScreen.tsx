@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -41,6 +41,7 @@ interface Competition {
   standings: any[];
   wallet_balance: number;
   is_active: boolean;
+  total_matchdays?: number;
 }
 
 const CompetitionDetailScreen: React.FC = () => {
