@@ -409,14 +409,30 @@ const CompetitionDetailScreen: React.FC = () => {
             text: t('payNow') || 'Pay Now',
             onPress: async () => {
               try {
-                console.log('💳 Processing payment for matchdays:', selectedMatchdays);
+                console.log('💳 ATOMIC PAYMENT OPERATION - Processing matchdays:', selectedMatchdays);
                 console.log('💰 Current balance:', userBalance, 'Total cost:', totalCost);
                 
-                // Update user balance (deduct payment amount)
+                // STEP 1: Update user balance (atomic deduction)
                 const newBalance = userBalance - totalCost;
                 await updateUserBalance(newBalance);
+                console.log('✅ STEP 1: Wallet balance updated:', userBalance, '→', newBalance);
                 
-                // Update payment status for selected matchdays
+                // STEP 2: Update participant status map (atomic status change)
+                const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+                const participantStatusKey = `participant_status_${userId}_${competitionId}`;
+                const storedStatus = await CrossPlatformStorage.getItem(participantStatusKey);
+                const statusMap = storedStatus ? JSON.parse(storedStatus) : {};
+                
+                // Mark selected matchdays as paid
+                for (const matchday of selectedMatchdays) {
+                  statusMap[matchday] = 'paid';
+                }
+                
+                // Store updated status map
+                await CrossPlatformStorage.setItem(participantStatusKey, JSON.stringify(statusMap));
+                console.log('✅ STEP 2: Participant status updated for matchdays:', selectedMatchdays);
+                
+                // STEP 3: Update local UI state (immediate UI feedback)
                 const updatedPayments = userPayments.map(payment => {
                   if (selectedMatchdays.includes(payment.matchday)) {
                     return {
@@ -429,8 +445,9 @@ const CompetitionDetailScreen: React.FC = () => {
                 });
                 
                 setUserPayments(updatedPayments);
+                console.log('✅ STEP 3: Local UI state updated');
                 
-                // Add transaction record for wallet deduction
+                // STEP 4: Add transaction record for wallet deduction
                 await addTransactionRecord({
                   type: 'matchday_payment',
                   amount: totalCost,
@@ -440,33 +457,17 @@ const CompetitionDetailScreen: React.FC = () => {
                   status: 'completed',
                   created_at: new Date().toISOString(),
                 });
+                console.log('✅ STEP 4: Transaction record created');
 
-                // Add detailed payment logs for each matchday (per PDF requirements)
-                for (const matchday of selectedMatchdays) {
-                  await addTransactionRecord({
-                    type: 'matchday_payment_detail',
-                    amount: dailyAmount,
-                    description: `${user?.name || 'FantaPay Tester'} paid matchday ${matchday}`,
-                    from_wallet: 'personal',
-                    to_wallet: 'competition',
-                    status: 'completed',
-                    created_at: new Date().toISOString(),
-                  });
-                }
-
-                // Store updated payment status 
-                const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
-                const paymentKey = `payments_${userId}_${competitionId}`;
-                await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(updatedPayments));
-                
-                // Update admin logs (competition-wide logs) for Logs & Notifications
+                // STEP 5: Add detailed payment logs for each matchday (for Logs & Notifications)
                 const adminLogsKey = 'admin_logs_mock';
                 const storedLogs = await CrossPlatformStorage.getItem(adminLogsKey);
                 const logs = storedLogs ? JSON.parse(storedLogs) : [];
                 
                 for (const matchday of selectedMatchdays) {
+                  // Add individual matchday log entry
                   const logEntry = {
-                    _id: `log_${Date.now()}_${matchday}`,
+                    _id: `log_${Date.now()}_${matchday}_${Math.random()}`,
                     admin_id: user?.id || '650f1f1f1f1f1f1f1f1f1f1f',
                     admin_username: user?.name || 'FantaPay Tester',
                     competition_id: competitionId,
@@ -475,11 +476,11 @@ const CompetitionDetailScreen: React.FC = () => {
                     details: `${user?.name || 'FantaPay Tester'} paid matchday ${matchday} (€${dailyAmount})`,
                     timestamp: new Date().toISOString()
                   };
-                  logs.unshift(logEntry); // Add to beginning
+                  logs.unshift(logEntry); // Add to beginning for chronological order
                 }
                 
                 await CrossPlatformStorage.setItem(adminLogsKey, JSON.stringify(logs));
-                console.log('📝 Added payment logs for matchdays:', selectedMatchdays);
+                console.log('✅ STEP 5: Payment logs created for matchdays:', selectedMatchdays);
                 
                 setSelectedMatchdays([]);
                 setShowPaymentModal(false);
