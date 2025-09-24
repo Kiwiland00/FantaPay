@@ -199,7 +199,12 @@ const CompetitionDetailScreen: React.FC = () => {
         </Text>
         <View style={styles.participantsList}>
           {competition.participants.map((participant, index) => (
-            <View key={participant.id} style={styles.participantItem}>
+            <TouchableOpacity 
+              key={participant.id} 
+              style={styles.participantItem}
+              onPress={() => handleParticipantPress(participant)}
+              activeOpacity={0.7}
+            >
               <View style={styles.participantAvatar}>
                 <Text style={styles.participantInitial}>
                   {participant.name.charAt(0).toUpperCase()}
@@ -211,10 +216,13 @@ const CompetitionDetailScreen: React.FC = () => {
                   <Text style={styles.adminBadge}>Admin</Text>
                 )}
               </View>
-              {participant.id === user?.id && (
-                <Ionicons name="person-circle" size={20} color="#007AFF" />
-              )}
-            </View>
+              <View style={styles.participantActions}>
+                {participant.id === user?.id && (
+                  <Ionicons name="person-circle" size={20} color="#007AFF" />
+                )}
+                <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+              </View>
+            </TouchableOpacity>
           ))}
         </View>
       </View>
