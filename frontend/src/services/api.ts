@@ -148,6 +148,63 @@ export const competitionAPI = {
   
   getTransactions: (id: string) =>
     apiClient.get(`/competitions/${id}/transactions`),
+  
+  // TEMPORARY: Mock API calls for testing without authentication
+  createMock: async (data: {
+    name: string;
+    rules: {
+      type: string;
+      daily_prize?: number;
+      final_prize_pool?: Array<{ position: number; amount: number; description: string }>;
+    };
+  }) => {
+    console.log('🏆 Mock: Creating competition:', data.name);
+    
+    // Check for unique name (mock existing competitions)
+    const existingNames = ['test', 'serie a fantasy', 'champions league'];
+    if (existingNames.includes(data.name.toLowerCase())) {
+      throw new Error('Competition name already exists. Please choose another name.');
+    }
+    
+    // Simulate API response
+    return {
+      _id: `comp_${Date.now()}`,
+      name: data.name,
+      rules: data.rules,
+      invite_code: Math.random().toString(36).substr(2, 8).toUpperCase(),
+      admin_id: '650f1f1f1f1f1f1f1f1f1f1f',
+      participants: ['650f1f1f1f1f1f1f1f1f1f1f'],
+      wallet_balance: 0,
+      is_active: true,
+      current_matchday: 1,
+      created_at: new Date().toISOString()
+    };
+  },
+  
+  getMyCompetitionsMock: async () => {
+    console.log('🏆 Mock: Getting my competitions');
+    // Return mock competitions
+    return [
+      {
+        _id: 'comp_1',
+        name: 'Serie A Fantasy 2024',
+        rules: { type: 'mixed', daily_prize: 10, final_prize_pool: [{ position: 1, amount: 100, description: '1st Place' }] },
+        participants: [{ id: '1', name: 'FantaPay Tester', email: 'test@fantapay.com' }],
+        wallet_balance: 50,
+        is_active: true,
+        current_matchday: 5,
+        created_at: '2024-01-01T00:00:00Z'
+      }
+    ];
+  },
+  
+  joinMock: async (inviteCode: string) => {
+    console.log('🏆 Mock: Joining competition with code:', inviteCode);
+    if (inviteCode.length < 6) {
+      throw new Error('Invalid invite code');
+    }
+    return { message: 'Successfully joined competition!' };
+  },
 };
 
 // Wallet API
