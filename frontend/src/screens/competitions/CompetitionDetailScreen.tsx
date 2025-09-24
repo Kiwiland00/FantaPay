@@ -522,13 +522,37 @@ const CompetitionDetailScreen: React.FC = () => {
   };
 
   const toggleMatchdaySelection = (matchday: number) => {
-    setSelectedMatchdays(prev => {
-      if (prev.includes(matchday)) {
-        return prev.filter(m => m !== matchday);
-      } else {
-        return [...prev, matchday].sort((a, b) => a - b);
+    const dailyAmount = competition?.daily_payment_amount || 5;
+    const isCurrentlySelected = selectedMatchdays.includes(matchday);
+    
+    if (isCurrentlySelected) {
+      // Deselect matchday
+      setSelectedMatchdays(prev => prev.filter(m => m !== matchday));
+    } else {
+      // Check wallet balance before selecting
+      const newSelectionCost = (selectedMatchdays.length + 1) * dailyAmount;
+      
+      if (userBalance < newSelectionCost) {
+        // Show localized insufficient funds error
+        const errorTitle = t('insufficientBalance') || 'Insufficient Balance';
+        const errorMessage = t('insufficientBalanceForMatchday') || `You need €${newSelectionCost} to pay for ${selectedMatchdays.length + 1} matchdays, but only have €${userBalance.toFixed(2)}.`;
+        
+        Alert.alert(errorTitle, errorMessage, [
+          { text: t('cancel') || 'Cancel', style: 'cancel' },
+          { 
+            text: t('goToWallet') || 'Go to Wallet', 
+            onPress: () => {
+              setShowPaymentModal(false);
+              navigation.navigate('Wallet' as never);
+            }
+          }
+        ]);
+        return;
       }
-    });
+      
+      // Select matchday if balance is sufficient
+      setSelectedMatchdays(prev => [...prev, matchday].sort((a, b) => a - b));
+    }
   };
 
   const getPaymentStatusForMatchday = (matchday: number) => {
