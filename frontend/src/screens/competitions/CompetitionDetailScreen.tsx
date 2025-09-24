@@ -501,7 +501,8 @@ const CompetitionDetailScreen: React.FC = () => {
           navigation.navigate('ParticipantPaymentHistory' as never, {
             competitionId,
             participantId: item.id,
-            participantName: item.name
+            participantName: item.name,
+            competitionName: competition.name // Pass the actual competition name
           } as never);
         }
       }}
