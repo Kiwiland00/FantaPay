@@ -170,6 +170,11 @@ export default function RootNavigator() {
             component={LogsScreen}
             options={{ title: 'Logs & Notifications' }}
           />
+          <Stack.Screen 
+            name="ParticipantPaymentHistory" 
+            component={ParticipantPaymentHistoryScreen}
+            options={{ title: 'Payment History' }}
+          />
         </>
       )}
     </Stack.Navigator>
