@@ -270,7 +270,14 @@ export const competitionAPI = {
     existingCompetitions.push(newCompetition);
     await CrossPlatformStorage.setItem('mockCompetitions', JSON.stringify(existingCompetitions));
     
-    console.log('✅ Competition created and saved! New total:', existingCompetitions.length);
+    // Log the creation action
+    await logAdminAction('create', newCompetition.name, 'FantaPay Tester', {
+      competition_id: newCompetition._id,
+      rules: newCompetition.rules,
+      total_matchdays: newCompetition.total_matchdays
+    });
+    
+    console.log('✅ Competition created and logged! New total:', existingCompetitions.length);
     console.log('🆔 Competition ID:', newCompetition._id);
     console.log('📝 Competition Name:', newCompetition.name);
     console.log('📅 Matchdays configured:', newCompetition.total_matchdays);
