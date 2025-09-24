@@ -147,27 +147,6 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     marginBottom: 24,
   },
-  balanceCard: {
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 8,
-  },
-  balanceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 8,
-  },
-  balanceLabel: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  balanceAmount: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
   actionsSection: {
     marginBottom: 32,
   },
