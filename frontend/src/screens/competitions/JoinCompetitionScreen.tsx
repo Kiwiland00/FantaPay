@@ -33,10 +33,10 @@ const JoinCompetitionScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
       Alert.alert(
         t('success'),
-        'Successfully joined the competition!',
+        t('competitions.joinSuccess'),
         [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => navigation.goBack(),
           },
         ]
