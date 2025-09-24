@@ -1107,6 +1107,17 @@ class FantaPayTester:
             ("Create Competition with Financial Config", self.test_create_competition),
             ("Financial Config Defaults", self.test_financial_config_defaults),
             ("Custom Financial Config", self.test_custom_financial_config),
+            # === MATCHDAY PAYMENT SYSTEM TESTS ===
+            ("Create Competition with Daily Payments", self.test_competition_with_daily_payments_enabled),
+            ("Create Competition without Daily Payments", self.test_competition_without_daily_payments),
+            ("Matchday Payment Records Creation", self.test_matchday_payment_records_creation),
+            ("Matchday Payment API", self.test_matchday_payment_api),
+            ("Matchday Payment Status", self.test_matchday_payment_status_retrieval),
+            ("Admin Payment Status Table", self.test_admin_payment_status_table),
+            ("Matchday Payment Validation", self.test_matchday_payment_validation),
+            ("Payment Balance Updates", self.test_payment_balance_updates),
+            ("Matchday Payment Transactions", self.test_matchday_payment_transactions),
+            # === EXISTING TESTS ===
             ("Get My Competitions", self.test_get_my_competitions),
             ("Get Competition Details with Financial Config", self.test_get_competition_details),
             ("Update Standings", self.test_update_standings),
