@@ -163,6 +163,20 @@ const resources = {
       
       // Currency
       'currency.euro': '€',
+      
+      // Logs and Notifications
+      'nav.logs': 'Log e Notifiche',
+      'logs.payments': 'Log Pagamenti',
+      'logs.paid': 'Pagato',
+      'logs.notPaid': 'Non Pagato',
+      'logs.standings': 'Classifica Attuale',
+      'logs.position': 'Pos',
+      'logs.player': 'Giocatore',
+      'logs.points': 'Punti',
+      'logs.joinedCompetitions': 'Le Mie Competizioni',
+      'logs.noCompetitions': 'Nessuna competizione',
+      'logs.joinFirst': 'Unisciti a una competizione per vedere log e classifiche qui',
+      'logs.notificationDesc': 'Ricevi aggiornamenti su competizioni, pagamenti e classifiche',
     },
   },
 };
