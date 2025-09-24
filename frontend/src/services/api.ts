@@ -203,6 +203,8 @@ export const competitionAPI = {
     const storedCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
     let existingCompetitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
     
+    console.log('📋 Current competitions before creation:', existingCompetitions.length);
+    
     // Check for unique name validation
     const existingNames = existingCompetitions.map((comp: any) => comp.name.toLowerCase());
     if (existingNames.includes(data.name.toLowerCase())) {
