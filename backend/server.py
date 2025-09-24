@@ -165,6 +165,11 @@ class Competition(BaseModel):
 class CompetitionCreate(BaseModel):
     name: str
     rules: CompetitionRules
+    # Financial configuration fields
+    total_matchdays: Optional[int] = 36
+    participation_cost_per_team: Optional[float] = 210.0
+    expected_teams: Optional[int] = 8
+    total_prize_pool: Optional[float] = 1680.0
 
 class CompetitionJoin(BaseModel):
     invite_code: str
