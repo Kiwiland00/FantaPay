@@ -152,6 +152,30 @@ export const authAPI = {
     }),
 };
 
+// Helper function to log admin actions for transparency
+const logAdminAction = async (action: string, competitionName: string, adminName: string, details?: any) => {
+  try {
+    const logs = await CrossPlatformStorage.getItem('adminLogs') || '[]';
+    const adminLogs = JSON.parse(logs);
+    
+    const logEntry = {
+      id: `log_${Date.now()}`,
+      action,
+      competition_name: competitionName,
+      admin_name: adminName,
+      details,
+      timestamp: new Date().toISOString(),
+    };
+    
+    adminLogs.push(logEntry);
+    await CrossPlatformStorage.setItem('adminLogs', JSON.stringify(adminLogs));
+    
+    console.log('📝 Admin action logged:', action, competitionName);
+  } catch (error) {
+    console.error('Failed to log admin action:', error);
+  }
+};
+
 // Competition API
 export const competitionAPI = {
   create: (data: {
