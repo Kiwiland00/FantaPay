@@ -34,16 +34,23 @@ interface Competition {
   participants?: Array<{ id: string; name: string; email: string }>;
 }
 
+interface CompetitionLogGroup {
+  competition_id: string;
+  competition_name: string;
+  logs: ActivityLog[];
+  logCount: number;
+}
+
 const LogsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { t } = useLanguage();
   const { user } = useAuth();
   
-  const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [competitionGroups, setCompetitionGroups] = useState<CompetitionLogGroup[]>([]);
   const [userCompetitions, setUserCompetitions] = useState<Competition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'payments' | 'admin'>('all');
+  const [selectedCompetition, setSelectedCompetition] = useState<string | null>(null);
 
   useEffect(() => {
     loadLogs();
@@ -66,8 +73,41 @@ const LogsScreen: React.FC = () => {
         userCompetitionIds.includes(log.competition_id)
       );
       
-      console.log('📝 Activity logs loaded:', filteredLogs.length);
-      setLogs(filteredLogs);
+      // Group logs by competition
+      const logGroups: { [key: string]: CompetitionLogGroup } = {};
+      
+      // Initialize groups for all user competitions (even if no logs yet)
+      competitions.forEach((comp: Competition) => {
+        logGroups[comp._id] = {
+          competition_id: comp._id,
+          competition_name: comp.name,
+          logs: [],
+          logCount: 0
+        };
+      });
+      
+      // Add logs to their respective groups
+      filteredLogs.forEach((log: ActivityLog) => {
+        if (logGroups[log.competition_id]) {
+          logGroups[log.competition_id].logs.push(log);
+          logGroups[log.competition_id].logCount++;
+        }
+      });
+      
+      // Sort logs within each group by timestamp (newest first)
+      Object.values(logGroups).forEach(group => {
+        group.logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      });
+      
+      // Convert to array and sort by most recent activity
+      const sortedGroups = Object.values(logGroups).sort((a, b) => {
+        const aLatest = a.logs[0]?.timestamp || '0';
+        const bLatest = b.logs[0]?.timestamp || '0';
+        return new Date(bLatest).getTime() - new Date(aLatest).getTime();
+      });
+      
+      setCompetitionGroups(sortedGroups);
+      console.log('📝 Competition log groups created:', sortedGroups.length);
     } catch (error) {
       console.error('💥 Error loading logs:', error);
     } finally {
@@ -79,17 +119,6 @@ const LogsScreen: React.FC = () => {
     setRefreshing(true);
     await loadLogs();
     setRefreshing(false);
-  };
-
-  const getFilteredLogs = () => {
-    switch (selectedFilter) {
-      case 'payments':
-        return logs.filter(log => log.action === 'matchday_payment');
-      case 'admin':
-        return logs.filter(log => ['create_competition', 'edit_competition', 'delete_competition', 'daily_prize'].includes(log.action));
-      default:
-        return logs;
-    }
   };
 
   const getActionIcon = (action: string) => {
@@ -168,7 +197,7 @@ const LogsScreen: React.FC = () => {
 
   const getPaymentStatus = (details: string) => {
     // Extract payment information from details
-    if (details.includes('Paid for matchdays:')) {
+    if (details.includes('paid matchday')) {
       return 'paid';
     }
     return 'pending';
@@ -207,8 +236,6 @@ const LogsScreen: React.FC = () => {
               <Text style={styles.logTimestamp}>{formatTimestamp(item.timestamp)}</Text>
             </View>
             
-            <Text style={styles.logCompetition}>{item.competition_name}</Text>
-            
             <View style={styles.logDetailsRow}>
               <Text style={styles.logAdmin}>Admin: {item.admin_username}</Text>
               {isPayment && (
@@ -233,27 +260,57 @@ const LogsScreen: React.FC = () => {
     );
   };
 
-  const renderFilterButton = (filter: string, label: string, count?: number) => (
-    <TouchableOpacity
-      style={[
-        styles.filterButton,
-        selectedFilter === filter && styles.filterButtonActive
-      ]}
-      onPress={() => setSelectedFilter(filter as any)}
-    >
-      <Text style={[
-        styles.filterButtonText,
-        selectedFilter === filter && styles.filterButtonTextActive
-      ]}>
-        {label}
-        {count !== undefined && ` (${count})`}
-      </Text>
-    </TouchableOpacity>
+  const renderCompetitionGroup = ({ item }: { item: CompetitionLogGroup }) => (
+    <View style={styles.competitionGroup}>
+      <TouchableOpacity
+        style={[
+          styles.competitionHeader,
+          selectedCompetition === item.competition_id && styles.competitionHeaderActive
+        ]}
+        onPress={() => {
+          setSelectedCompetition(
+            selectedCompetition === item.competition_id ? null : item.competition_id
+          );
+        }}
+      >
+        <View style={styles.competitionHeaderLeft}>
+          <Ionicons name="trophy-outline" size={20} color="#007AFF" />
+          <Text style={styles.competitionName}>{item.competition_name}</Text>
+        </View>
+        
+        <View style={styles.competitionHeaderRight}>
+          <View style={styles.logCountBadge}>
+            <Text style={styles.logCountText}>{item.logCount}</Text>
+          </View>
+          <Ionicons
+            name={selectedCompetition === item.competition_id ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#8E8E93"
+          />
+        </View>
+      </TouchableOpacity>
+      
+      {selectedCompetition === item.competition_id && (
+        <View style={styles.competitionLogs}>
+          {item.logs.length === 0 ? (
+            <View style={styles.emptyLogs}>
+              <Ionicons name="document-text-outline" size={32} color="#48484A" />
+              <Text style={styles.emptyLogsText}>No activity yet</Text>
+              <Text style={styles.emptyLogsSubtext}>Activity for this competition will appear here</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={item.logs}
+              keyExtractor={(log) => log._id}
+              renderItem={renderLogItem}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+        </View>
+      )}
+    </View>
   );
-
-  const filteredLogs = getFilteredLogs();
-  const paymentLogsCount = logs.filter(log => log.action === 'matchday_payment').length;
-  const adminLogsCount = logs.filter(log => ['create_competition', 'edit_competition', 'delete_competition', 'daily_prize'].includes(log.action)).length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -265,71 +322,63 @@ const LogsScreen: React.FC = () => {
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Filter Tabs */}
-      <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersContent}>
-          {renderFilterButton('all', 'All', logs.length)}
-          {renderFilterButton('payments', 'Payments', paymentLogsCount)}
-          {renderFilterButton('admin', 'Admin Actions', adminLogsCount)}
-        </ScrollView>
-      </View>
-
-      {/* Stats Cards */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Ionicons name="card" size={20} color="#34C759" />
-          <View style={styles.statContent}>
-            <Text style={styles.statNumber}>{paymentLogsCount}</Text>
-            <Text style={styles.statLabel}>Payments</Text>
+      {/* Summary Stats */}
+      <View style={styles.summaryContainer}>
+        <View style={styles.summaryCard}>
+          <Ionicons name="trophy" size={20} color="#007AFF" />
+          <View style={styles.summaryContent}>
+            <Text style={styles.summaryNumber}>{competitionGroups.length}</Text>
+            <Text style={styles.summaryLabel}>Competitions</Text>
           </View>
         </View>
         
-        <View style={styles.statCard}>
-          <Ionicons name="settings" size={20} color="#007AFF" />
-          <View style={styles.statContent}>
-            <Text style={styles.statNumber}>{adminLogsCount}</Text>
-            <Text style={styles.statLabel}>Admin Actions</Text>
+        <View style={styles.summaryCard}>
+          <Ionicons name="document" size={20} color="#34C759" />
+          <View style={styles.summaryContent}>
+            <Text style={styles.summaryNumber}>
+              {competitionGroups.reduce((total, group) => total + group.logCount, 0)}
+            </Text>
+            <Text style={styles.summaryLabel}>Total Logs</Text>
           </View>
         </View>
         
-        <View style={styles.statCard}>
-          <Ionicons name="people" size={20} color="#5AC8FA" />
-          <View style={styles.statContent}>
-            <Text style={styles.statNumber}>{userCompetitions.length}</Text>
-            <Text style={styles.statLabel}>Competitions</Text>
+        <View style={styles.summaryCard}>
+          <Ionicons name="card" size={20} color="#FF9500" />
+          <View style={styles.summaryContent}>
+            <Text style={styles.summaryNumber}>
+              {competitionGroups.reduce((total, group) => 
+                total + group.logs.filter(log => log.action === 'matchday_payment').length, 0
+              )}
+            </Text>
+            <Text style={styles.summaryLabel}>Payments</Text>
           </View>
         </View>
       </View>
 
-      {/* Logs List */}
-      <View style={styles.logsContainer}>
+      {/* Competition Groups List */}
+      <View style={styles.groupsContainer}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading activity logs...</Text>
           </View>
-        ) : filteredLogs.length === 0 ? (
+        ) : competitionGroups.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="document-text-outline" size={48} color="#48484A" />
-            <Text style={styles.emptyTitle}>No Activity Yet</Text>
+            <Text style={styles.emptyTitle}>No Competitions Found</Text>
             <Text style={styles.emptySubtitle}>
-              {selectedFilter === 'all'
-                ? 'Create or join competitions to see activity logs'
-                : selectedFilter === 'payments'
-                ? 'No payment activities found'
-                : 'No admin actions recorded'
-              }
+              Create or join competitions to see activity logs organized by competition
             </Text>
           </View>
         ) : (
           <FlatList
-            data={filteredLogs}
-            keyExtractor={(item) => item._id}
-            renderItem={renderLogItem}
+            data={competitionGroups}
+            keyExtractor={(item) => item.competition_id}
+            renderItem={renderCompetitionGroup}
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             }
-            contentContainerStyle={styles.logsList}
+            contentContainerStyle={styles.groupsList}
           />
         )}
       </View>
@@ -356,39 +405,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  filtersContainer: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C2C2E',
-  },
-  filtersContent: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#2C2C2E',
-  },
-  filterButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#8E8E93',
-  },
-  filterButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  statsContainer: {
+  summaryContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 16,
     gap: 12,
   },
-  statCard: {
+  summaryCard: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -398,19 +421,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 12,
   },
-  statContent: {
+  summaryContent: {
     flex: 1,
   },
-  statNumber: {
+  summaryNumber: {
     fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  statLabel: {
+  summaryLabel: {
     fontSize: 12,
     color: '#8E8E93',
   },
-  logsContainer: {
+  groupsContainer: {
     flex: 1,
   },
   loadingContainer: {
@@ -441,15 +464,82 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  logsList: {
+  groupsList: {
     paddingVertical: 8,
   },
-  logItem: {
-    backgroundColor: '#1C1C1E',
+  competitionGroup: {
     marginHorizontal: 16,
     marginVertical: 4,
+    backgroundColor: '#1C1C1E',
     borderRadius: 12,
+    overflow: 'hidden',
+  },
+  competitionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
+    borderBottomWidth: 0,
+  },
+  competitionHeaderActive: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+  },
+  competitionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  competitionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    flex: 1,
+  },
+  competitionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  logCountBadge: {
+    backgroundColor: '#2C2C2E',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 24,
+    alignItems: 'center',
+  },
+  logCountText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  competitionLogs: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  emptyLogs: {
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  emptyLogsText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  emptyLogsSubtext: {
+    fontSize: 12,
+    color: '#6D6D70',
+    textAlign: 'center',
+  },
+  logItem: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
   },
   logHeader: {
     flexDirection: 'row',
@@ -460,9 +550,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   logIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -470,13 +560,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -2,
     right: -2,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#1C1C1E',
+    borderColor: '#2C2C2E',
   },
   paymentStatusPaid: {
     backgroundColor: '#0A2A12',
@@ -494,33 +584,28 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   logAction: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
   },
   logTimestamp: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#8E8E93',
-  },
-  logCompetition: {
-    fontSize: 14,
-    color: '#007AFF',
-    marginBottom: 8,
   },
   logDetailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   logAdmin: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#8E8E93',
   },
   paymentBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 12,
+    borderRadius: 8,
     borderWidth: 1,
   },
   paymentBadgePaid: {
@@ -532,7 +617,7 @@ const styles = StyleSheet.create({
     borderColor: '#FF9500',
   },
   paymentBadgeText: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: '700',
   },
   paymentBadgeTextPaid: {
@@ -542,9 +627,9 @@ const styles = StyleSheet.create({
     color: '#FF9500',
   },
   logDetails: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#FFFFFF',
-    lineHeight: 20,
+    lineHeight: 16,
   },
 });
 
