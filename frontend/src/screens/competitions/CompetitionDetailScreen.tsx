@@ -96,6 +96,15 @@ const CompetitionDetailScreen: React.FC = () => {
     setRefreshing(false);
   };
 
+  const handleParticipantPress = (participant: { id: string; name: string; email: string }) => {
+    navigation.navigate('PaymentSummary' as never, {
+      competitionId: competition?._id,
+      participantId: participant.id,
+      participantName: participant.name,
+      competitionName: competition?.name,
+    } as never);
+  };
+
   const handlePayFee = () => {
     const amount = parseFloat(payAmount);
     if (isNaN(amount) || amount <= 0) {
