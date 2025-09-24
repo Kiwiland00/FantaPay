@@ -148,7 +148,7 @@ const JoinCompetitionScreen: React.FC = () => {
             disabled={inviteCode.length < 6 || joinCompetitionMutation.isPending}
           >
             <Text style={styles.joinButtonText}>
-              {joinCompetitionMutation.isPending ? t('loading') : 'Join Competition'}
+              {joinCompetitionMutation.isPending ? t('common.loading') : t('competitions.joinButton')}
             </Text>
           </TouchableOpacity>
         </View>
