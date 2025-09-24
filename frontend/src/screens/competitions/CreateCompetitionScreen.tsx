@@ -797,6 +797,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  fieldLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 8,
+    lineHeight: 16,
+  },
 });
 
 export default CreateCompetitionScreen;
