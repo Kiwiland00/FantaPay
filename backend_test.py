@@ -1323,6 +1323,10 @@ class FantaPayTester:
             ("Get My Competitions", self.test_get_my_competitions),
             ("Get Competition Details with Financial Config", self.test_get_competition_details),
             ("Update Standings", self.test_update_standings),
+            # === ENHANCED STANDINGS FEATURE TESTS ===
+            ("Enhanced Standings with Badges", self.test_enhanced_standings_with_badges),
+            ("Standings Data Persistence", self.test_standings_data_persistence),
+            ("Participant Points Updating", self.test_participant_points_updating),
             ("Get Wallet Balance", self.test_wallet_balance),
             ("Wallet Top-up", self.test_wallet_topup),
             ("Wallet Withdrawal", self.test_wallet_withdraw),
