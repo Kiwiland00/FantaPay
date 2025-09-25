@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-FantaPay Backend API Testing Suite - Enhanced Competition Balance & User-Specific Payment Features
-Tests backend APIs to ensure they support the enhanced competition balance and user-specific payment features.
-Focus areas:
-1. Competition balance calculation and real-time updates
-2. User-specific payment access control
-3. Participant payment history retrieval
-4. All existing APIs still working after modifications
-5. Enhanced payment system with balance tracking and user restrictions
+FantaPay Backend Testing Suite - Bug Fix Validation
+Focus: Wallet Balance System, Competition Balance Calculation, Payment Logging, Payment Processing
+Testing the critical backend functionality to ensure the bug fixes are working correctly:
+
+1. **Wallet Balance System**: Verify wallet balance updates, transaction recording, and balance deduction functionality
+2. **Competition Balance Calculation**: Test competition balance tracking and real-time updates
+3. **Payment Logging System**: Ensure payments are being logged to admin logs correctly 
+4. **Payment Processing**: Verify payment flow with proper balance checks and wallet integration
+5. **All Existing APIs**: Confirm that existing functionality still works after the bug fixes
 """
 
 import requests
