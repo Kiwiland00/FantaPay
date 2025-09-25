@@ -1282,6 +1282,68 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  // Wallet & Residual Fee Styles
+  walletContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  walletBalanceSection: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  walletHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 6,
+  },
+  walletTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#8E8E93',
+  },
+  walletBalance: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#007AFF',
+  },
+  residualFeeSection: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  residualFeeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 6,
+  },
+  residualFeeTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#8E8E93',
+  },
+  residualFeeAmount: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FF9500',
+    marginBottom: 12,
+  },
+  payResidualButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 6,
+  },
+  payResidualButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
 });
 
 export default ParticipantPaymentHistoryScreen;
