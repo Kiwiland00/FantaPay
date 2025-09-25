@@ -42,7 +42,7 @@ class CrossPlatformStorage {
 }
 
 // Get backend URL from environment
-const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'https://fantasy-fintech.preview.emergentagent.com';
+const BACKEND_URL = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL || 'https://fantaleague-pay.preview.emergentagent.com';
 
 class ApiClient {
   private client: AxiosInstance;

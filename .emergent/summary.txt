@@ -1,0 +1,93 @@
+<analysis>
+The trajectory details the AI engineer's work on the FantaPay mobile application, focusing on critical bug fixes and feature enhancements, primarily on the  branch. Initial efforts involved cloning the repository and resolving persistent  nesting issues, which frequently broke the app and led to an unstable Expo Go preview. The engineer also tackled user-reported issues: incorrect competition name display, payment summaries not starting at zero, and issues with the competition creation wizard. Progress was made on dynamic data display in the payment summary and competition details, as well as introducing single/bulk payment functionality. The final critical issues identified were the invite code not being truly random and a Failed to load payment history error due to an . The agent's work repeatedly highlighted the challenges of the containerized environment, particularly with generating stable Expo Go tunnel links and building native APKs, leading to a loop of troubleshooting and user requests for alternative deployment methods.
+</analysis>
+
+<product_requirements>
+The FantaPay application is a mobile fintech app for managing payments and prize pools in fantasy sports. The user identified two initial critical issues:
+1.  **Wrong Competition Name Display**: When viewing a participant's Payment Summary, the header displayed a hardcoded name (Serie A Fantasy League 2024) instead of the actual competition name (e.g., Prova6).
+2.  **Payment Summary Must Start at Zero**: For a new competition, the Payment Summary for a participant must initially show Paid = 0€ and Pending = total matchdays × matchday fee. Previously, it showed incorrect pre-filled values. Payments should only update after a user actually pays a matchday.
+
+Subsequent requests expanded to include:
+*   **Competition Creation Wizard Improvements**: Display total created slots (e.g., Slot 1); remove duplicate prize descriptions in Step 3. In Step 4 (Competition Summary), show cost per matchday, total participation cost, maximum participants, and a full recap of rules.
+*   **Competition Uniqueness**: Competition name and generated invite code must be globally unique, with real-time validation preventing users from proceeding if a name is taken.
+*   **Post-Creation Behavior**: After creating a competition, the screen should automatically close and return to the main dashboard.
+*   **Competition Deletion**: Deleting a competition from the menu should reflect immediately without page refresh.
+*   **Translations**: The entire app must be fully translated when switching between Italian/English, with no mixed languages.
+*   **Competition Details Screen**: Must show a general summary: total matchdays, fee per matchday, total participation cost, max participants, and selected prize structure.
+*   **Participant Payment Summary**: Must reflect the real competition configuration, including actual matchdays, fees, total costs, and payment status (Pending/Paid).
+*   **Payment Logic**: Participants must be able to pay for single or multiple matchdays at once. Each payment must be tracked in competition logs (e.g., User X paid matchday 1, User X paid matchday 2 and matchday 3). Unpaid matchdays must remain visible as Pending.
+*   **Final Issues**: Ensure invite codes are randomly generated and globally unique. Fix Failed to load payment history error.
+</product_requirements>
+
+<key_technical_concepts>
+- **Expo/React Native**: Cross-platform mobile app development framework.
+- **Expo Router**: File-based routing for navigation.
+- **React Navigation**: Stack-based and tab-based navigation components.
+- **FastAPI**: Python backend framework.
+- **MongoDB**: NoSQL database for data storage.
+- **Zustand**: State management library.
+- **Tanstack Query**: Server state, caching, background updates.
+- ****: Custom abstraction for persistent storage (likely ).
+</key_technical_concepts>
+
+<code_architecture>
+The application is a full-stack project with an Expo React Native frontend and a FastAPI Python backend using MongoDB.
+
+
+
+-   :
+    -   **Summary**: FastAPI backend handling API endpoints for authentication, competitions, wallet, and payments. It interacts with the MongoDB database.
+    -   **Changes**: Identified to have proper wallet deduction logic. Modified  to generate random alphanumeric invite codes and added  method.
+
+-   :
+    -   **Summary**: Environment variables for the backend, specifically .
+    -   **Changes**: Created when it was initially missing.
+
+-   :
+    -   **Summary**: Main entry point for the Expo frontend application. Handles top-level providers (, ).
+    -   **Changes**: Frequently modified to resolve  nesting issues, often removing explicit  wrappers to align with 's implicit navigation container, or adding it when reverting to React Navigation.
+
+-   :
+    -   **Summary**: Defines the primary tab-based navigation and stack navigators for different sections of the app (Competitions, Wallet, Logs & Notifications, Profile).
+    -   **Changes**: Modified to integrate . Repeatedly added/removed  to resolve nesting issues as  conflicts arose.
+
+-   :
+    -   **Summary**: Nested navigator often handling the main application stack.
+    -   **Changes**: Modified to include  in the stack. Also subject to  removal/addition conflicts.
+
+-   :
+    -   **Summary**: Displays details of a selected competition, including participants. Previously rendered participants as plain  components.
+    -   **Changes**: Updated to use  for participants, enabling navigation to . Modified to pass  to the payment history screen. Replaced the competition info section with a comprehensive league summary. Improved  to invalidate query cache for immediate deletion updates.
+
+-   :
+    -   **Summary**: A multi-step wizard for creating new competitions.
+    -   **Changes**: Fixed hardcoded competition names. Enhanced name validation to check against all existing competitions in real-time and disable the Next button if the name is taken. Modified prize options in Step 2 to only show Final Prize Pool and Daily Prize + Final Prize Pool. Rewrote Step 4 (Competition Summary) to include matchday fee, total participation cost, max participants, and a full recap of settings, with input fields for creator-set values. Implemented auto-closing of the screen post-creation. Updated Add Slot button to display slot numbers and removed duplicate prize descriptions.
+
+-   :
+    -   **Summary**: Displays the payment summary for a selected participant in a competition.
+    -   **Changes**: Corrected to display the actual competition name from navigation parameters instead of a hardcoded value. Modified payment logic to ensure all matchdays start as Paid = 0€ and Pending. Rewritten to use actual competition data (matchdays, fees) for accurate cost calculation and payment status (Pending/Paid). Added payment functionality with Pay Now buttons for single matchdays, a payment mode toggle (Single/Bulk), multi-select checkboxes for bulk payments, and a Pay All button. Updated  and added associated styles. Identified as having an issue with  being undefined.
+
+-   :
+    -   **Summary**: Handles API calls to the backend and mock data generation.
+    -   **Changes**: Added  method. Modified the invite code generation logic to be random, addressing a user request for unique alphanumeric codes independent of the competition name.
+
+</code_architecture>
+
+<pending_tasks>
+- Fix the  being  error in  to properly load payment history.
+- Ensure invite codes are truly randomly generated alphanumeric strings and globally unique, as the previous implementation derived them from competition names.
+- Implement full Italian/English translations across all UI texts.
+- Create a stable mobile build (APK/TestFlight) for reliable testing due to persistent tunnel instability.
+</pending_tasks>
+
+<current_work>
+Immediately before this summary request, the AI engineer was working on fixing two critical issues:
+1.  **Unique Competition Code**: The user reported that the invite code must be randomly generated and globally unique, not derived from the competition name. The AI modified  in  to implement this.
+2.  **Payment History Error**: The user encountered a Failed to load payment history error when accessing a participant's profile. The AI identified the root cause in  to be  being , specifically when  attempts to call . The last action was the AI diagnosing this specific error by adding debug logs.
+
+The state of the product is that many core features are implemented, including: a competition creation wizard with improved summary and prize options, unique competition name validation (though code uniqueness is still being refined), dynamic display of competition details and participant payment summaries (now using real competition data), and the ability to pay for single or multiple matchdays with logging. However, the app is not fully stable, primarily due to persistent issues with generating a reliable Expo Go tunnel and the current environment's inability to produce native APK builds.
+</current_work>
+
+<optional_next_step>
+The next step is to fix the  error related to  in .
+</optional_next_step>
