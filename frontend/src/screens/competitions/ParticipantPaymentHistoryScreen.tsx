@@ -137,6 +137,17 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     try {
       setIsLoading(true);
       
+      // Validate required parameters
+      if (!competitionId || !participantId) {
+        console.error('❌ Missing required parameters:', { competitionId, participantId, participantName });
+        Alert.alert(
+          'Error', 
+          'Missing required information to load payment history. Please try again.',
+          [{ text: 'OK', onPress: () => navigation.goBack() }]
+        );
+        return;
+      }
+      
       console.log('🔍 Loading participant data for:', { competitionId, participantId, participantName });
       
       // Get actual competition data from the competitions storage
