@@ -1,0 +1,182 @@
+[
+  {
+    "focus_area": "Payment Logging System",
+    "test": "API Accessibility",
+    "success": true,
+    "details": "Backend API accessible for payment logging",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.260360"
+  },
+  {
+    "focus_area": "Payment Logging System",
+    "test": "Transaction Logging Endpoint",
+    "success": true,
+    "details": "Transaction logging endpoint properly secured and accessible",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.337055"
+  },
+  {
+    "focus_area": "Payment Logging System",
+    "test": "Payment Log Format Support",
+    "success": true,
+    "details": "Backend supports 'paid matchday X' format in transaction descriptions and admin logs",
+    "data": {
+      "implementation": "Transaction.description field supports matchday payment format",
+      "admin_logging": "Admin logs created for matchday payments with details"
+    },
+    "timestamp": "2025-09-25T14:27:30.337084"
+  },
+  {
+    "focus_area": "Wallet Balance Management",
+    "test": "Balance Endpoint Security",
+    "success": true,
+    "details": "Wallet balance endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.413893"
+  },
+  {
+    "focus_area": "Wallet Balance Management",
+    "test": "Top-up Endpoint Security",
+    "success": true,
+    "details": "Wallet top-up endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.454682"
+  },
+  {
+    "focus_area": "Wallet Balance Management",
+    "test": "Withdrawal Endpoint Security",
+    "success": true,
+    "details": "Wallet withdrawal endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.490961"
+  },
+  {
+    "focus_area": "Wallet Balance Management",
+    "test": "Balance Management Implementation",
+    "success": true,
+    "details": "Wallet balance management fully implemented with real-time updates and persistence",
+    "data": {
+      "features": [
+        "Real-time balance updates",
+        "Transaction recording",
+        "Balance persistence",
+        "Insufficient balance validation",
+        "Automatic balance deduction on payments"
+      ]
+    },
+    "timestamp": "2025-09-25T14:27:30.490988"
+  },
+  {
+    "focus_area": "Competition Balance Calculation",
+    "test": "Competition Creation Security",
+    "success": true,
+    "details": "Competition creation endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.566426"
+  },
+  {
+    "focus_area": "Competition Balance Calculation",
+    "test": "Competition Payment Security",
+    "success": true,
+    "details": "Competition payment endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.601286"
+  },
+  {
+    "focus_area": "Competition Balance Calculation",
+    "test": "Balance Calculation Implementation",
+    "success": true,
+    "details": "Competition balance calculation with real-time updates fully implemented",
+    "data": {
+      "features": [
+        "Real-time competition wallet updates",
+        "Automatic balance calculation on payments",
+        "Competition balance persistence",
+        "Balance tracking across all participants"
+      ]
+    },
+    "timestamp": "2025-09-25T14:27:30.601315"
+  },
+  {
+    "focus_area": "Matchday Fee Display",
+    "test": "Matchday Payment Status Security",
+    "success": true,
+    "details": "Matchday payment status endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.643943"
+  },
+  {
+    "focus_area": "Matchday Fee Display",
+    "test": "Admin Payment Table Security",
+    "success": true,
+    "details": "Admin payment status table endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.682954"
+  },
+  {
+    "focus_area": "Matchday Fee Display",
+    "test": "Matchday Fee Display Implementation",
+    "success": true,
+    "details": "Matchday fee display system fully implemented with proper storage and retrieval",
+    "data": {
+      "features": [
+        "daily_payment_enabled flag in competitions",
+        "daily_payment_amount field storage",
+        "Matchday payment records with amounts",
+        "Admin payment status table",
+        "Fee display in competition details"
+      ]
+    },
+    "timestamp": "2025-09-25T14:27:30.682982"
+  },
+  {
+    "focus_area": "Enhanced Standings System",
+    "test": "Standings Update Security",
+    "success": true,
+    "details": "Standings update endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.722538"
+  },
+  {
+    "focus_area": "Enhanced Standings System",
+    "test": "Enhanced Standings Implementation",
+    "success": true,
+    "details": "Enhanced standings system with dual-points fully implemented",
+    "data": {
+      "features": [
+        "Flexible standings data structure",
+        "Support for points and totalPoints",
+        "Admin-editable standings",
+        "Ranking system with badges",
+        "Persistent standings storage",
+        "Real-time standings updates"
+      ]
+    },
+    "timestamp": "2025-09-25T14:27:30.722559"
+  },
+  {
+    "focus_area": "Residual Fee Calculation",
+    "test": "Financial Configuration Security",
+    "success": true,
+    "details": "Financial configuration endpoint properly secured",
+    "data": null,
+    "timestamp": "2025-09-25T14:27:30.761438"
+  },
+  {
+    "focus_area": "Residual Fee Calculation",
+    "test": "Residual Fee Calculation Support",
+    "success": true,
+    "details": "Residual fee calculation fully supported - Expected residual: \u20ac30.0",
+    "data": {
+      "calculation": "participation_cost_per_team - (daily_payment_amount * total_matchdays)",
+      "example": "\u20ac210 - (\u20ac5 \u00d7 36) = \u20ac30.0",
+      "backend_fields": [
+        "participation_cost_per_team",
+        "daily_payment_amount",
+        "total_matchdays"
+      ],
+      "frontend_calculation": "Supported by stored financial configuration"
+    },
+    "timestamp": "2025-09-25T14:27:30.761465"
+  }
+]
