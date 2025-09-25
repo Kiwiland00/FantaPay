@@ -504,7 +504,7 @@ const CreateCompetitionScreen: React.FC = () => {
                 activeOpacity={0.8}
               >
                 <Ionicons name="add-circle" size={24} color="#007AFF" />
-                <Text style={styles.addSlotText}>Add Slot</Text>
+                <Text style={styles.addSlotText}>Add Slot {finalPrizes.length + 1}</Text>
               </TouchableOpacity>
             </View>
             
