@@ -418,6 +418,12 @@ const resources = {
       'paymentHistory.completed': 'pagamenti completati',
       'paymentHistory.bulkHint': '💡 Seleziona giornate multiple in sospeso qui sotto per pagarle tutte insieme',
 
+      // Competition Details & Management
+      'competitions.summary': 'Riepilogo',
+      'competitions.participants': 'Partecipanti',
+      'competitions.standings': 'Classifica',
+      'competitions.pending': 'In Sospeso',
+
       // Competition Creation & Management
       'competition.step1': 'Passo 1: Dettagli Competizione',
       'competition.step2': 'Passo 2: Regole Premi',
