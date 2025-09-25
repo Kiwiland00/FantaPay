@@ -737,7 +737,6 @@ const CompetitionDetailScreen: React.FC = () => {
               <Text style={styles.adminBadgeText}>Admin</Text>
             </View>
           )}
-          <Text style={styles.participantPoints}>{item.points || 0} pts</Text>
           <Ionicons name="chevron-forward" size={16} color="#8E8E93" style={styles.participantChevron} />
         </View>
       </TouchableOpacity>
