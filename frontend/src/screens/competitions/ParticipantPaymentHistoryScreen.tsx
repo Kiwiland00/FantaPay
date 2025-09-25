@@ -219,12 +219,21 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         matchday_payments: matchdayPayments
       };
       
+      // Calculate residual fee (total participation cost - matchday fees)
+      const totalMatchdayFees = realCompetition.total_matchdays * realCompetition.daily_payment_amount;
+      const totalParticipationCost = actualCompetition?.participation_cost_per_team || 210.0;
+      const calculatedResidualFee = Math.max(0, totalParticipationCost - totalMatchdayFees);
+      setResidualFee(calculatedResidualFee);
+
       console.log('📊 Payment Summary Generated:', {
         totalPaid: participantData.total_paid,
         totalPending: participantData.total_pending,
         paidMatchdays: paidPayments.length,
         pendingMatchdays: pendingPayments.length,
-        totalMatchdays: matchdayPayments.length
+        totalMatchdays: matchdayPayments.length,
+        totalMatchdayFees: totalMatchdayFees,
+        totalParticipationCost: totalParticipationCost,
+        residualFee: calculatedResidualFee
       });
       
       setCompetition(realCompetition);
