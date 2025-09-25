@@ -3,77 +3,77 @@
     "passed": 34,
     "failed": 0,
     "success_rate": 100.0,
-    "timestamp": "2025-09-25T14:47:23.531421"
+    "timestamp": "2025-09-25T15:04:15.809599"
   },
   "results": [
     {
       "test": "Health Check",
       "success": true,
       "details": "API is healthy",
-      "timestamp": "2025-09-25T14:47:04.340458",
+      "timestamp": "2025-09-25T15:03:51.847431",
       "response_data": {
         "status": "healthy",
-        "timestamp": "2025-09-25T14:47:04.337747+00:00"
+        "timestamp": "2025-09-25T15:03:51.844630+00:00"
       }
     },
     {
       "test": "User Signup",
       "success": true,
-      "details": "Account created for marco.rossi.750895@fantapay.it",
-      "timestamp": "2025-09-25T14:47:05.107532",
+      "details": "Account created for marco.rossi.297513@fantapay.it",
+      "timestamp": "2025-09-25T15:03:52.615263",
       "response_data": {
         "message": "Account created successfully. Please check your email for verification code.",
-        "email": "marco.rossi.750895@fantapay.it",
+        "email": "marco.rossi.297513@fantapay.it",
         "otp_sent": true
       }
     },
     {
       "test": "OTP Verification",
       "success": true,
-      "details": "Account verified for marco.rossi.750895@fantapay.it",
-      "timestamp": "2025-09-25T14:47:05.654315",
+      "details": "Account verified for marco.rossi.297513@fantapay.it",
+      "timestamp": "2025-09-25T15:03:54.019577",
       "response_data": {
         "user": {
-          "_id": "68d555e9797594d7f42d802a",
-          "username": "marco_rossi_750895",
-          "email": "marco.rossi.750895@fantapay.it",
+          "_id": "68d559d8797594d7f42d806d",
+          "username": "marco_rossi_297513",
+          "email": "marco.rossi.297513@fantapay.it",
           "name": "Marco Rossi",
-          "password_hash": "$2b$12$DAi7GoxmdVe4EpjrqFCzi.pCzmHI./f0NJgMOLYj3EPALZeKxubWW",
+          "password_hash": "$2b$12$wiyPQ35gqg.5Yg.Mom4XdunLOk0rTps6K5XdUM5FpVtA4Xy12pWkS",
           "auth_method": "email",
           "is_verified": true,
           "language": "it",
           "wallet_balance": 0.0,
           "biometric_enabled": false,
-          "created_at": "2025-09-25T14:47:05.103000",
-          "updated_at": "2025-09-25T14:47:05.650000",
-          "last_login": "2025-09-25T14:47:05.650000"
+          "created_at": "2025-09-25T15:03:52.610000",
+          "updated_at": "2025-09-25T15:03:53.924000",
+          "last_login": "2025-09-25T15:03:53.924000"
         },
-        "session_token": "f1af2e97-e7af-4feb-b482-2a2659a9ffeb",
+        "session_token": "c33d98d7-4208-4ef3-b310-2438c0d030bd",
         "message": "Account verified successfully"
       }
     },
     {
       "test": "User Login",
       "success": true,
-      "details": "Login successful for marco.rossi.750895@fantapay.it",
-      "timestamp": "2025-09-25T14:47:06.420691",
+      "details": "Login successful for marco.rossi.297513@fantapay.it",
+      "timestamp": "2025-09-25T15:03:54.782318",
       "response_data": {
         "user": {
-          "_id": "68d555e9797594d7f42d802a",
-          "username": "marco_rossi_750895",
-          "email": "marco.rossi.750895@fantapay.it",
+          "_id": "68d559d8797594d7f42d806d",
+          "username": "marco_rossi_297513",
+          "email": "marco.rossi.297513@fantapay.it",
           "name": "Marco Rossi",
-          "password_hash": "$2b$12$DAi7GoxmdVe4EpjrqFCzi.pCzmHI./f0NJgMOLYj3EPALZeKxubWW",
+          "password_hash": "$2b$12$wiyPQ35gqg.5Yg.Mom4XdunLOk0rTps6K5XdUM5FpVtA4Xy12pWkS",
           "auth_method": "email",
           "is_verified": true,
           "language": "it",
           "wallet_balance": 0.0,
           "biometric_enabled": false,
-          "created_at": "2025-09-25T14:47:05.103000",
-          "updated_at": "2025-09-25T14:47:05.650000",
-          "last_login": "2025-09-25T14:47:05.650000"
+          "created_at": "2025-09-25T15:03:52.610000",
+          "updated_at": "2025-09-25T15:03:53.924000",
+          "last_login": "2025-09-25T15:03:53.924000"
         },
-        "session_token": "0592734c-ee8a-4260-aaaf-2b61e2590302",
+        "session_token": "f1048ede-5cc0-4259-ac49-1b31ef98ca4d",
         "message": "Login successful"
       }
     },
@@ -81,36 +81,36 @@
       "test": "Google OAuth Session",
       "success": true,
       "details": "Endpoint accessible, invalid session ID as expected",
-      "timestamp": "2025-09-25T14:47:07.083464",
+      "timestamp": "2025-09-25T15:03:55.397296",
       "response_data": null
     },
     {
       "test": "Get Current User",
       "success": true,
-      "details": "User info retrieved for marco.rossi.750895@fantapay.it",
-      "timestamp": "2025-09-25T14:47:07.634833",
+      "details": "User info retrieved for marco.rossi.297513@fantapay.it",
+      "timestamp": "2025-09-25T15:03:55.940821",
       "response_data": {
-        "_id": "68d555e9797594d7f42d802a",
-        "email": "marco.rossi.750895@fantapay.it",
+        "_id": "68d559d8797594d7f42d806d",
+        "email": "marco.rossi.297513@fantapay.it",
         "name": "Marco Rossi",
-        "username": "marco_rossi_750895",
+        "username": "marco_rossi_297513",
         "picture": null,
-        "password_hash": "$2b$12$DAi7GoxmdVe4EpjrqFCzi.pCzmHI./f0NJgMOLYj3EPALZeKxubWW",
+        "password_hash": "$2b$12$wiyPQ35gqg.5Yg.Mom4XdunLOk0rTps6K5XdUM5FpVtA4Xy12pWkS",
         "auth_method": "email",
         "is_verified": true,
         "language": "it",
         "wallet_balance": 0.0,
         "biometric_enabled": false,
-        "created_at": "2025-09-25T14:47:05.103000",
-        "updated_at": "2025-09-25T14:47:05.650000",
-        "last_login": "2025-09-25T14:47:06.415000"
+        "created_at": "2025-09-25T15:03:52.610000",
+        "updated_at": "2025-09-25T15:03:53.924000",
+        "last_login": "2025-09-25T15:03:54.777000"
       }
     },
     {
       "test": "Language Update",
       "success": true,
       "details": "Language updated to English",
-      "timestamp": "2025-09-25T14:47:08.177797",
+      "timestamp": "2025-09-25T15:03:56.480928",
       "response_data": {
         "message": "Language updated successfully"
       }
@@ -119,7 +119,7 @@
       "test": "Biometric Toggle",
       "success": true,
       "details": "Biometric authentication enabled",
-      "timestamp": "2025-09-25T14:47:08.716314",
+      "timestamp": "2025-09-25T15:03:57.039494",
       "response_data": {
         "message": "Biometric authentication enabled"
       }
@@ -127,12 +127,12 @@
     {
       "test": "Create Competition with Financial Config",
       "success": true,
-      "details": "Competition created with correct financial fields: ID 68d555ed797594d7f42d802e, matchdays=36, cost=210.0, teams=8, pool=1680.0",
-      "timestamp": "2025-09-25T14:47:09.259180",
+      "details": "Competition created with correct financial fields: ID 68d559dd797594d7f42d8071, matchdays=36, cost=210.0, teams=8, pool=1680.0",
+      "timestamp": "2025-09-25T15:03:57.580633",
       "response_data": {
-        "_id": "68d555ed797594d7f42d802e",
+        "_id": "68d559dd797594d7f42d8071",
         "name": "Serie A Fantasy League 2024",
-        "admin_id": "68d555e9797594d7f42d802a",
+        "admin_id": "68d559d8797594d7f42d806d",
         "rules": {
           "type": "mixed",
           "daily_prize": 50.0,
@@ -154,10 +154,10 @@
             }
           ]
         },
-        "invite_code": "F2F42691",
-        "invite_link": "fantapay://join/F2F42691",
+        "invite_code": "7D3C1BFB",
+        "invite_link": "fantapay://join/7D3C1BFB",
         "participants": [
-          "68d555e9797594d7f42d802a"
+          "68d559d8797594d7f42d806d"
         ],
         "wallet_balance": 0.0,
         "is_active": true,
@@ -170,109 +170,109 @@
         "daily_payment_enabled": false,
         "daily_payment_amount": 0.0,
         "season_ended": false,
-        "created_at": "2025-09-25T14:47:09.255180Z",
-        "updated_at": "2025-09-25T14:47:09.255181Z"
+        "created_at": "2025-09-25T15:03:57.576397Z",
+        "updated_at": "2025-09-25T15:03:57.576399Z"
       }
     },
     {
       "test": "Financial Config Defaults",
       "success": true,
       "details": "Default financial values correctly applied: matchdays=36, cost=210.0, teams=8, pool=1680.0",
-      "timestamp": "2025-09-25T14:47:09.813330",
+      "timestamp": "2025-09-25T15:03:58.123927",
       "response_data": null
     },
     {
       "test": "Custom Financial Config",
       "success": true,
       "details": "Custom financial values correctly stored: matchdays=38, cost=150.0, teams=12, pool=1800.0",
-      "timestamp": "2025-09-25T14:47:10.350490",
+      "timestamp": "2025-09-25T15:03:58.661213",
       "response_data": null
     },
     {
       "test": "Create Competition with Daily Payments",
       "success": true,
       "details": "Competition created with daily payments: \u20ac5.0 per matchday",
-      "timestamp": "2025-09-25T14:47:10.890498",
+      "timestamp": "2025-09-25T15:04:00.118738",
       "response_data": null
     },
     {
       "test": "Create Competition without Daily Payments",
       "success": true,
       "details": "Competition created without daily payments",
-      "timestamp": "2025-09-25T14:47:11.427271",
+      "timestamp": "2025-09-25T15:04:00.655666",
       "response_data": null
     },
     {
       "test": "Matchday Payment Records Creation",
       "success": true,
       "details": "Created 38 payment records, 38 pending",
-      "timestamp": "2025-09-25T14:47:11.965204",
+      "timestamp": "2025-09-25T15:04:01.205879",
       "response_data": null
     },
     {
       "test": "Matchday Payment API",
       "success": true,
       "details": "Paid for 5 matchdays, cost: \u20ac25.0",
-      "timestamp": "2025-09-25T14:47:12.542088",
+      "timestamp": "2025-09-25T15:04:01.965929",
       "response_data": null
     },
     {
       "test": "Matchday Payment Status",
       "success": true,
       "details": "Retrieved payment status: 5 paid matchdays",
-      "timestamp": "2025-09-25T14:47:13.081308",
+      "timestamp": "2025-09-25T15:04:02.532849",
       "response_data": null
     },
     {
       "test": "Admin Payment Status Table",
       "success": true,
       "details": "Retrieved status table for 1 participants",
-      "timestamp": "2025-09-25T14:47:13.621470",
+      "timestamp": "2025-09-25T15:04:03.071462",
       "response_data": null
     },
     {
       "test": "Validation - Invalid Matchdays",
       "success": true,
       "details": "Correctly rejected invalid matchday numbers",
-      "timestamp": "2025-09-25T14:47:14.239403",
+      "timestamp": "2025-09-25T15:04:04.418778",
       "response_data": null
     },
     {
       "test": "Validation - Duplicate Payments",
       "success": true,
       "details": "Correctly rejected duplicate payments",
-      "timestamp": "2025-09-25T14:47:14.239428",
+      "timestamp": "2025-09-25T15:04:04.418807",
       "response_data": null
     },
     {
       "test": "Validation - Payment on Non-Daily Competition",
       "success": true,
       "details": "Correctly rejected payment on competition without daily payments",
-      "timestamp": "2025-09-25T14:47:14.239433",
+      "timestamp": "2025-09-25T15:04:04.418812",
       "response_data": null
     },
     {
       "test": "Payment Balance Updates",
       "success": true,
       "details": "Balance correctly updated: 75.0 -> 65.0",
-      "timestamp": "2025-09-25T14:47:14.842293",
+      "timestamp": "2025-09-25T15:04:04.995376",
       "response_data": null
     },
     {
       "test": "Matchday Payment Transactions",
       "success": true,
       "details": "Found 2 matchday payment transactions",
-      "timestamp": "2025-09-25T14:47:15.380828",
+      "timestamp": "2025-09-25T15:04:05.533034",
       "response_data": null
     },
     {
       "test": "Get My Competitions",
       "success": true,
       "details": "Retrieved 5 competitions",
-      "timestamp": "2025-09-25T14:47:15.917296",
+      "timestamp": "2025-09-25T15:04:06.071569",
       "response_data": [
         {
-          "_id": "68d555ed797594d7f42d802e",
+          "_id": "68d559dd797594d7f42d8071",
           "name": "Serie A Fantasy League 2024",
           "rules": {
             "type": "mixed",
@@ -301,22 +301,22 @@
           "total_prize_pool": 1680.0,
           "daily_payment_enabled": false,
           "daily_payment_amount": 0.0,
-          "admin_id": "68d555e9797594d7f42d802a",
+          "admin_id": "68d559d8797594d7f42d806d",
           "participants": [
-            "68d555e9797594d7f42d802a"
+            "68d559d8797594d7f42d806d"
           ],
-          "invite_code": "F2F42691",
-          "invite_link": "fantapay://join/F2F42691",
+          "invite_code": "7D3C1BFB",
+          "invite_link": "fantapay://join/7D3C1BFB",
           "wallet_balance": 0.0,
           "is_active": true,
           "standings": {},
           "current_matchday": 1,
-          "created_at": "2025-09-25T14:47:09.255000",
-          "updated_at": "2025-09-25T14:47:09.255000",
+          "created_at": "2025-09-25T15:03:57.576000",
+          "updated_at": "2025-09-25T15:03:57.576000",
           "season_ended": false
         },
         {
-          "_id": "68d555ed797594d7f42d8030",
+          "_id": "68d559de797594d7f42d8073",
           "name": "Default Financial Config League",
           "rules": {
             "type": "daily",
@@ -329,22 +329,22 @@
           "total_prize_pool": 1680.0,
           "daily_payment_enabled": false,
           "daily_payment_amount": 0.0,
-          "admin_id": "68d555e9797594d7f42d802a",
+          "admin_id": "68d559d8797594d7f42d806d",
           "participants": [
-            "68d555e9797594d7f42d802a"
+            "68d559d8797594d7f42d806d"
           ],
-          "invite_code": "EE951D36",
-          "invite_link": "fantapay://join/EE951D36",
+          "invite_code": "C6F05A3D",
+          "invite_link": "fantapay://join/C6F05A3D",
           "wallet_balance": 0.0,
           "is_active": true,
           "standings": {},
           "current_matchday": 1,
-          "created_at": "2025-09-25T14:47:09.809000",
-          "updated_at": "2025-09-25T14:47:09.809000",
+          "created_at": "2025-09-25T15:03:58.119000",
+          "updated_at": "2025-09-25T15:03:58.119000",
           "season_ended": false
         },
         {
-          "_id": "68d555ee797594d7f42d8032",
+          "_id": "68d559de797594d7f42d8075",
           "name": "Custom Financial Config League",
           "rules": {
             "type": "final",
@@ -363,22 +363,22 @@
           "total_prize_pool": 1800.0,
           "daily_payment_enabled": false,
           "daily_payment_amount": 0.0,
-          "admin_id": "68d555e9797594d7f42d802a",
+          "admin_id": "68d559d8797594d7f42d806d",
           "participants": [
-            "68d555e9797594d7f42d802a"
+            "68d559d8797594d7f42d806d"
           ],
-          "invite_code": "3DCE072F",
-          "invite_link": "fantapay://join/3DCE072F",
+          "invite_code": "6EC040D4",
+          "invite_link": "fantapay://join/6EC040D4",
           "wallet_balance": 0.0,
           "is_active": true,
           "standings": {},
           "current_matchday": 1,
-          "created_at": "2025-09-25T14:47:10.347000",
-          "updated_at": "2025-09-25T14:47:10.347000",
+          "created_at": "2025-09-25T15:03:58.657000",
+          "updated_at": "2025-09-25T15:03:58.657000",
           "season_ended": false
         },
         {
-          "_id": "68d555ee797594d7f42d8034",
+          "_id": "68d559df797594d7f42d8077",
           "name": "Serie A Fantasy - Daily Payments",
           "rules": {
             "type": "mixed",
@@ -402,22 +402,22 @@
           "total_prize_pool": 1900.0,
           "daily_payment_enabled": true,
           "daily_payment_amount": 5.0,
-          "admin_id": "68d555e9797594d7f42d802a",
+          "admin_id": "68d559d8797594d7f42d806d",
           "participants": [
-            "68d555e9797594d7f42d802a"
+            "68d559d8797594d7f42d806d"
           ],
-          "invite_code": "E33B089F",
-          "invite_link": "fantapay://join/E33B089F",
+          "invite_code": "31F55087",
+          "invite_link": "fantapay://join/31F55087",
           "wallet_balance": 35.0,
           "is_active": true,
           "standings": {},
           "current_matchday": 1,
-          "created_at": "2025-09-25T14:47:10.885000",
-          "updated_at": "2025-09-25T14:47:14.836000",
+          "created_at": "2025-09-25T15:03:59.917000",
+          "updated_at": "2025-09-25T15:04:04.991000",
           "season_ended": false
         },
         {
-          "_id": "68d555ef797594d7f42d805c",
+          "_id": "68d559e0797594d7f42d809f",
           "name": "Serie A Fantasy - No Daily Payments",
           "rules": {
             "type": "final",
@@ -436,18 +436,18 @@
           "total_prize_pool": 1680.0,
           "daily_payment_enabled": false,
           "daily_payment_amount": 0.0,
-          "admin_id": "68d555e9797594d7f42d802a",
+          "admin_id": "68d559d8797594d7f42d806d",
           "participants": [
-            "68d555e9797594d7f42d802a"
+            "68d559d8797594d7f42d806d"
           ],
-          "invite_code": "9453BC95",
-          "invite_link": "fantapay://join/9453BC95",
+          "invite_code": "41E06035",
+          "invite_link": "fantapay://join/41E06035",
           "wallet_balance": 0.0,
           "is_active": true,
           "standings": {},
           "current_matchday": 1,
-          "created_at": "2025-09-25T14:47:11.424000",
-          "updated_at": "2025-09-25T14:47:11.424000",
+          "created_at": "2025-09-25T15:04:00.651000",
+          "updated_at": "2025-09-25T15:04:00.651000",
           "season_ended": false
         }
       ]
@@ -456,9 +456,9 @@
       "test": "Get Competition Details with Financial Config",
       "success": true,
       "details": "Competition details retrieved with financial fields: matchdays=36, cost=210.0, teams=8, pool=1680.0",
-      "timestamp": "2025-09-25T14:47:16.456451",
+      "timestamp": "2025-09-25T15:04:07.618840",
       "response_data": {
-        "_id": "68d555ed797594d7f42d802e",
+        "_id": "68d559dd797594d7f42d8071",
         "name": "Serie A Fantasy League 2024",
         "rules": {
           "type": "mixed",
@@ -487,22 +487,22 @@
         "total_prize_pool": 1680.0,
         "daily_payment_enabled": false,
         "daily_payment_amount": 0.0,
-        "admin_id": "68d555e9797594d7f42d802a",
+        "admin_id": "68d559d8797594d7f42d806d",
         "participants": [
           {
-            "id": "68d555e9797594d7f42d802a",
+            "id": "68d559d8797594d7f42d806d",
             "name": "Marco Rossi",
-            "email": "marco.rossi.750895@fantapay.it"
+            "email": "marco.rossi.297513@fantapay.it"
           }
         ],
-        "invite_code": "F2F42691",
-        "invite_link": "fantapay://join/F2F42691",
+        "invite_code": "7D3C1BFB",
+        "invite_link": "fantapay://join/7D3C1BFB",
         "wallet_balance": 0.0,
         "is_active": true,
         "standings": {},
         "current_matchday": 1,
-        "created_at": "2025-09-25T14:47:09.255000",
-        "updated_at": "2025-09-25T14:47:09.255000",
+        "created_at": "2025-09-25T15:03:57.576000",
+        "updated_at": "2025-09-25T15:03:57.576000",
         "season_ended": false
       }
     },
@@ -510,7 +510,7 @@
       "test": "Update Standings",
       "success": true,
       "details": "Standings updated successfully",
-      "timestamp": "2025-09-25T14:47:16.992237",
+      "timestamp": "2025-09-25T15:04:08.173110",
       "response_data": {
         "message": "Standings updated successfully"
       }
@@ -519,7 +519,7 @@
       "test": "Enhanced Standings with Badges",
       "success": true,
       "details": "Enhanced standings with 5 participants, badges, and ranking system updated successfully",
-      "timestamp": "2025-09-25T14:47:17.534281",
+      "timestamp": "2025-09-25T15:04:08.711264",
       "response_data": {
         "message": "Standings updated successfully"
       }
@@ -528,14 +528,14 @@
       "test": "Standings Data Persistence",
       "success": true,
       "details": "Standings data persisted correctly for 5 participants",
-      "timestamp": "2025-09-25T14:47:18.072225",
+      "timestamp": "2025-09-25T15:04:09.250458",
       "response_data": null
     },
     {
       "test": "Participant Points Updating",
       "success": true,
       "details": "Points updated for 1 participants with automatic ranking",
-      "timestamp": "2025-09-25T14:47:18.647060",
+      "timestamp": "2025-09-25T15:04:10.919106",
       "response_data": {
         "message": "Standings updated successfully"
       }
@@ -544,7 +544,7 @@
       "test": "Get Wallet Balance",
       "success": true,
       "details": "Balance: \u20ac65.0",
-      "timestamp": "2025-09-25T14:47:19.185523",
+      "timestamp": "2025-09-25T15:04:11.458992",
       "response_data": {
         "balance": 65.0
       }
@@ -553,7 +553,7 @@
       "test": "Wallet Top-up",
       "success": true,
       "details": "Topped up \u20ac100, new balance: \u20ac165.0",
-      "timestamp": "2025-09-25T14:47:19.722260",
+      "timestamp": "2025-09-25T15:04:11.995081",
       "response_data": {
         "message": "Wallet topped up successfully",
         "new_balance": 165.0
@@ -563,7 +563,7 @@
       "test": "Wallet Withdrawal",
       "success": true,
       "details": "Withdrew \u20ac25, new balance: \u20ac140.0",
-      "timestamp": "2025-09-25T14:47:20.278138",
+      "timestamp": "2025-09-25T15:04:12.535809",
       "response_data": {
         "message": "Withdrawal successful",
         "new_balance": 140.0
@@ -573,7 +573,7 @@
       "test": "Competition Payment",
       "success": true,
       "details": "Paid \u20ac50 to competition",
-      "timestamp": "2025-09-25T14:47:20.816041",
+      "timestamp": "2025-09-25T15:04:13.074807",
       "response_data": {
         "message": "Payment successful",
         "new_user_balance": 90.0,
@@ -584,67 +584,67 @@
       "test": "Transaction History",
       "success": true,
       "details": "Retrieved 6 transactions",
-      "timestamp": "2025-09-25T14:47:21.352918",
+      "timestamp": "2025-09-25T15:04:13.628959",
       "response_data": [
         {
-          "_id": "68d555f0797594d7f42d805e",
+          "_id": "68d559e1797594d7f42d80a1",
           "competition_id": null,
           "type": "deposit",
           "amount": 100.0,
           "description": "Wallet top-up of \u20ac100.0",
           "from_wallet": "external",
           "to_wallet": "personal",
-          "user_id": "68d555e9797594d7f42d802a"
+          "user_id": "68d559d8797594d7f42d806d"
         },
         {
-          "_id": "68d555f0797594d7f42d8064",
-          "competition_id": "68d555ee797594d7f42d8034",
+          "_id": "68d559e1797594d7f42d80a7",
+          "competition_id": "68d559df797594d7f42d8077",
           "type": "matchday_payment",
           "amount": 25.0,
           "description": "Matchday payments for Serie A Fantasy - Daily Payments - Matchdays: 1, 2, 3, 4, 5",
           "from_wallet": "personal",
           "to_wallet": "competition",
-          "user_id": "68d555e9797594d7f42d802a"
+          "user_id": "68d559d8797594d7f42d806d"
         },
         {
-          "_id": "68d555f2797594d7f42d8068",
-          "competition_id": "68d555ee797594d7f42d8034",
+          "_id": "68d559e4797594d7f42d80ab",
+          "competition_id": "68d559df797594d7f42d8077",
           "type": "matchday_payment",
           "amount": 10.0,
           "description": "Matchday payments for Serie A Fantasy - Daily Payments - Matchdays: 20, 21",
           "from_wallet": "personal",
           "to_wallet": "competition",
-          "user_id": "68d555e9797594d7f42d802a"
+          "user_id": "68d559d8797594d7f42d806d"
         },
         {
-          "_id": "68d555f7797594d7f42d806a",
+          "_id": "68d559eb797594d7f42d80ad",
           "competition_id": null,
           "type": "deposit",
           "amount": 100.0,
           "description": "Wallet top-up of \u20ac100.0",
           "from_wallet": "external",
           "to_wallet": "personal",
-          "user_id": "68d555e9797594d7f42d802a"
+          "user_id": "68d559d8797594d7f42d806d"
         },
         {
-          "_id": "68d555f8797594d7f42d806b",
+          "_id": "68d559ec797594d7f42d80ae",
           "competition_id": null,
           "type": "withdraw",
           "amount": 25.0,
           "description": "Withdrawal of \u20ac25.0",
           "from_wallet": "personal",
           "to_wallet": "external",
-          "user_id": "68d555e9797594d7f42d802a"
+          "user_id": "68d559d8797594d7f42d806d"
         },
         {
-          "_id": "68d555f8797594d7f42d806c",
-          "competition_id": "68d555ed797594d7f42d802e",
+          "_id": "68d559ed797594d7f42d80af",
+          "competition_id": "68d559dd797594d7f42d8071",
           "type": "payment",
           "amount": 50.0,
           "description": "Payment to Serie A Fantasy League 2024",
           "from_wallet": "personal",
           "to_wallet": "competition",
-          "user_id": "68d555e9797594d7f42d802a"
+          "user_id": "68d559d8797594d7f42d806d"
         }
       ]
     },
@@ -652,17 +652,17 @@
       "test": "Competition Transactions",
       "success": true,
       "details": "Retrieved 1 competition transactions",
-      "timestamp": "2025-09-25T14:47:21.893223",
+      "timestamp": "2025-09-25T15:04:14.168593",
       "response_data": [
         {
-          "_id": "68d555f8797594d7f42d806c",
-          "competition_id": "68d555ed797594d7f42d802e",
+          "_id": "68d559ed797594d7f42d80af",
+          "competition_id": "68d559dd797594d7f42d8071",
           "type": "payment",
           "amount": 50.0,
           "description": "Payment to Serie A Fantasy League 2024",
           "from_wallet": "personal",
           "to_wallet": "competition",
-          "user_id": "68d555e9797594d7f42d802a",
+          "user_id": "68d559d8797594d7f42d806d",
           "user_name": "Marco Rossi"
         }
       ]
@@ -671,28 +671,28 @@
       "test": "Invalid Login",
       "success": true,
       "details": "Correctly rejected invalid credentials",
-      "timestamp": "2025-09-25T14:47:22.499322",
+      "timestamp": "2025-09-25T15:04:14.776762",
       "response_data": null
     },
     {
       "test": "Insufficient Balance",
       "success": true,
       "details": "Correctly rejected insufficient balance",
-      "timestamp": "2025-09-25T14:47:22.499342",
+      "timestamp": "2025-09-25T15:04:14.776788",
       "response_data": null
     },
     {
       "test": "Invalid Competition Code",
       "success": true,
       "details": "Correctly rejected invalid code",
-      "timestamp": "2025-09-25T14:47:22.499347",
+      "timestamp": "2025-09-25T15:04:14.776792",
       "response_data": null
     },
     {
       "test": "Unauthorized Access",
       "success": true,
       "details": "Correctly rejected unauthorized request",
-      "timestamp": "2025-09-25T14:47:23.030422",
+      "timestamp": "2025-09-25T15:04:15.308597",
       "response_data": null
     }
   ]
