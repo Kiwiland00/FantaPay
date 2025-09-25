@@ -557,6 +557,28 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
+  // Toggle Switch Styles
+  toggleSwitch: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#2C2C2E',
+    padding: 2,
+    justifyContent: 'center',
+  },
+  toggleSwitchActive: {
+    backgroundColor: '#34C759',
+  },
+  toggleCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    alignSelf: 'flex-start',
+  },
+  toggleCircleActive: {
+    alignSelf: 'flex-end',
+  },
 });
 
 export default ProfileScreen;
