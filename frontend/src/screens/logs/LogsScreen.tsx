@@ -22,7 +22,7 @@ interface ActivityLog {
   admin_username: string;
   competition_id: string;
   competition_name: string;
-  action: 'create_competition' | 'edit_competition' | 'delete_competition' | 'matchday_payment' | 'daily_prize' | 'join_competition';
+  action: 'create_competition' | 'edit_competition' | 'delete_competition' | 'matchday_payment' | 'daily_prize' | 'join_competition' | 'remove_participant';
   details: string;
   timestamp: string;
 }
