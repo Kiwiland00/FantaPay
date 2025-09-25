@@ -22,7 +22,7 @@ import { competitionAPI } from '../../services/api';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ValidationState {
-  isValidating: boolean;
+  isLoading: boolean;
   isAvailable: boolean;
   message: string;
 }
