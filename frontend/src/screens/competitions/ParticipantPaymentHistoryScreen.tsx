@@ -344,7 +344,42 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   // Process payment for one or multiple matchdays
   const processPayment = async (matchdays: number[], totalAmount: number) => {
     try {
-      // Update payment records in storage
+      console.log('💳 Processing payment for matchdays:', matchdays, 'Amount:', totalAmount);
+
+      // 1. Check if user has sufficient balance
+      if (userBalance < totalAmount) {
+        console.log('❌ Insufficient balance:', userBalance, 'Required:', totalAmount);
+        Alert.alert(
+          t('common.error'), 
+          `Insufficient balance. You have €${userBalance.toFixed(2)} but need €${totalAmount.toFixed(2)}.`,
+          [
+            { text: t('common.cancel'), style: 'cancel' },
+            { 
+              text: 'Go to Wallet', 
+              onPress: () => navigation.navigate('Wallet' as never)
+            }
+          ]
+        );
+        return;
+      }
+
+      // 2. Deduct amount from wallet balance
+      const newBalance = userBalance - totalAmount;
+      await updateUserBalance(newBalance);
+      console.log('💰 Balance updated from', userBalance, 'to', newBalance);
+
+      // 3. Add transaction record
+      await addTransaction({
+        type: 'competition_payment',
+        amount: -totalAmount, // Negative for debit
+        description: `Payment for ${matchdays.length === 1 ? `matchday ${matchdays[0]}` : `matchdays ${matchdays.join(', ')}`} - ${competition?.name}`,
+        from_wallet: user?.id || '650f1f1f1f1f1f1f1f1f1f1f',
+        to_wallet: `competition_${competitionId}`,
+        status: 'completed',
+        created_at: new Date().toISOString()
+      });
+
+      // 4. Update payment records in storage
       const paymentKey = `payments_${participantId}_${competitionId}`;
       const existingPayments = await CrossPlatformStorage.getItem(paymentKey);
       const payments = existingPayments ? JSON.parse(existingPayments) : [];
@@ -364,33 +399,31 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
       
       // Save updated payment records
       await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(payments));
-      
-      // Add payment log to competition logs
+
+      // 5. Add payment log to competition logs
       await addPaymentLog(matchdays, totalAmount);
       
-      // Clear selections
+      // 6. Clear selections and refresh data
       setSelectedMatchdays([]);
       setPaymentMode('single');
-      
-      // Refresh data
       await loadParticipantData();
       
-      // Success message
+      // 7. Success message
       const matchdaysText = matchdays.length === 1 
-        ? `Matchday ${matchdays[0]}`
-        : `Matchdays ${matchdays.join(', ')}`;
+        ? `${t('paymentHistory.matchday')} ${matchdays[0]}`
+        : `${t('paymentHistory.matchdays')} ${matchdays.join(', ')}`;
       
       Alert.alert(
-        'Payment Successful!',
-        `✅ Paid €${totalAmount.toFixed(2)} for ${matchdaysText}`,
-        [{ text: 'OK', style: 'default' }]
+        t('paymentHistory.paymentSuccess'),
+        `✅ ${t('paymentHistory.paid')} €${totalAmount.toFixed(2)} for ${matchdaysText}`,
+        [{ text: t('common.ok'), style: 'default' }]
       );
       
       console.log('✅ Payment processed successfully:', matchdays);
       
     } catch (error) {
       console.error('💥 Error processing payment:', error);
-      Alert.alert('Error', 'Failed to process payment. Please try again.');
+      Alert.alert(t('common.error'), t('paymentHistory.paymentFailed'));
     }
   };
 
