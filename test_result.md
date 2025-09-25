@@ -179,6 +179,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "COMPREHENSIVE MATCHDAY PAYMENT SYSTEM TESTING COMPLETED WITH 100% SUCCESS: ✅ Competition creation with daily_payment_enabled=true/false ✅ Automatic matchday payment record creation for admin and new participants ✅ POST /api/competitions/{id}/matchday-payments for paying multiple matchdays ✅ GET /api/competitions/{id}/matchday-payments for user payment status ✅ GET /api/competitions/{id}/payment-status-table (admin only) ✅ Join competition integration creates payment records automatically ✅ Payment processing updates user/competition balances correctly ✅ Transaction records created for matchday payments ✅ MongoDB integration with unique indexes ✅ Edge case validation: insufficient balance, invalid matchdays, duplicate payments, non-participant access, admin-only endpoint protection. All 31 comprehensive tests passed including 9 specific matchday payment tests. System is fully functional and production-ready."
+      - working: true
+        agent: "testing"
+        comment: "PAYMENT SYSTEM INTEGRATION RE-VERIFIED: ✅ All matchday payment APIs operational after recent payment system updates ✅ Competition creation with daily payments (€5/matchday) working correctly ✅ Matchday payment processing (paid for 5 matchdays successfully) ✅ Admin payment status table accessible and functional ✅ Payment validation (duplicate prevention, invalid matchdays) working ✅ Balance deduction integration confirmed ✅ Transaction recording for matchday payments operational. All 31 comprehensive tests continue to pass with 100% success rate. Matchday payment system fully supports enhanced payment system integration."
 
   - task: "Database Models & Integration"
     implemented: true
