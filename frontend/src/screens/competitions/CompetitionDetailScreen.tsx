@@ -1185,8 +1185,9 @@ const CompetitionDetailScreen: React.FC = () => {
                     </Text>
                   </View>
                   
+                  {/* Points Column */}
                   <View style={[styles.standingsCell, styles.pointsColumn]}>
-                    {isAdmin && editingParticipantId === item.id ? (
+                    {isAdmin && editingParticipantId === item.id && editingPointsType === 'points' ? (
                       <View style={styles.pointsEditContainer}>
                         <TextInput
                           style={styles.pointsInput}
@@ -1213,11 +1214,53 @@ const CompetitionDetailScreen: React.FC = () => {
                     ) : (
                       <TouchableOpacity
                         style={styles.pointsContainer}
-                        onPress={isAdmin ? () => handlePointsEdit(item.id, item.points || 0) : undefined}
+                        onPress={isAdmin ? () => handlePointsEdit(item.id, item.points || 0, 'points') : undefined}
                         disabled={!isAdmin}
                       >
                         <Text style={styles.pointsText}>
-                          {item.points?.toFixed(1) || '0.0'}
+                          {(item.points || 0).toFixed(1)}
+                        </Text>
+                        {isAdmin && (
+                          <Ionicons name="pencil-outline" size={14} color="#8E8E93" />
+                        )}
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  {/* Total Points Column */}
+                  <View style={[styles.standingsCell, styles.pointsColumn]}>
+                    {isAdmin && editingParticipantId === item.id && editingPointsType === 'totalPoints' ? (
+                      <View style={styles.pointsEditContainer}>
+                        <TextInput
+                          style={styles.pointsInput}
+                          value={tempPoints}
+                          onChangeText={setTempPoints}
+                          keyboardType="numeric"
+                          placeholder="0"
+                          placeholderTextColor="#8E8E93"
+                          autoFocus
+                        />
+                        <TouchableOpacity
+                          style={styles.pointsSaveButton}
+                          onPress={handlePointsSave}
+                        >
+                          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.pointsCancelButton}
+                          onPress={handlePointsCancel}
+                        >
+                          <Ionicons name="close" size={16} color="#FFFFFF" />
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.pointsContainer}
+                        onPress={isAdmin ? () => handlePointsEdit(item.id, item.totalPoints || 0, 'totalPoints') : undefined}
+                        disabled={!isAdmin}
+                      >
+                        <Text style={styles.pointsText}>
+                          {(item.totalPoints || 0).toFixed(1)}
                         </Text>
                         {isAdmin && (
                           <Ionicons name="pencil-outline" size={14} color="#8E8E93" />
