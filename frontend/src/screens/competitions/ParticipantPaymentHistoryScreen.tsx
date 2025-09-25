@@ -433,7 +433,12 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
       setPaymentMode('single');
       await loadParticipantData();
       
-      // 7. Success message
+      // 7. Trigger parent competition balance refresh
+      setTimeout(() => {
+        refreshParentBalance();
+      }, 500); // Small delay to ensure storage has been updated
+      
+      // 8. Success message
       const matchdaysText = matchdays.length === 1 
         ? `${t('paymentHistory.matchday')} ${matchdays[0]}`
         : `${t('paymentHistory.matchdays')} ${matchdays.join(', ')}`;
