@@ -261,7 +261,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadParticipantData();
+    await Promise.all([loadParticipantData(), loadUserBalance()]);
     setRefreshing(false);
   };
 
