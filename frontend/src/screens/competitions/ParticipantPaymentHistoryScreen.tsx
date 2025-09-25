@@ -909,6 +909,141 @@ const styles = StyleSheet.create({
   separator: {
     height: 12,
   },
+  // New Payment Functionality Styles
+  paymentControlsCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  paymentControlsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  paymentModeToggle: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    backgroundColor: '#2C2C2E',
+    padding: 2,
+  },
+  paymentModeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    gap: 8,
+  },
+  paymentModeButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  paymentModeButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#8E8E93',
+  },
+  paymentModeButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  bulkPaymentActions: {
+    marginTop: 16,
+  },
+  bulkPaymentInfo: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    padding: 12,
+  },
+  bulkPaymentDetails: {
+    marginBottom: 12,
+  },
+  bulkPaymentText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  bulkPaymentAmount: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  bulkPaymentButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  clearSelectionButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#8E8E93',
+    alignItems: 'center',
+  },
+  clearSelectionButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#8E8E93',
+  },
+  bulkPayButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: '#007AFF',
+    gap: 6,
+  },
+  bulkPayButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  bulkPaymentHint: {
+    fontSize: 14,
+    color: '#8E8E93',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: 12,
+  },
+  // Updated Payment Item Styles
+  paymentItemSelected: {
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  matchdayTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  selectionCheckbox: {
+    padding: 4,
+  },
+  matchdayDetails: {
+    flex: 1,
+  },
+  payButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    marginTop: 8,
+    gap: 6,
+  },
+  payButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
 });
 
 export default ParticipantPaymentHistoryScreen;
