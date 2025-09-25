@@ -86,10 +86,18 @@ const ProfileScreen: React.FC = () => {
         setSelectedProfileImage(storedProfileImage);
       }
       
+      // Load notifications preference
+      const notificationsKey = `notifications_enabled_${userId}`;
+      const storedNotifications = await CrossPlatformStorage.getItem(notificationsKey);
+      
+      if (storedNotifications !== null) {
+        setNotificationsEnabled(storedNotifications === 'true');
+      }
+      
       // Load initial balance
       await loadUserBalance();
       
-      console.log('👤 Profile data loaded - Image:', storedProfileImage);
+      console.log('👤 Profile data loaded - Image:', storedProfileImage, 'Notifications:', storedNotifications);
     } catch (error) {
       console.error('💥 Error loading profile data:', error);
     }
