@@ -56,6 +56,8 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'paid' | 'pending'>('all');
+  const [userBalance, setUserBalance] = useState(0);
+  const [residualFee, setResidualFee] = useState(0);
 
   useEffect(() => {
     loadParticipantData();
