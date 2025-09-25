@@ -61,7 +61,71 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
 
   useEffect(() => {
     loadParticipantData();
+    loadUserBalance();
   }, []);
+
+  // Wallet utility functions
+  const loadUserBalance = async () => {
+    try {
+      const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+      const balanceKey = `wallet_balance_${userId}`;
+      const storedBalance = await CrossPlatformStorage.getItem(balanceKey);
+      
+      if (storedBalance !== null) {
+        setUserBalance(parseFloat(storedBalance));
+        console.log('💰 Loaded user balance:', storedBalance);
+      } else {
+        // Initialize with €150 for demo users (as in test data)
+        setUserBalance(150);
+        await CrossPlatformStorage.setItem(balanceKey, '150');
+        console.log('💰 Initialized user with €150 balance');
+      }
+    } catch (error) {
+      console.error('💥 Error loading balance:', error);
+      setUserBalance(0);
+    }
+  };
+
+  const updateUserBalance = async (newBalance: number) => {
+    try {
+      const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+      const balanceKey = `wallet_balance_${userId}`;
+      await CrossPlatformStorage.setItem(balanceKey, newBalance.toString());
+      setUserBalance(newBalance);
+      console.log('💰 Updated user balance to:', newBalance);
+    } catch (error) {
+      console.error('💥 Error updating balance:', error);
+    }
+  };
+
+  const addTransaction = async (transaction: {
+    type: string;
+    amount: number;
+    description: string;
+    from_wallet: string;
+    to_wallet: string;
+    status: string;
+    created_at: string;
+  }) => {
+    try {
+      const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+      const transactionsKey = `transactions_${userId}`;
+      const storedTransactions = await CrossPlatformStorage.getItem(transactionsKey);
+      const existingTransactions = storedTransactions ? JSON.parse(storedTransactions) : [];
+      
+      const newTransaction = {
+        ...transaction,
+        _id: `txn_${Date.now()}`,
+      };
+
+      const updatedTransactions = [newTransaction, ...existingTransactions];
+      await CrossPlatformStorage.setItem(transactionsKey, JSON.stringify(updatedTransactions));
+      
+      console.log('📊 Added transaction:', newTransaction.type, newTransaction.amount);
+    } catch (error) {
+      console.error('💥 Error adding transaction:', error);
+    }
+  };
 
   const loadParticipantData = async () => {
     try {
