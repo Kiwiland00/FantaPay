@@ -512,6 +512,11 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
               // Reset residual fee
               setResidualFee(0);
 
+              // Trigger parent competition balance refresh
+              setTimeout(() => {
+                refreshParentBalance();
+              }, 500);
+
               Alert.alert(
                 t('paymentHistory.paymentSuccess'),
                 `✅ Paid residual fee of €${residualFee.toFixed(2)}`,
