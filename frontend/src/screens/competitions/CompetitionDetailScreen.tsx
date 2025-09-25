@@ -950,7 +950,9 @@ const CompetitionDetailScreen: React.FC = () => {
           
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Competition Balance:</Text>
-            <Text style={styles.infoValue}>€{competition.wallet_balance?.toFixed(2) || '0.00'}</Text>
+            <Text style={styles.infoValue}>
+              €{competitionBalance.totalPaid.toFixed(2)} / €{competitionBalance.totalPrizePool.toFixed(2)}
+            </Text>
           </View>
 
           {isAdmin && (
