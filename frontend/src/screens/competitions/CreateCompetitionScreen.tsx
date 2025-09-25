@@ -1352,6 +1352,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2C2C2E',
   },
+  inputSection: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 8,
+  },
   summarySection: {
     marginBottom: 24,
   },
