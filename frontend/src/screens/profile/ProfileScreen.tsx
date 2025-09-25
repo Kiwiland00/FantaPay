@@ -122,6 +122,27 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
+  const toggleNotifications = async () => {
+    try {
+      const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
+      const notificationsKey = `notifications_enabled_${userId}`;
+      const newValue = !notificationsEnabled;
+      
+      await CrossPlatformStorage.setItem(notificationsKey, newValue.toString());
+      setNotificationsEnabled(newValue);
+      
+      Alert.alert(
+        'Notifications Updated', 
+        `Push notifications are now ${newValue ? 'enabled' : 'disabled'}.`
+      );
+      
+      console.log('🔔 Notifications toggled to:', newValue);
+    } catch (error) {
+      console.error('💥 Error updating notifications preference:', error);
+      Alert.alert('Error', 'Failed to update notifications preference. Please try again.');
+    }
+  };
+
   const handleLogout = () => {
     Alert.alert(
       'Logout',
