@@ -1362,6 +1362,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+
+  // Read-only banner styles
+  readOnlyBanner: {
+    backgroundColor: '#2A2A0A',
+    borderColor: '#8E8E93',
+    borderWidth: 1,
+    borderRadius: 12,
+    margin: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  readOnlyBannerText: {
+    fontSize: 14,
+    color: '#8E8E93',
+    flex: 1,
+    lineHeight: 18,
+  },
 });
 
 export default ParticipantPaymentHistoryScreen;
