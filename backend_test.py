@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-FantaPay Backend Testing Suite - Bug Fix Validation
-Focus: Wallet Balance System, Competition Balance Calculation, Payment Logging, Payment Processing
-Testing the critical backend functionality to ensure the bug fixes are working correctly:
+FantaPay Backend Testing Suite - Review Request Validation
+Focus: Competition Creation & Fee Settings, Payment Processing, Admin Management, Financial Display
 
-1. **Wallet Balance System**: Verify wallet balance updates, transaction recording, and balance deduction functionality
-2. **Competition Balance Calculation**: Test competition balance tracking and real-time updates
-3. **Payment Logging System**: Ensure payments are being logged to admin logs correctly 
-4. **Payment Processing**: Verify payment flow with proper balance checks and wallet integration
-5. **All Existing APIs**: Confirm that existing functionality still works after the bug fixes
+Testing the critical backend functionality mentioned in the review request:
+
+1. **Competition Creation & Fee Settings**: Verify competitions are created with correct daily payment amounts (€10) and fees are properly stored/retrieved
+2. **Payment Processing**: Test payments use actual competition fee (€10) instead of hardcoded values (€5)
+3. **Admin Participant Removal**: Test participant management system and admin logging
+4. **Competition Financial Display**: Ensure competition balance and fee display works correctly
+5. **All Core Systems**: Verify wallet, payment, logging, and competition management APIs
 """
 
 import requests
