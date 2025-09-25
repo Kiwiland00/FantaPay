@@ -228,8 +228,9 @@ const CompetitionDetailScreen: React.FC = () => {
     }
   };
 
-  const handlePointsEdit = (participantId: string, currentPoints: number) => {
+  const handlePointsEdit = (participantId: string, currentPoints: number, pointsType: 'points' | 'totalPoints') => {
     setEditingParticipantId(participantId);
+    setEditingPointsType(pointsType);
     setTempPoints(currentPoints.toString());
   };
 
@@ -242,11 +243,12 @@ const CompetitionDetailScreen: React.FC = () => {
       return;
     }
     
-    const success = await updateParticipantPoints(editingParticipantId, newPoints);
+    const success = await updateParticipantPoints(editingParticipantId, newPoints, editingPointsType);
     if (success) {
       setEditingParticipantId(null);
+      setEditingPointsType('points');
       setTempPoints('');
-      Alert.alert('Success', 'Points updated successfully');
+      Alert.alert('Success', `${editingPointsType === 'points' ? 'Points' : 'Total Points'} updated successfully`);
     } else {
       Alert.alert('Error', 'Failed to update points. Please try again.');
     }
