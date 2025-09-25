@@ -332,11 +332,50 @@ const CompetitionDetailScreen: React.FC = () => {
     const unsubscribe = navigation.addListener('focus', () => {
       if (competition) {
         refreshCompetitionBalance();
+        // Reload participant payments for real-time updates
+        const loadAllParticipantPayments = async () => {
+          if (!competition?.participants) return;
+          
+          const paymentsMap: {[key: string]: any[]} = {};
+          
+          for (const participant of competition.participants) {
+            try {
+              const paymentKey = `payments_${participant.id}_${competitionId}`;
+              const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
+              const payments = storedPayments ? JSON.parse(storedPayments) : [];
+              
+              const allMatchdays = Array.from({length: competition?.total_matchdays || 36}, (_, i) => {
+                const matchday = i + 1;
+                const payment = payments.find((p: any) => p.matchday === matchday);
+                return {
+                  matchday,
+                  status: payment?.status || 'pending',
+                  amount: competition?.daily_payment_amount || 10,
+                  paid_at: payment?.paid_at
+                };
+              });
+              
+              paymentsMap[participant.id] = allMatchdays;
+            } catch (error) {
+              console.error(`Error loading payments for ${participant.name}:`, error);
+              const allPending = Array.from({length: competition?.total_matchdays || 36}, (_, i) => ({
+                matchday: i + 1,
+                status: 'pending' as const,
+                amount: competition?.daily_payment_amount || 10
+              }));
+              paymentsMap[participant.id] = allPending;
+            }
+          }
+          
+          setParticipantPayments(paymentsMap);
+        };
+        
+        loadAllParticipantPayments();
       }
     });
 
     return unsubscribe;
-  }, [navigation, competition]);
+  }, [navigation, competition, competitionId]);
 
   // Refresh competition balance after payments
   const refreshCompetitionBalance = async () => {
