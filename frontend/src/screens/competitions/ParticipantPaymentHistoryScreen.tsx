@@ -1533,6 +1533,11 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: 18,
   },
+  
+  // Admin Menu Styles
+  adminMenuButton: {
+    padding: 4,
+  },
 });
 
 export default ParticipantPaymentHistoryScreen;
