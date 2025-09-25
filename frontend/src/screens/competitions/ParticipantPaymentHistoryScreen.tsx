@@ -266,22 +266,28 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   };
 
   // Add transaction log entry for payments
-  const addPaymentLog = async (matchdays: number[], totalAmount: number) => {
+  const addPaymentLog = async (matchdays: number[], totalAmount: number, paymentType: string = 'matchday') => {
     try {
       const logKey = `competition_logs_${competitionId}`;
       const existingLogs = await CrossPlatformStorage.getItem(logKey);
       const logs = existingLogs ? JSON.parse(existingLogs) : [];
       
-      const matchdayText = matchdays.length === 1 
-        ? `matchday ${matchdays[0]}`
-        : `matchday ${matchdays.join(' and matchday ')}`;
+      let description = '';
+      if (paymentType === 'residual_fee') {
+        description = `${participantName || 'User'} paid residual participation fee`;
+      } else {
+        const matchdayText = matchdays.length === 1 
+          ? `matchday ${matchdays[0]}`
+          : `matchday ${matchdays.join(' and matchday ')}`;
+        description = `${participantName || 'User'} paid ${matchdayText}`;
+      }
       
       const newLog = {
         id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-        type: 'payment',
+        type: paymentType === 'residual_fee' ? 'residual_fee_payment' : 'payment',
         user_id: participantId,
         user_name: participantName || 'User',
-        description: `${participantName || 'User'} paid ${matchdayText}`,
+        description: description,
         amount: totalAmount,
         matchdays: matchdays,
         timestamp: new Date().toISOString(),
