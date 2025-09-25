@@ -460,7 +460,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>Failed to load payment history</Text>
+          <Text style={styles.errorText}>{t('paymentHistory.loadFailed')}</Text>
         </View>
       </SafeAreaView>
     );
