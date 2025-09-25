@@ -65,52 +65,65 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     try {
       setIsLoading(true);
       
+      console.log('🔍 Loading participant data for:', { competitionId, participantId, participantName });
+      
       // Get actual competition data from the competitions storage
       let actualCompetition = null;
-      let competitionName = 'Competition'; // Default fallback
+      let competitionName = route.params?.competitionName || 'Competition'; // Use route params as fallback
       
       try {
         // First, try to get the actual competition from storage
+        console.log('📋 Attempting to load competition from storage...');
         const storedCompetitions = await competitionAPI.getMyCompetitionsMock();
-        actualCompetition = storedCompetitions.find((comp: any) => comp._id === competitionId);
+        console.log('📊 Loaded competitions:', storedCompetitions.length);
         
-        if (actualCompetition) {
-          competitionName = actualCompetition.name;
-          console.log('✅ Found actual competition:', competitionName);
-          console.log('📊 Competition config:', {
-            matchdays: actualCompetition.total_matchdays,
-            matchdayFee: actualCompetition.daily_payment_amount,
-            participationCost: actualCompetition.participation_cost_per_team,
-            prizeType: actualCompetition.rules?.type
-          });
+        if (storedCompetitions && storedCompetitions.length > 0) {
+          actualCompetition = storedCompetitions.find((comp: any) => comp._id === competitionId);
+          
+          if (actualCompetition) {
+            competitionName = actualCompetition.name;
+            console.log('✅ Found actual competition:', competitionName);
+            console.log('📊 Competition config:', {
+              matchdays: actualCompetition.total_matchdays,
+              matchdayFee: actualCompetition.daily_payment_amount,
+              participationCost: actualCompetition.participation_cost_per_team,
+              prizeType: actualCompetition.rules?.type
+            });
+          } else {
+            console.log('❌ Competition not found in storage, using route params');
+          }
         } else {
-          console.log('❌ Competition not found in storage, using params');
+          console.log('❌ No competitions found in storage');
         }
       } catch (error) {
-        console.log('🔍 Error loading competition:', error);
+        console.error('🔍 Error loading competition:', error);
+        console.log('📋 Fallback: Using route params for competition data');
       }
 
-      // If we didn't find the competition, try route params
-      if (!actualCompetition && route.params?.competitionName) {
-        competitionName = route.params.competitionName;
-        console.log('Using competition name from params:', competitionName);
-      }
-      
       // Use actual competition data or sensible defaults
       const realCompetition: Competition = {
         _id: competitionId,
         name: competitionName,
         total_matchdays: actualCompetition?.total_matchdays || 36,
         daily_payment_enabled: actualCompetition?.daily_payment_enabled !== false,
-        daily_payment_amount: actualCompetition?.daily_payment_amount || actualCompetition?.participation_cost_per_team / (actualCompetition?.total_matchdays || 36) || 5.0
+        daily_payment_amount: actualCompetition?.daily_payment_amount || 5.0 // Default fee if not set
       };
+      
+      console.log('📋 Using competition config:', realCompetition);
       
       // Get existing payment records for this participant and competition
       const paymentKey = `payments_${participantId}_${competitionId}`;
-      const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
-      const existingPayments = storedPayments ? JSON.parse(storedPayments) : [];
+      console.log('🔑 Payment storage key:', paymentKey);
       
-      console.log('💳 Existing payment records:', existingPayments.length);
+      let existingPayments = [];
+      try {
+        const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
+        existingPayments = storedPayments ? JSON.parse(storedPayments) : [];
+        console.log('💳 Existing payment records:', existingPayments.length);
+      } catch (paymentError) {
+        console.error('💥 Error loading payment records:', paymentError);
+        existingPayments = [];
+      }
       
       const matchdayPayments: MatchdayPayment[] = [];
       
@@ -140,18 +153,29 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         matchday_payments: matchdayPayments
       };
       
-      console.log('📊 Payment Summary:', {
+      console.log('📊 Payment Summary Generated:', {
         totalPaid: participantData.total_paid,
         totalPending: participantData.total_pending,
         paidMatchdays: paidPayments.length,
-        pendingMatchdays: pendingPayments.length
+        pendingMatchdays: pendingPayments.length,
+        totalMatchdays: matchdayPayments.length
       });
       
       setCompetition(realCompetition);
       setParticipantData(participantData);
+      
+      console.log('✅ Participant data loaded successfully');
+      
     } catch (error) {
       console.error('💥 Error loading participant data:', error);
-      Alert.alert('Error', 'Failed to load payment history');
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        competitionId,
+        participantId,
+        participantName
+      });
+      Alert.alert('Error', 'Failed to load payment history. Please try again or contact support.');
     } finally {
       setIsLoading(false);
     }
