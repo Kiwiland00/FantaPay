@@ -519,7 +519,7 @@ const CreateCompetitionScreen: React.FC = () => {
                     <Text style={styles.positionText}>{prize.position}</Text>
                   </View>
                   <Text style={styles.slotTitle}>
-                    {getOrdinalSuffix(prize.position)} Place
+                    Slot {index + 1}
                   </Text>
                   {finalPrizes.length > 1 && (
                     <TouchableOpacity
