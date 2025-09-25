@@ -298,6 +298,47 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     navigation.setParams({ shouldRefreshBalance: true } as never);
   };
 
+  // Add transaction log entry for payments - Issue 3 Fix
+  const addPaymentLog = async (matchdays: number[], totalAmount: number, paymentType: string = 'matchday') => {
+    try {
+      // Get existing admin logs
+      const existingLogs = await CrossPlatformStorage.getItem('adminLogs');
+      const logs = existingLogs ? JSON.parse(existingLogs) : [];
+      
+      let description = '';
+      
+      if (paymentType === 'residual_fee') {
+        description = `${participantName || 'User'} paid the residual fee – €${totalAmount.toFixed(0)}`;
+      } else {
+        if (matchdays.length === 1) {
+          description = `${participantName || 'User'} paid matchday ${matchdays[0]} – €${totalAmount.toFixed(0)}`;
+        } else {
+          description = `${participantName || 'User'} paid matchdays ${matchdays.join(', ')} – €${totalAmount.toFixed(0)}`;
+        }
+      }
+      
+      // Create admin log entry that matches the expected format
+      const newLog = {
+        _id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        admin_id: user?.id || participantId,
+        admin_username: participantName || 'User',
+        competition_id: competitionId,
+        competition_name: competition?.name || 'Unknown Competition',
+        action: 'matchday_payment',
+        details: description,
+        timestamp: new Date().toISOString()
+      };
+      
+      logs.unshift(newLog); // Add to beginning for newest first
+      await CrossPlatformStorage.setItem('adminLogs', JSON.stringify(logs));
+      
+      console.log('📝 Payment log added to admin logs:', newLog.details);
+      return newLog;
+    } catch (error) {
+      console.error('💥 Error adding payment log:', error);
+    }
+  };
+
   // Admin Functions
   const showAdminOptions = () => {
     Alert.alert(
