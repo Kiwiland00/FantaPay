@@ -168,6 +168,94 @@ const CompetitionDetailScreen: React.FC = () => {
     }
   };
 
+  // Standings Management Functions
+  const updateParticipantPoints = async (participantId: string, newPoints: number) => {
+    try {
+      console.log('📊 Updating points for participant:', participantId, 'to', newPoints);
+      
+      // Get stored competitions
+      const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
+      const competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+      
+      // Find and update the competition
+      const updatedCompetitions = competitions.map((comp: any) => {
+        if (comp._id === competitionId) {
+          const updatedParticipants = comp.participants?.map((participant: any) => {
+            if (participant.id === participantId) {
+              return { ...participant, points: newPoints };
+            }
+            return participant;
+          }) || [];
+          
+          return { ...comp, participants: updatedParticipants };
+        }
+        return comp;
+      });
+      
+      // Save updated competitions
+      await CrossPlatformStorage.setItem('competitions_mock', JSON.stringify(updatedCompetitions));
+      
+      // Update local state
+      if (competition) {
+        const updatedParticipants = competition.participants?.map((participant: any) => {
+          if (participant.id === participantId) {
+            return { ...participant, points: newPoints };
+          }
+          return participant;
+        }) || [];
+        
+        setCompetition({ ...competition, participants: updatedParticipants });
+      }
+      
+      console.log('✅ Points updated successfully');
+      return true;
+    } catch (error) {
+      console.error('💥 Error updating participant points:', error);
+      return false;
+    }
+  };
+
+  const handlePointsEdit = (participantId: string, currentPoints: number) => {
+    setEditingParticipantId(participantId);
+    setTempPoints(currentPoints.toString());
+  };
+
+  const handlePointsSave = async () => {
+    if (!editingParticipantId || !tempPoints) return;
+    
+    const newPoints = parseFloat(tempPoints);
+    if (isNaN(newPoints) || newPoints < 0) {
+      Alert.alert('Error', 'Please enter a valid number (0 or greater)');
+      return;
+    }
+    
+    const success = await updateParticipantPoints(editingParticipantId, newPoints);
+    if (success) {
+      setEditingParticipantId(null);
+      setTempPoints('');
+      Alert.alert('Success', 'Points updated successfully');
+    } else {
+      Alert.alert('Error', 'Failed to update points. Please try again.');
+    }
+  };
+
+  const handlePointsCancel = () => {
+    setEditingParticipantId(null);
+    setTempPoints('');
+  };
+
+  // Get sorted standings (highest points first)
+  const getSortedStandings = () => {
+    if (!competition?.participants) return [];
+    
+    return [...competition.participants]
+      .sort((a, b) => (b.points || 0) - (a.points || 0))
+      .map((participant, index) => ({
+        ...participant,
+        position: index + 1,
+      }));
+  };
+
   const loadCompetition = async () => {
     try {
       setIsLoading(true);
