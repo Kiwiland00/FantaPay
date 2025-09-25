@@ -2045,6 +2045,135 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // Payment Grid Styles
+  paymentsCard: {
+    backgroundColor: '#1C1C1E',
+    margin: 16,
+    borderRadius: 12,
+    padding: 20,
+  },
+  paymentsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  paymentsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 12,
+  },
+  gridContainer: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  gridHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#3A3A3C',
+    paddingVertical: 12,
+  },
+  gridHeaderCell: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    minWidth: 40,
+  },
+  gridHeaderText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  gridRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#3A3A3C',
+    paddingVertical: 8,
+  },
+  gridCell: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    minHeight: 32,
+    minWidth: 40,
+  },
+  gridStatusCell: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gridCellPaid: {
+    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+  },
+  gridCellPending: {
+    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+  },
+  gridTotalCell: {
+    backgroundColor: '#007AFF15',
+  },
+  participantGridName: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  gridTotalText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#007AFF',
+    textAlign: 'center',
+  },
+  gridTotalSubtext: {
+    fontSize: 10,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  gridSummary: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+  },
+  gridSummaryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  gridSummaryStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  gridSummaryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  gridSummaryText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+  },
+  emptyPaymentsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyPaymentsText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginTop: 16,
+  },
+  emptyPaymentsSubtext: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+
   // Enhanced Participant Styles
   participantItemCurrentUser: {
     backgroundColor: '#0A2A12',
