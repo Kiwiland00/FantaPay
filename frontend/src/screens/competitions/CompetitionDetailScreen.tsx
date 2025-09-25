@@ -257,6 +257,58 @@ const CompetitionDetailScreen: React.FC = () => {
       }));
   };
 
+  // Calculate total competition balance from all participant payments
+  const calculateCompetitionBalance = async () => {
+    try {
+      if (!competition?.participants || !competition.daily_payment_enabled) {
+        return { totalPaid: 0, totalPrizePool: 0 };
+      }
+
+      let totalPaid = 0;
+      
+      // Calculate total paid by all participants
+      for (const participant of competition.participants) {
+        const paymentKey = `payments_${participant.id}_${competitionId}`;
+        const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
+        const payments = storedPayments ? JSON.parse(storedPayments) : [];
+        
+        // Sum up all paid matchdays for this participant
+        const participantPaid = payments
+          .filter((payment: any) => payment.status === 'paid')
+          .reduce((sum: number, payment: any) => sum + (payment.amount || 0), 0);
+        
+        totalPaid += participantPaid;
+      }
+
+      // Calculate total prize pool (all participants × all matchdays × fee)
+      const participantCount = competition.participants.length;
+      const totalMatchdays = competition.total_matchdays || 36;
+      const feePerMatchday = competition.daily_payment_amount || 0;
+      const totalPrizePool = participantCount * totalMatchdays * feePerMatchday;
+
+      return { totalPaid, totalPrizePool };
+    } catch (error) {
+      console.error('💥 Error calculating competition balance:', error);
+      return { totalPaid: 0, totalPrizePool: 0 };
+    }
+  };
+
+  // State for competition balance
+  const [competitionBalance, setCompetitionBalance] = useState({ totalPaid: 0, totalPrizePool: 0 });
+
+  // Load competition balance when competition data changes
+  useEffect(() => {
+    if (competition) {
+      calculateCompetitionBalance().then(setCompetitionBalance);
+    }
+  }, [competition, competitionId]);
+
+  // Refresh competition balance after payments
+  const refreshCompetitionBalance = async () => {
+    const balance = await calculateCompetitionBalance();
+    setCompetitionBalance(balance);
+  };
+
   const loadCompetition = async () => {
     try {
       setIsLoading(true);
