@@ -1331,6 +1331,69 @@ const styles = StyleSheet.create({
     marginTop: 8,
     lineHeight: 16,
   },
+  // Summary Screen Styles
+  summarySection: {
+    marginBottom: 24,
+  },
+  summarySectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  summaryCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: '#8E8E93',
+    flex: 1,
+  },
+  summaryValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'right',
+    flex: 1,
+  },
+  prizeDetailRow: {
+    paddingLeft: 16,
+    borderLeftWidth: 2,
+    borderLeftColor: '#007AFF',
+    marginLeft: 8,
+  },
+  confirmationCard: {
+    backgroundColor: '#0A2A12',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#34C759',
+  },
+  confirmationTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#34C759',
+    marginTop: 12,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  confirmationText: {
+    fontSize: 14,
+    color: '#8E8E93',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });
 
 export default CreateCompetitionScreen;
