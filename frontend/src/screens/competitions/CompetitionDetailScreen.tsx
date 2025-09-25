@@ -1153,7 +1153,8 @@ const CompetitionDetailScreen: React.FC = () => {
             <View style={styles.standingsTableHeader}>
               <Text style={[styles.standingsHeaderText, styles.positionColumn]}>#</Text>
               <Text style={[styles.standingsHeaderText, styles.nameColumn]}>Name</Text>
-              <Text style={[styles.standingsHeaderText, styles.pointsColumn]}>Points</Text>
+              <Text style={[styles.standingsHeaderText, styles.pointsColumn]}>Pt</Text>
+              <Text style={[styles.standingsHeaderText, styles.pointsColumn]}>Total Pt</Text>
             </View>
             
             {/* Standings List */}
