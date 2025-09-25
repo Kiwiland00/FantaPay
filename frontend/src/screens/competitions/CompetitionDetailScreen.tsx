@@ -1111,15 +1111,83 @@ const CompetitionDetailScreen: React.FC = () => {
                 <Ionicons name="card" size={20} color="#FFFFFF" />
                 <Text style={styles.payButtonText}>Pay Matchdays</Text>
               </TouchableOpacity>
+            </View>
 
-              {isAdmin && (
-                <TouchableOpacity
-                  style={styles.adminTableButton}
-                  onPress={() => setShowAdminPaymentTable(true)}
-                >
-                  <Ionicons name="list" size={20} color="#007AFF" />
-                  <Text style={styles.adminTableButtonText}>Payment Table</Text>
-                </TouchableOpacity>
+            {/* Payment Grid Table */}
+            <View style={styles.paymentTableContainer}>
+              <Text style={styles.paymentTableTitle}>Payment Status Table</Text>
+              
+              {competition.participants && competition.participants.length > 0 ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+                  <View style={styles.paymentTable}>
+                    {/* Table Header */}
+                    <View style={styles.tableHeader}>
+                      <View style={styles.nameHeaderCell}>
+                        <Text style={styles.tableHeaderText}>Participant</Text>
+                      </View>
+                      
+                      {Array.from({length: competition.total_matchdays || 36}, (_, i) => (
+                        <View key={i} style={styles.matchdayHeaderCell}>
+                          <Text style={styles.tableHeaderText}>G{i + 1}</Text>
+                        </View>
+                      ))}
+                      
+                      <View style={styles.totalHeaderCell}>
+                        <Text style={styles.tableHeaderText}>Paid/Total</Text>
+                      </View>
+                    </View>
+                    
+                    {/* Participant Rows */}
+                    {competition.participants.map((participant: any) => {
+                      const participantPayments = getParticipantPaymentsFromStorage(participant.id);
+                      const paidCount = participantPayments.filter((p: any) => p.status === 'paid').length;
+                      const totalPaid = paidCount * (competition.daily_payment_amount || 10);
+                      const totalDue = (competition.total_matchdays || 36) * (competition.daily_payment_amount || 10) - totalPaid;
+                      
+                      return (
+                        <View key={participant.id} style={styles.participantTableRow}>
+                          {/* Participant Name */}
+                          <View style={styles.nameCell}>
+                            <Text style={styles.participantTableName} numberOfLines={1}>
+                              {participant.name}
+                            </Text>
+                          </View>
+                          
+                          {/* Matchday Status Cells */}
+                          {Array.from({length: competition.total_matchdays || 36}, (_, i) => {
+                            const matchday = i + 1;
+                            const payment = participantPayments.find((p: any) => p.matchday === matchday);
+                            const isPaid = payment?.status === 'paid';
+                            
+                            return (
+                              <View key={i} style={[
+                                styles.matchdayCell,
+                                isPaid ? styles.paidCell : styles.pendingCell
+                              ]}>
+                                <Ionicons
+                                  name={isPaid ? "checkmark-circle" : "ellipse-outline"}
+                                  size={14}
+                                  color={isPaid ? "#34C759" : "#FF3B30"}
+                                />
+                              </View>
+                            );
+                          })}
+                          
+                          {/* Total Cell */}
+                          <View style={styles.totalCell}>
+                            <Text style={styles.totalPaidText}>€{totalPaid.toFixed(0)}</Text>
+                            <Text style={styles.totalDueText}>€{totalDue.toFixed(0)} due</Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              ) : (
+                <View style={styles.emptyTableContainer}>
+                  <Ionicons name="people-outline" size={32} color="#8E8E93" />
+                  <Text style={styles.emptyTableText}>No participants yet</Text>
+                </View>
               )}
             </View>
           </View>
