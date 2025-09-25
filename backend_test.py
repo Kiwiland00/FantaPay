@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-FantaPay Backend API Testing Suite - Standings Feature Focus
-Tests backend APIs to ensure they support the new standings feature.
+FantaPay Backend API Testing Suite - Enhanced Competition Balance & User-Specific Payment Features
+Tests backend APIs to ensure they support the enhanced competition balance and user-specific payment features.
 Focus areas:
-1. Competition management APIs (create, get, update competitions)
-2. Participant management and points updating
-3. Standings functionality and data persistence
-4. Payment system integration (still working after standings implementation)
-5. Enhanced standings system with ranking, badges, and real-time updates
+1. Competition balance calculation and real-time updates
+2. User-specific payment access control
+3. Participant payment history retrieval
+4. All existing APIs still working after modifications
+5. Enhanced payment system with balance tracking and user restrictions
 """
 
 import requests
