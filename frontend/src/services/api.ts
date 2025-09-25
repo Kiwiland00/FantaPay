@@ -415,11 +415,65 @@ export const competitionAPI = {
       const competitions = JSON.parse(storedCompetitions);
       console.log('📋 Competitions found in storage:', competitions.length);
       
-      competitions.forEach((comp: any, index: number) => {
-        console.log(`${index + 1}. ${comp.name} (ID: ${comp._id})`);
+      // Enhance competitions with demo participants if they don't have enough
+      const enhancedCompetitions = competitions.map((comp: any) => {
+        if (!comp.participants || comp.participants.length < 4) {
+          const demoParticipants = [
+            { 
+              id: '650f1f1f1f1f1f1f1f1f1f1f', 
+              name: 'FantaPay Tester', 
+              email: 'test@fantapay.com',
+              is_admin: true,
+              paid_matchdays: [1, 2, 3],
+              points: 87.5
+            },
+            {
+              id: 'user_marco_rossi',
+              name: 'Marco Rossi',
+              email: 'marco.rossi@email.com',
+              is_admin: false,
+              paid_matchdays: [1, 2],
+              points: 92.3
+            },
+            {
+              id: 'user_giulia_bianchi',
+              name: 'Giulia Bianchi', 
+              email: 'giulia.bianchi@email.com',
+              is_admin: false,
+              paid_matchdays: [1],
+              points: 78.1
+            },
+            {
+              id: 'user_luca_ferrari',
+              name: 'Luca Ferrari',
+              email: 'luca.ferrari@email.com', 
+              is_admin: false,
+              paid_matchdays: [],
+              points: 45.7
+            },
+            {
+              id: 'user_sofia_conti',
+              name: 'Sofia Conti',
+              email: 'sofia.conti@email.com',
+              is_admin: false,
+              paid_matchdays: [1, 2, 3],
+              points: 95.2
+            }
+          ];
+          
+          return { ...comp, participants: demoParticipants };
+        }
+        return comp;
       });
       
-      return competitions;
+      // Save enhanced competitions back to storage
+      await CrossPlatformStorage.setItem('competitions_mock', JSON.stringify(enhancedCompetitions));
+      
+      enhancedCompetitions.forEach((comp: any, index: number) => {
+        console.log(`${index + 1}. ${comp.name} (ID: ${comp._id}) - ${comp.participants?.length || 0} participants`);
+      });
+      
+      return enhancedCompetitions;
     } else {
       console.log('📋 No competitions found in storage, returning empty array');
       return [];
