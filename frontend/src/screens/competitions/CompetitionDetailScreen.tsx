@@ -783,6 +783,60 @@ const CompetitionDetailScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Tab Bar */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabItem, activeTab === 'summary' && styles.tabItemActive]}
+          onPress={() => setActiveTab('summary')}
+        >
+          <Ionicons 
+            name="trophy-outline" 
+            size={20} 
+            color={activeTab === 'summary' ? '#007AFF' : '#8E8E93'} 
+          />
+          <Text style={[
+            styles.tabText, 
+            activeTab === 'summary' && styles.tabTextActive
+          ]}>
+            {t('competitions.summary') || 'Summary'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabItem, activeTab === 'participants' && styles.tabItemActive]}
+          onPress={() => setActiveTab('participants')}
+        >
+          <Ionicons 
+            name="people-outline" 
+            size={20} 
+            color={activeTab === 'participants' ? '#007AFF' : '#8E8E93'} 
+          />
+          <Text style={[
+            styles.tabText, 
+            activeTab === 'participants' && styles.tabTextActive
+          ]}>
+            {t('competitions.participants') || 'Participants'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tabItem, activeTab === 'standings' && styles.tabItemActive]}
+          onPress={() => setActiveTab('standings')}
+        >
+          <Ionicons 
+            name="podium-outline" 
+            size={20} 
+            color={activeTab === 'standings' ? '#007AFF' : '#8E8E93'} 
+          />
+          <Text style={[
+            styles.tabText, 
+            activeTab === 'standings' && styles.tabTextActive
+          ]}>
+            {t('competitions.standings') || 'Standings'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={styles.content}
         refreshControl={
