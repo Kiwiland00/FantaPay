@@ -598,50 +598,84 @@ const CreateCompetitionScreen: React.FC = () => {
   const renderStep4 = () => {
     const matchdayFee = parseFloat(dailyPaymentAmount) || 0;
     const totalMatchdaysNumber = parseInt(totalMatchdays) || 36;
-    const totalParticipationCost = matchdayFee * totalMatchdaysNumber;
+    const totalParticipationCost = parseFloat(participationCostPerTeam) || (matchdayFee * totalMatchdaysNumber);
     const maxParticipants = parseInt(expectedTeams) || 8;
     
     return (
       <View style={styles.stepContainer}>
         <View style={styles.stepHeader}>
           <Ionicons name="document-text" size={48} color="#007AFF" />
-          <Text style={styles.stepTitle}>Competition Summary</Text>
+          <Text style={styles.stepTitle}>Financial Configuration & Summary</Text>
           <Text style={styles.stepDescription}>
-            Review your competition settings before creating
+            Set costs and review your competition settings
           </Text>
         </View>
 
         <ScrollView style={styles.prizeConfigContainer} showsVerticalScrollIndicator={false}>
-          {/* Competition Costs */}
+          {/* Cost Configuration - Creator Input Required */}
           <View style={styles.summarySection}>
-            <Text style={styles.summarySectionTitle}>📊 Competition Costs</Text>
+            <Text style={styles.summarySectionTitle}>💰 Set Competition Costs</Text>
             
             <View style={styles.summaryCard}>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Cost per matchday per team:</Text>
-                <Text style={styles.summaryValue}>€{matchdayFee.toFixed(2)}</Text>
+              {/* Matchday Fee Input */}
+              <View style={styles.inputSection}>
+                <Text style={styles.inputLabel}>Cost per matchday per team:</Text>
+                <View style={styles.amountInputContainer}>
+                  <Text style={styles.currencySymbol}>€</Text>
+                  <TextInput
+                    style={[styles.input, styles.priceInput]}
+                    value={dailyPaymentAmount}
+                    onChangeText={setDailyPaymentAmount}
+                    placeholder="5.00"
+                    placeholderTextColor="#8E8E93"
+                    keyboardType="numeric"
+                  />
+                </View>
+                <Text style={styles.helperText}>Amount each team pays per matchday</Text>
               </View>
               
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Total matchdays:</Text>
-                <Text style={styles.summaryValue}>{totalMatchdaysNumber}</Text>
+              {/* Total Team Cost Input */}
+              <View style={styles.inputSection}>
+                <Text style={styles.inputLabel}>Total participation cost per team:</Text>
+                <View style={styles.amountInputContainer}>
+                  <Text style={styles.currencySymbol}>€</Text>
+                  <TextInput
+                    style={[styles.input, styles.priceInput]}
+                    value={participationCostPerTeam}
+                    onChangeText={setParticipationCostPerTeam}
+                    placeholder={(matchdayFee * totalMatchdaysNumber).toFixed(2)}
+                    placeholderTextColor="#8E8E93"
+                    keyboardType="numeric"
+                  />
+                </View>
+                <Text style={styles.helperText}>
+                  Recommended: €{(matchdayFee * totalMatchdaysNumber).toFixed(2)} 
+                  ({totalMatchdaysNumber} matchdays × €{matchdayFee.toFixed(2)})
+                </Text>
               </View>
               
-              <View style={[styles.summaryRow, styles.totalRow]}>
-                <Text style={[styles.summaryLabel, styles.totalLabel]}>Total participation cost per team:</Text>
-                <Text style={[styles.summaryValue, styles.totalValue]}>€{totalParticipationCost.toFixed(2)}</Text>
-              </View>
-              
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Maximum participants allowed:</Text>
-                <Text style={styles.summaryValue}>{maxParticipants} teams</Text>
+              {/* Max Participants Input */}
+              <View style={styles.inputSection}>
+                <Text style={styles.inputLabel}>Maximum participants allowed:</Text>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    value={expectedTeams}
+                    onChangeText={setExpectedTeams}
+                    placeholder="8"
+                    placeholderTextColor="#8E8E93"
+                    keyboardType="numeric"
+                    maxLength={3}
+                  />
+                </View>
+                <Text style={styles.helperText}>Maximum number of teams that can join</Text>
               </View>
             </View>
           </View>
 
-          {/* Competition Details */}
+          {/* Competition Summary */}
           <View style={styles.summarySection}>
-            <Text style={styles.summarySectionTitle}>🏆 Competition Details</Text>
+            <Text style={styles.summarySectionTitle}>📊 Competition Summary</Text>
             
             <View style={styles.summaryCard}>
               <View style={styles.summaryRow}>
@@ -657,9 +691,15 @@ const CreateCompetitionScreen: React.FC = () => {
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Prize distribution:</Text>
                 <Text style={styles.summaryValue}>
-                  {selectedRule === 'daily' && 'Daily prizes only'}
-                  {selectedRule === 'final' && 'Final prizes only'}
-                  {selectedRule === 'mixed' && 'Daily + Final prizes'}
+                  {selectedRule === 'final' && 'Final Prize Pool'}
+                  {selectedRule === 'mixed' && 'Daily Prize + Final Prize Pool'}
+                </Text>
+              </View>
+              
+              <View style={[styles.summaryRow, styles.totalRow]}>
+                <Text style={[styles.summaryLabel, styles.totalLabel]}>Expected total revenue:</Text>
+                <Text style={[styles.summaryValue, styles.totalValue]}>
+                  €{(totalParticipationCost * maxParticipants).toFixed(2)}
                 </Text>
               </View>
             </View>
@@ -670,7 +710,7 @@ const CreateCompetitionScreen: React.FC = () => {
             <Text style={styles.summarySectionTitle}>🎁 Prize Configuration</Text>
             
             <View style={styles.summaryCard}>
-              {(selectedRule === 'daily' || selectedRule === 'mixed') && (
+              {selectedRule === 'mixed' && (
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>Daily prize amount:</Text>
                   <Text style={styles.summaryValue}>€{dailyPrize || '0'} per matchday</Text>
@@ -697,46 +737,13 @@ const CreateCompetitionScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Payment Settings */}
-          <View style={styles.summarySection}>
-            <Text style={styles.summarySectionTitle}>💳 Payment Settings</Text>
-            
-            <View style={styles.summaryCard}>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Daily payments enabled:</Text>
-                <Text style={styles.summaryValue}>
-                  {dailyPaymentEnabled ? 'Yes' : 'No'}
-                </Text>
-              </View>
-              
-              {dailyPaymentEnabled && (
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Matchday payment amount:</Text>
-                  <Text style={styles.summaryValue}>€{dailyPaymentAmount || '0'}</Text>
-                </View>
-              )}
-              
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Participation cost per team:</Text>
-                <Text style={styles.summaryValue}>€{participationCostPerTeam || '0'}</Text>
-              </View>
-              
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Expected total revenue:</Text>
-                <Text style={styles.summaryValue}>
-                  €{((parseFloat(participationCostPerTeam) || 0) * maxParticipants).toFixed(2)}
-                </Text>
-              </View>
-            </View>
-          </View>
-
           {/* Final Confirmation */}
           <View style={styles.summarySection}>
             <View style={styles.confirmationCard}>
               <Ionicons name="checkmark-circle" size={32} color="#34C759" />
               <Text style={styles.confirmationTitle}>Ready to Create Competition</Text>
               <Text style={styles.confirmationText}>
-                Review the settings above. Once created, you can share the invite code with participants.
+                Review the costs and settings above. Once created, you can share the invite code with participants.
               </Text>
             </View>
           </View>
