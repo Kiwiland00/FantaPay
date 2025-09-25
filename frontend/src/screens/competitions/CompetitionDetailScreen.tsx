@@ -646,36 +646,68 @@ const CompetitionDetailScreen: React.FC = () => {
     }
   };
 
-  const renderParticipant = ({ item }: { item: Participant }) => (
-    <TouchableOpacity
-      style={styles.participantItem}
-      onPress={() => {
-        if (competition?.admin_id === user?.id) {
-          // Navigate to participant payment history
+  const renderParticipant = ({ item }: { item: Participant }) => {
+    const isCurrentUser = item.id === user?.id;
+    const canMakePayments = isCurrentUser;
+    
+    return (
+      <TouchableOpacity
+        style={[
+          styles.participantItem,
+          isCurrentUser && styles.participantItemCurrentUser
+        ]}
+        onPress={() => {
+          // Navigate to participant payment history with payment capability flag
           navigation.navigate('ParticipantPaymentHistory' as never, {
             competitionId,
             participantId: item.id,
             participantName: item.name,
-            competitionName: competition.name // Pass the actual competition name
+            competitionName: competition.name,
+            canMakePayments, // User-specific payment access control
+            isCurrentUser
           } as never);
-        }
-      }}
-    >
-      <View style={styles.participantInfo}>
-        <Text style={styles.participantName}>{item.name}</Text>
-        <Text style={styles.participantEmail}>{item.email}</Text>
-      </View>
-      <View style={styles.participantMeta}>
-        {item.is_admin && (
-          <View style={styles.adminBadge}>
-            <Ionicons name="shield-checkmark" size={14} color="#FF9500" />
-            <Text style={styles.adminBadgeText}>Admin</Text>
+        }}
+      >
+        <View style={styles.participantInfo}>
+          <View style={styles.participantNameContainer}>
+            <Text style={[
+              styles.participantName,
+              isCurrentUser && styles.participantNameCurrentUser
+            ]}>
+              {item.name}
+              {isCurrentUser && (
+                <Text style={styles.currentUserIndicator}> (You)</Text>
+              )}
+            </Text>
+            <View style={styles.participantClickIndicator}>
+              {canMakePayments ? (
+                <>
+                  <Ionicons name="card-outline" size={14} color="#34C759" />
+                  <Text style={styles.clickIndicatorText}>Tap to Pay</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="eye-outline" size={14} color="#8E8E93" />
+                  <Text style={styles.clickIndicatorTextReadOnly}>Tap to View</Text>
+                </>
+              )}
+            </View>
           </View>
-        )}
-        <Text style={styles.participantPoints}>{item.points || 0} pts</Text>
-      </View>
-    </TouchableOpacity>
-  );
+          <Text style={styles.participantEmail}>{item.email}</Text>
+        </View>
+        <View style={styles.participantMeta}>
+          {item.is_admin && (
+            <View style={styles.adminBadge}>
+              <Ionicons name="shield-checkmark" size={14} color="#FF9500" />
+              <Text style={styles.adminBadgeText}>Admin</Text>
+            </View>
+          )}
+          <Text style={styles.participantPoints}>{item.points || 0} pts</Text>
+          <Ionicons name="chevron-forward" size={16} color="#8E8E93" style={styles.participantChevron} />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderPaymentModal = () => (
     <Modal
