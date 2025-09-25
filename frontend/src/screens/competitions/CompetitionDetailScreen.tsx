@@ -171,9 +171,9 @@ const CompetitionDetailScreen: React.FC = () => {
   };
 
   // Standings Management Functions
-  const updateParticipantPoints = async (participantId: string, newPoints: number) => {
+  const updateParticipantPoints = async (participantId: string, newPoints: number, pointsType: 'points' | 'totalPoints' = 'points') => {
     try {
-      console.log('📊 Updating points for participant:', participantId, 'to', newPoints);
+      console.log('📊 Updating', pointsType, 'for participant:', participantId, 'to', newPoints);
       
       // Get stored competitions
       const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
@@ -184,7 +184,13 @@ const CompetitionDetailScreen: React.FC = () => {
         if (comp._id === competitionId) {
           const updatedParticipants = comp.participants?.map((participant: any) => {
             if (participant.id === participantId) {
-              return { ...participant, points: newPoints };
+              return { 
+                ...participant, 
+                [pointsType]: newPoints,
+                // Ensure both point types exist
+                points: pointsType === 'points' ? newPoints : (participant.points || 0),
+                totalPoints: pointsType === 'totalPoints' ? newPoints : (participant.totalPoints || 0)
+              };
             }
             return participant;
           }) || [];
@@ -201,7 +207,12 @@ const CompetitionDetailScreen: React.FC = () => {
       if (competition) {
         const updatedParticipants = competition.participants?.map((participant: any) => {
           if (participant.id === participantId) {
-            return { ...participant, points: newPoints };
+            return { 
+              ...participant, 
+              [pointsType]: newPoints,
+              points: pointsType === 'points' ? newPoints : (participant.points || 0),
+              totalPoints: pointsType === 'totalPoints' ? newPoints : (participant.totalPoints || 0)
+            };
           }
           return participant;
         }) || [];
