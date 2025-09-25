@@ -64,62 +64,90 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Get actual competition data from API or route params
+      // Get actual competition data from the competitions storage
+      let actualCompetition = null;
       let competitionName = 'Competition'; // Default fallback
       
       try {
-        // Try to get competition data from API first
-        const competitionResponse = await competitionAPI.getCompetition(competitionId);
-        competitionName = competitionResponse.name;
-      } catch (error) {
-        // If API fails, try to get from route params or navigation state
-        const routeState = navigation.getState();
-        const currentRoute = routeState.routes[routeState.index];
+        // First, try to get the actual competition from storage
+        const storedCompetitions = await competitionAPI.getMyCompetitionsMock();
+        actualCompetition = storedCompetitions.find((comp: any) => comp._id === competitionId);
         
-        if (currentRoute?.params?.competitionName) {
-          competitionName = currentRoute.params.competitionName;
-        } else if (route.params?.competitionName) {
-          competitionName = route.params.competitionName;
+        if (actualCompetition) {
+          competitionName = actualCompetition.name;
+          console.log('✅ Found actual competition:', competitionName);
+          console.log('📊 Competition config:', {
+            matchdays: actualCompetition.total_matchdays,
+            matchdayFee: actualCompetition.daily_payment_amount,
+            participationCost: actualCompetition.participation_cost_per_team,
+            prizeType: actualCompetition.rules?.type
+          });
+        } else {
+          console.log('❌ Competition not found in storage, using params');
         }
-        
+      } catch (error) {
+        console.log('🔍 Error loading competition:', error);
+      }
+
+      // If we didn't find the competition, try route params
+      if (!actualCompetition && route.params?.competitionName) {
+        competitionName = route.params.competitionName;
         console.log('Using competition name from params:', competitionName);
       }
       
-      const mockCompetition: Competition = {
+      // Use actual competition data or sensible defaults
+      const realCompetition: Competition = {
         _id: competitionId,
-        name: competitionName, // Use actual competition name instead of hardcoded
-        total_matchdays: 36,
-        daily_payment_enabled: true,
-        daily_payment_amount: 5.0
+        name: competitionName,
+        total_matchdays: actualCompetition?.total_matchdays || 36,
+        daily_payment_enabled: actualCompetition?.daily_payment_enabled !== false,
+        daily_payment_amount: actualCompetition?.daily_payment_amount || actualCompetition?.participation_cost_per_team / (actualCompetition?.total_matchdays || 36) || 5.0
       };
       
-      const mockPayments: MatchdayPayment[] = [];
+      // Get existing payment records for this participant and competition
+      const paymentKey = `payments_${participantId}_${competitionId}`;
+      const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
+      const existingPayments = storedPayments ? JSON.parse(storedPayments) : [];
       
-      // CRITICAL FIX: All matchdays start as PENDING (0€ paid initially)
-      for (let i = 1; i <= mockCompetition.total_matchdays; i++) {
-        mockPayments.push({
+      console.log('💳 Existing payment records:', existingPayments.length);
+      
+      const matchdayPayments: MatchdayPayment[] = [];
+      
+      // Create payment status for each matchday based on REAL competition data
+      for (let i = 1; i <= realCompetition.total_matchdays; i++) {
+        // Check if this matchday has been paid
+        const existingPayment = existingPayments.find((p: any) => p.matchday === i);
+        
+        matchdayPayments.push({
           matchday: i,
-          amount: mockCompetition.daily_payment_amount,
-          status: 'pending', // ALL start as pending - no pre-filled payments
-          paid_at: undefined // No payment dates initially
+          amount: realCompetition.daily_payment_amount,
+          status: existingPayment ? 'paid' : 'pending', // Only paid if actually paid
+          paid_at: existingPayment?.paid_at || undefined
         });
       }
       
-      const paidPayments = mockPayments.filter(p => p.status === 'paid');
-      const pendingPayments = mockPayments.filter(p => p.status === 'pending');
+      const paidPayments = matchdayPayments.filter(p => p.status === 'paid');
+      const pendingPayments = matchdayPayments.filter(p => p.status === 'pending');
       
-      const mockParticipantData: ParticipantData = {
+      const participantData: ParticipantData = {
         user_id: participantId,
         username: participantName || 'FantaPay User',
         name: participantName || 'FantaPay User',
         email: 'user@fantapay.com',
-        total_paid: paidPayments.length * mockCompetition.daily_payment_amount, // Will be 0€ initially
-        total_pending: pendingPayments.length * mockCompetition.daily_payment_amount, // All matchdays pending
-        matchday_payments: mockPayments
+        total_paid: paidPayments.length * realCompetition.daily_payment_amount,
+        total_pending: pendingPayments.length * realCompetition.daily_payment_amount,
+        matchday_payments: matchdayPayments
       };
       
-      setCompetition(mockCompetition);
-      setParticipantData(mockParticipantData);
+      console.log('📊 Payment Summary:', {
+        totalPaid: participantData.total_paid,
+        totalPending: participantData.total_pending,
+        paidMatchdays: paidPayments.length,
+        pendingMatchdays: pendingPayments.length
+      });
+      
+      setCompetition(realCompetition);
+      setParticipantData(participantData);
     } catch (error) {
       console.error('💥 Error loading participant data:', error);
       Alert.alert('Error', 'Failed to load payment history');
