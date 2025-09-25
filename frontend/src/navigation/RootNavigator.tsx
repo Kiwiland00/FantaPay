@@ -108,76 +108,78 @@ export default function RootNavigator() {
   }
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#1C1C1E',
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
-      {!skipAuth && !isAuthenticated ? (
-        // Auth screens (temporarily disabled)
-        <>
-          <Stack.Screen 
-            name="Login" 
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="Signup" 
-            component={SignupScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="EmailLogin" 
-            component={EmailLoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="OTPVerification" 
-            component={OTPVerificationScreen}
-            options={{ headerShown: false }}
-          />
-        </>
-      ) : (
-        // Main app screens - Direct access for testing
-        <>
-          <Stack.Screen 
-            name="MainTabs" 
-            component={MainTabNavigator}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="CreateCompetition" 
-            component={CreateCompetitionScreen}
-            options={{ title: 'Create Competition' }}
-          />
-          <Stack.Screen 
-            name="JoinCompetition" 
-            component={JoinCompetitionScreen}
-            options={{ title: 'Join Competition' }}
-          />
-          <Stack.Screen 
-            name="CompetitionDetail" 
-            component={CompetitionDetailScreen}
-            options={{ title: 'Competition Details' }}
-          />
-          <Stack.Screen 
-            name="Logs" 
-            component={LogsScreen}
-            options={{ title: 'Logs & Notifications' }}
-          />
-          <Stack.Screen 
-            name="ParticipantPaymentHistory" 
-            component={ParticipantPaymentHistoryScreen}
-            options={{ title: 'Payment History' }}
-          />
-        </>
-      )}
-    </Stack.Navigator>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#1C1C1E',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
+        {!skipAuth && !isAuthenticated ? (
+          // Auth screens (temporarily disabled)
+          <>
+            <Stack.Screen 
+              name="Login" 
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="Signup" 
+              component={SignupScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="EmailLogin" 
+              component={EmailLoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="OTPVerification" 
+              component={OTPVerificationScreen}
+              options={{ headerShown: false }}
+            />
+          </>
+        ) : (
+          // Main app screens - Direct access for testing
+          <>
+            <Stack.Screen 
+              name="MainTabs" 
+              component={MainTabNavigator}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="CreateCompetition" 
+              component={CreateCompetitionScreen}
+              options={{ title: 'Create Competition' }}
+            />
+            <Stack.Screen 
+              name="JoinCompetition" 
+              component={JoinCompetitionScreen}
+              options={{ title: 'Join Competition' }}
+            />
+            <Stack.Screen 
+              name="CompetitionDetail" 
+              component={CompetitionDetailScreen}
+              options={{ title: 'Competition Details' }}
+            />
+            <Stack.Screen 
+              name="Logs" 
+              component={LogsScreen}
+              options={{ title: 'Logs & Notifications' }}
+            />
+            <Stack.Screen 
+              name="ParticipantPaymentHistory" 
+              component={ParticipantPaymentHistoryScreen}
+              options={{ title: 'Payment History' }}
+            />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
