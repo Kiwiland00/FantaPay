@@ -194,6 +194,12 @@ const resources = {
       'paymentHistory.completed': 'payments completed',
       'paymentHistory.bulkHint': '💡 Select multiple pending matchdays below to pay them all at once',
 
+      // Competition Details & Management
+      'competitions.summary': 'Summary',
+      'competitions.participants': 'Participants', 
+      'competitions.standings': 'Standings',
+      'competitions.pending': 'Pending',
+
       // Competition Creation & Management
       'competition.step1': 'Step 1: Competition Details',
       'competition.step2': 'Step 2: Prize Rules',
