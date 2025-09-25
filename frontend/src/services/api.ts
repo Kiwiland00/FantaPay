@@ -425,7 +425,8 @@ export const competitionAPI = {
               email: 'test@fantapay.com',
               is_admin: true,
               paid_matchdays: [1, 2, 3],
-              points: 87.5
+              points: 87.5,
+              totalPoints: 254.8
             },
             {
               id: 'user_marco_rossi',
@@ -433,7 +434,8 @@ export const competitionAPI = {
               email: 'marco.rossi@email.com',
               is_admin: false,
               paid_matchdays: [1, 2],
-              points: 92.3
+              points: 92.3,
+              totalPoints: 301.7
             },
             {
               id: 'user_giulia_bianchi',
@@ -441,7 +443,8 @@ export const competitionAPI = {
               email: 'giulia.bianchi@email.com',
               is_admin: false,
               paid_matchdays: [1],
-              points: 78.1
+              points: 78.1,
+              totalPoints: 198.4
             },
             {
               id: 'user_luca_ferrari',
@@ -449,7 +452,8 @@ export const competitionAPI = {
               email: 'luca.ferrari@email.com', 
               is_admin: false,
               paid_matchdays: [],
-              points: 45.7
+              points: 45.7,
+              totalPoints: 142.9
             },
             {
               id: 'user_sofia_conti',
@@ -457,7 +461,8 @@ export const competitionAPI = {
               email: 'sofia.conti@email.com',
               is_admin: false,
               paid_matchdays: [1, 2, 3],
-              points: 95.2
+              points: 95.2,
+              totalPoints: 328.6
             }
           ];
           
