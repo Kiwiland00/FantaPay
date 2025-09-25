@@ -969,37 +969,151 @@ const CompetitionDetailScreen: React.FC = () => {
           </View>
         )}
 
-        {/* Participants */}
-        <View style={styles.participantsCard}>
-          <View style={styles.participantsHeader}>
-            <Ionicons name="people-outline" size={24} color="#007AFF" />
-            <Text style={styles.participantsTitle}>Participants</Text>
-          </View>
-          
-          <FlatList
-            data={competition.participants || []}
-            keyExtractor={(item) => item.id}
-            renderItem={renderParticipant}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+            {/* Admin Actions */}
+            {isAdmin && (
+              <View style={styles.adminCard}>
+                <View style={styles.adminHeader}>
+                  <Ionicons name="settings-outline" size={24} color="#FF3B30" />
+                  <Text style={styles.adminTitle}>Admin Actions</Text>
+                </View>
+                
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={handleDeleteCompetition}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+                  <Text style={styles.deleteButtonText}>Delete Competition</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        )}
 
-        {/* Admin Actions */}
-        {isAdmin && (
-          <View style={styles.adminCard}>
-            <View style={styles.adminHeader}>
-              <Ionicons name="settings-outline" size={24} color="#FF3B30" />
-              <Text style={styles.adminTitle}>Admin Actions</Text>
+        {/* Participants Tab */}
+        {activeTab === 'participants' && (
+          <View style={styles.participantsCard}>
+            <View style={styles.participantsHeader}>
+              <Ionicons name="people-outline" size={24} color="#007AFF" />
+              <Text style={styles.participantsTitle}>Participants</Text>
             </View>
             
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={handleDeleteCompetition}
-            >
-              <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
-              <Text style={styles.deleteButtonText}>Delete Competition</Text>
-            </TouchableOpacity>
+            <FlatList
+              data={competition.participants || []}
+              keyExtractor={(item) => item.id}
+              renderItem={renderParticipant}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        )}
+
+        {/* Standings Tab */}
+        {activeTab === 'standings' && (
+          <View style={styles.standingsCard}>
+            <View style={styles.standingsHeader}>
+              <Ionicons name="podium-outline" size={24} color="#FF9500" />
+              <Text style={styles.standingsTitle}>{t('competitions.standings') || 'Standings'}</Text>
+            </View>
+            
+            {isAdmin && (
+              <View style={styles.standingsAdminNotice}>
+                <Ionicons name="shield-checkmark-outline" size={16} color="#34C759" />
+                <Text style={styles.standingsAdminText}>
+                  Admin Mode: Tap any points value to edit
+                </Text>
+              </View>
+            )}
+            
+            {/* Standings Table Header */}
+            <View style={styles.standingsTableHeader}>
+              <Text style={[styles.standingsHeaderText, styles.positionColumn]}>#</Text>
+              <Text style={[styles.standingsHeaderText, styles.nameColumn]}>Name</Text>
+              <Text style={[styles.standingsHeaderText, styles.pointsColumn]}>Points</Text>
+            </View>
+            
+            {/* Standings List */}
+            <FlatList
+              data={getSortedStandings()}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.standingsRow}>
+                  <View style={[styles.standingsCell, styles.positionColumn]}>
+                    <View style={[
+                      styles.positionBadge,
+                      item.position === 1 && styles.positionBadgeGold,
+                      item.position === 2 && styles.positionBadgeSilver,
+                      item.position === 3 && styles.positionBadgeBronze,
+                    ]}>
+                      <Text style={[
+                        styles.positionText,
+                        item.position <= 3 && styles.positionTextMedal
+                      ]}>
+                        {item.position}
+                      </Text>
+                    </View>
+                  </View>
+                  
+                  <View style={[styles.standingsCell, styles.nameColumn]}>
+                    <Text style={styles.participantNameText} numberOfLines={1}>
+                      {item.name}
+                    </Text>
+                  </View>
+                  
+                  <View style={[styles.standingsCell, styles.pointsColumn]}>
+                    {isAdmin && editingParticipantId === item.id ? (
+                      <View style={styles.pointsEditContainer}>
+                        <TextInput
+                          style={styles.pointsInput}
+                          value={tempPoints}
+                          onChangeText={setTempPoints}
+                          keyboardType="numeric"
+                          placeholder="0"
+                          placeholderTextColor="#8E8E93"
+                          autoFocus
+                        />
+                        <TouchableOpacity
+                          style={styles.pointsSaveButton}
+                          onPress={handlePointsSave}
+                        >
+                          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.pointsCancelButton}
+                          onPress={handlePointsCancel}
+                        >
+                          <Ionicons name="close" size={16} color="#FFFFFF" />
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.pointsContainer}
+                        onPress={isAdmin ? () => handlePointsEdit(item.id, item.points || 0) : undefined}
+                        disabled={!isAdmin}
+                      >
+                        <Text style={styles.pointsText}>
+                          {item.points?.toFixed(1) || '0.0'}
+                        </Text>
+                        {isAdmin && (
+                          <Ionicons name="pencil-outline" size={14} color="#8E8E93" />
+                        )}
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              )}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+            
+            {(!competition.participants || competition.participants.length === 0) && (
+              <View style={styles.emptyStandingsContainer}>
+                <Ionicons name="trophy-outline" size={48} color="#8E8E93" />
+                <Text style={styles.emptyStandingsText}>No participants yet</Text>
+                <Text style={styles.emptyStandingsSubtext}>
+                  Share the invite code to get participants
+                </Text>
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
