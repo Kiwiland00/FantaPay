@@ -16,6 +16,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { competitionAPI } from '../../services/api';
+import { CrossPlatformStorage } from '../../utils/CrossPlatformStorage';
 
 interface MatchdayPayment {
   matchday: number;
