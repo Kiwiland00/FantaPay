@@ -1348,6 +1348,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2C2C2E',
   },
+  summarySection: {
+    marginBottom: 24,
+  },
+  summarySectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  summaryCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+  },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1365,6 +1379,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'right',
     flex: 1,
+  },
+  totalRow: {
+    borderTopWidth: 1,
+    borderTopColor: '#2C2C2E',
+    marginTop: 8,
+    paddingTop: 12,
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  totalValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#007AFF',
   },
   prizeDetailRow: {
     paddingLeft: 16,
