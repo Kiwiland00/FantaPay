@@ -158,7 +158,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         // First, try to get the actual competition from storage
         console.log('📋 Attempting to load competition from storage...');
         const storedCompetitions = await competitionAPI.getMyCompetitionsMock();
-        console.log('📊 Loaded competitions:', storedCompetitions.length);
+        console.log('📊 Loaded competitions:', storedCompetitions?.length || 0);
         
         if (storedCompetitions && storedCompetitions.length > 0) {
           actualCompetition = storedCompetitions.find((comp: any) => comp._id === competitionId);
