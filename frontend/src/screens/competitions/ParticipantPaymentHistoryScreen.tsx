@@ -161,20 +161,29 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         console.log('📊 Loaded competitions:', storedCompetitions?.length || 0);
         
         if (storedCompetitions && storedCompetitions.length > 0) {
-          actualCompetition = storedCompetitions.find((comp: any) => comp._id === competitionId);
+          actualCompetition = storedCompetitions?.find((comp: any) => comp._id === competitionId);
           
-          if (actualCompetition) {
-            competitionName = actualCompetition.name;
-            console.log('✅ Found actual competition:', competitionName);
-            console.log('📊 Competition config:', {
-              matchdays: actualCompetition.total_matchdays,
-              matchdayFee: actualCompetition.daily_payment_amount,
-              participationCost: actualCompetition.participation_cost_per_team,
-              prizeType: actualCompetition.rules?.type
-            });
-          } else {
-            console.log('❌ Competition not found in storage, using route params');
+          if (!actualCompetition) {
+            console.warn('⚠️  Competition not found in storage, creating fallback');
+            Alert.alert(
+              'Competition Not Found',
+              'The competition data could not be loaded. Please try refreshing the competition list.',
+              [
+                { text: 'Go Back', onPress: () => navigation.goBack() },
+                { text: 'Retry', onPress: () => loadParticipantData() }
+              ]
+            );
+            return;
           }
+          
+          competitionName = actualCompetition.name;
+          console.log('✅ Found actual competition:', competitionName);
+          console.log('📊 Competition config:', {
+            matchdays: actualCompetition.total_matchdays,
+            matchdayFee: actualCompetition.daily_payment_amount,
+            participationCost: actualCompetition.participation_cost_per_team,
+            prizeType: actualCompetition.rules?.type
+          });
         } else {
           console.log('❌ No competitions found in storage');
         }
