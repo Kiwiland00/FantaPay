@@ -403,7 +403,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
       
       if (paymentType === 'residual_fee') {
         description = `${participantName || 'User'} paid residual fee of €${totalAmount.toFixed(2)}`;
-        actionType = 'residual_payment';
+        actionType = 'matchday_payment'; // Use standard matchday_payment action for all payments
       } else {
         const matchdayText = matchdays.length === 1 
           ? `paid matchday ${matchdays[0]}`
