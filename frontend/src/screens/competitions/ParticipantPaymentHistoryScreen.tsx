@@ -432,48 +432,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     }
   };
 
-  // Add transaction log entry for payments
-  const addPaymentLog = async (matchdays: number[], totalAmount: number, paymentType: string = 'matchday') => {
-    try {
-      // Get existing admin logs
-      const existingLogs = await CrossPlatformStorage.getItem('adminLogs');
-      const logs = existingLogs ? JSON.parse(existingLogs) : [];
-      
-      let description = '';
-      let actionType = '';
-      
-      if (paymentType === 'residual_fee') {
-        description = `${participantName || 'User'} paid residual fee of €${totalAmount.toFixed(2)}`;
-        actionType = 'matchday_payment'; // Use standard matchday_payment action for all payments
-      } else {
-        const matchdayText = matchdays.length === 1 
-          ? `paid matchday ${matchdays[0]}`
-          : `paid matchdays ${matchdays.join(', ')}`;
-        description = `${participantName || 'User'} ${matchdayText} - €${totalAmount.toFixed(2)}`;
-        actionType = 'matchday_payment';
-      }
-      
-      // Create admin log entry that matches the expected format
-      const newLog = {
-        _id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-        admin_id: user?.id || participantId,
-        admin_username: participantName || 'User',
-        competition_id: competitionId,
-        competition_name: competition?.name || 'Unknown Competition',
-        action: actionType,
-        details: description,
-        timestamp: new Date().toISOString()
-      };
-      
-      logs.unshift(newLog); // Add to beginning for newest first
-      await CrossPlatformStorage.setItem('adminLogs', JSON.stringify(logs));
-      
-      console.log('📝 Payment log added to admin logs:', newLog.details);
-      return newLog;
-    } catch (error) {
-      console.error('💥 Error adding payment log:', error);
-    }
-  };
+  // Duplicate function removed - using the one above
 
   // Handle single matchday payment
   const handleSingleMatchdayPayment = async (matchday: number) => {
