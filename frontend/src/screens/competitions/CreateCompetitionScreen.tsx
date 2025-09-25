@@ -49,7 +49,7 @@ const CreateCompetitionScreen: React.FC = () => {
   const [totalPrizePool, setTotalPrizePool] = useState('1680'); // Calculated automatically
   
   // Daily payment configuration
-  const [dailyPaymentEnabled, setDailyPaymentEnabled] = useState(false); // Whether daily payments are required
+  const [dailyPaymentEnabled, setDailyPaymentEnabled] = useState(true); // Whether daily payments are required - set to true by default
   const [dailyPaymentAmount, setDailyPaymentAmount] = useState('5'); // Amount per matchday if enabled
   
   // Real-time validation state
