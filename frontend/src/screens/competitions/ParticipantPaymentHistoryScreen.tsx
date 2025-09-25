@@ -175,7 +175,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         participantId,
         participantName
       });
-      Alert.alert('Error', 'Failed to load payment history. Please try again or contact support.');
+      Alert.alert(t('common.error'), t('paymentHistory.loadError'));
     } finally {
       setIsLoading(false);
     }
