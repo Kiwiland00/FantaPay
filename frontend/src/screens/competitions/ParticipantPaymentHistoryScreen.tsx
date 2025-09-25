@@ -49,7 +49,13 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   
-  const { competitionId, participantId, participantName } = route.params as any;
+  const { 
+    competitionId, 
+    participantId, 
+    participantName,
+    canMakePayments = false,
+    isCurrentUser = false
+  } = route.params as any;
   
   const [participantData, setParticipantData] = useState<ParticipantData | null>(null);
   const [competition, setCompetition] = useState<Competition | null>(null);
