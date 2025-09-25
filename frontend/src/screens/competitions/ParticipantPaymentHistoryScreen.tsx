@@ -715,7 +715,19 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{t('paymentHistory.title')}</Text>
-        <View style={{ width: 24 }} />
+        {/* Admin Menu - Only show if current user is admin and viewing another participant */}
+        {user?.id === competition?.admin_id && !isCurrentUser && (
+          <TouchableOpacity 
+            style={styles.adminMenuButton}
+            onPress={showAdminOptions}
+          >
+            <Ionicons name="ellipsis-vertical" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
+        {/* Placeholder for alignment when no admin menu */}
+        {!(user?.id === competition?.admin_id && !isCurrentUser) && (
+          <View style={{ width: 24 }} />
+        )}
       </View>
 
       <ScrollView
