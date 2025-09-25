@@ -414,27 +414,6 @@ const CreateCompetitionScreen: React.FC = () => {
 
       <View style={styles.rulesContainer}>
         <TouchableOpacity
-          style={[styles.ruleCard, selectedRule === 'daily' && styles.selectedRuleCard]}
-          onPress={() => setSelectedRule('daily')}
-          activeOpacity={0.8}
-        >
-          <View style={styles.ruleHeader}>
-            <Ionicons name="calendar" size={32} color={selectedRule === 'daily' ? '#007AFF' : '#8E8E93'} />
-            <View style={styles.ruleContent}>
-              <Text style={[styles.ruleTitle, selectedRule === 'daily' && styles.selectedRuleTitle]}>
-                {t('competitions.dailyPrize')}
-              </Text>
-              <Text style={[styles.ruleDescription, selectedRule === 'daily' && styles.selectedRuleDescription]}>
-                Prize for daily winners
-              </Text>
-            </View>
-            {selectedRule === 'daily' && (
-              <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
-            )}
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
           style={[styles.ruleCard, selectedRule === 'final' && styles.selectedRuleCard]}
           onPress={() => setSelectedRule('final')}
           activeOpacity={0.8}
@@ -443,10 +422,10 @@ const CreateCompetitionScreen: React.FC = () => {
             <Ionicons name="trophy" size={32} color={selectedRule === 'final' ? '#007AFF' : '#8E8E93'} />
             <View style={styles.ruleContent}>
               <Text style={[styles.ruleTitle, selectedRule === 'final' && styles.selectedRuleTitle]}>
-                {t('competitions.finalPrize')}
+                Final Prize Pool
               </Text>
               <Text style={[styles.ruleDescription, selectedRule === 'final' && styles.selectedRuleDescription]}>
-                Prize pool for final positions
+                Prize pool distributed among final positions only
               </Text>
             </View>
             {selectedRule === 'final' && (
@@ -464,10 +443,10 @@ const CreateCompetitionScreen: React.FC = () => {
             <Ionicons name="star" size={32} color={selectedRule === 'mixed' ? '#007AFF' : '#8E8E93'} />
             <View style={styles.ruleContent}>
               <Text style={[styles.ruleTitle, selectedRule === 'mixed' && styles.selectedRuleTitle]}>
-                {t('competitions.mixedRules')}
+                Daily Prize + Final Prize Pool
               </Text>
               <Text style={[styles.ruleDescription, selectedRule === 'mixed' && styles.selectedRuleDescription]}>
-                Both daily and final prizes
+                Both daily prizes for matchdays AND final prize pool
               </Text>
             </View>
             {selectedRule === 'mixed' && (
