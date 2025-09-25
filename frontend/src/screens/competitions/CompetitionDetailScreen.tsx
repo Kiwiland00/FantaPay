@@ -702,17 +702,49 @@ const CompetitionDetailScreen: React.FC = () => {
         <View style={styles.infoCard}>
           <View style={styles.infoHeader}>
             <Ionicons name="trophy-outline" size={24} color="#FF9500" />
-            <Text style={styles.infoTitle}>Competition Details</Text>
+            <Text style={styles.infoTitle}>League Summary</Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Total Matchdays:</Text>
+            <Text style={styles.infoValue}>{competition.total_matchdays || totalMatchdays}</Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Fee per Matchday:</Text>
+            <Text style={styles.infoValue}>
+              {competition.daily_payment_amount ? `€${competition.daily_payment_amount.toFixed(2)}` : 'Free'}
+            </Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Total Participation Cost:</Text>
+            <Text style={styles.infoValue}>
+              €{competition.participation_cost_per_team ? competition.participation_cost_per_team.toFixed(2) : 
+                ((competition.daily_payment_amount || 0) * (competition.total_matchdays || totalMatchdays)).toFixed(2)}
+            </Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Current Participants:</Text>
+            <Text style={styles.infoValue}>
+              {competition.participants?.length || 0} / {competition.expected_teams || 8}
+            </Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Prize Structure:</Text>
+            <Text style={styles.infoValue}>
+              {competition.rules?.type === 'final' && 'Final Prize Pool'}
+              {competition.rules?.type === 'mixed' && 'Daily + Final Prizes'}
+              {competition.rules?.type === 'daily' && 'Daily Prizes Only'}
+              {!competition.rules?.type && 'Final Prize Pool'}
+            </Text>
           </View>
           
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Current Matchday:</Text>
-            <Text style={styles.infoValue}>{competition.current_matchday || 1} / {totalMatchdays}</Text>
-          </View>
-          
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Participants:</Text>
-            <Text style={styles.infoValue}>{competition.participants?.length || 0}</Text>
+            <Text style={styles.infoValue}>{competition.current_matchday || 1}</Text>
           </View>
           
           <View style={styles.infoRow}>
