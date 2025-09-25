@@ -303,6 +303,17 @@ const CompetitionDetailScreen: React.FC = () => {
     }
   }, [competition, competitionId]);
 
+  // Add focus listener to refresh balance when returning from payment screen
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (competition) {
+        refreshCompetitionBalance();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, competition]);
+
   // Refresh competition balance after payments
   const refreshCompetitionBalance = async () => {
     const balance = await calculateCompetitionBalance();
