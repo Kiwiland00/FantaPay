@@ -552,6 +552,199 @@ class FantaPayTester:
         except Exception as e:
             self.log_test("Update Standings", False, f"Exception: {str(e)}")
             return False
+
+    def test_enhanced_standings_with_badges(self):
+        """Test enhanced standings system with ranking, badges, and real-time updates"""
+        if not self.competition_id:
+            self.log_test("Enhanced Standings with Badges", False, "No competition ID available")
+            return False
+            
+        try:
+            # Create comprehensive standings data with 5 sample participants
+            enhanced_standings = {
+                "standings": {
+                    "participants": {
+                        "user_1": {
+                            "name": "Marco Rossi",
+                            "points": 127.5,
+                            "rank": 1,
+                            "badge": "gold",
+                            "team_name": "Juventus Masters",
+                            "matchday_scores": [18.5, 22.0, 19.5, 21.0, 24.5, 22.0]
+                        },
+                        "user_2": {
+                            "name": "Giulia Bianchi", 
+                            "points": 115.0,
+                            "rank": 2,
+                            "badge": "silver",
+                            "team_name": "Inter Warriors",
+                            "matchday_scores": [16.0, 20.5, 18.0, 19.5, 21.0, 20.0]
+                        },
+                        "user_3": {
+                            "name": "Alessandro Verdi",
+                            "points": 108.5,
+                            "rank": 3,
+                            "badge": "bronze", 
+                            "team_name": "Milan Legends",
+                            "matchday_scores": [15.5, 18.0, 17.5, 19.0, 20.0, 18.5]
+                        },
+                        "user_4": {
+                            "name": "Francesca Neri",
+                            "points": 95.0,
+                            "rank": 4,
+                            "badge": "",
+                            "team_name": "Roma Eagles",
+                            "matchday_scores": [14.0, 16.5, 15.0, 17.0, 16.5, 16.0]
+                        },
+                        "user_5": {
+                            "name": "Lorenzo Ferrari",
+                            "points": 87.5,
+                            "rank": 5,
+                            "badge": "",
+                            "team_name": "Napoli Stars", 
+                            "matchday_scores": [13.0, 15.0, 14.5, 16.0, 15.0, 14.0]
+                        }
+                    },
+                    "last_updated": datetime.now().isoformat(),
+                    "current_matchday": 6,
+                    "total_matchdays": 38,
+                    "season_status": "active",
+                    "ranking_system": "points_descending",
+                    "badge_system": {
+                        "gold": {"min_rank": 1, "max_rank": 1, "color": "#FFD700"},
+                        "silver": {"min_rank": 2, "max_rank": 2, "color": "#C0C0C0"},
+                        "bronze": {"min_rank": 3, "max_rank": 3, "color": "#CD7F32"}
+                    }
+                },
+                "matchday": 6
+            }
+            
+            response = self.make_request("PATCH", f"/competitions/{self.competition_id}/standings", enhanced_standings)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "updated successfully" in data.get("message", ""):
+                    self.log_test("Enhanced Standings with Badges", True, "Enhanced standings with 5 participants, badges, and ranking system updated successfully", data)
+                    return True
+                else:
+                    self.log_test("Enhanced Standings with Badges", False, f"Unexpected response: {data}")
+                    return False
+            else:
+                self.log_test("Enhanced Standings with Badges", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Enhanced Standings with Badges", False, f"Exception: {str(e)}")
+            return False
+
+    def test_standings_data_persistence(self):
+        """Test that standings data persists correctly after updates"""
+        if not self.competition_id:
+            self.log_test("Standings Data Persistence", False, "No competition ID available")
+            return False
+            
+        try:
+            # Get competition details to verify standings persistence
+            response = self.make_request("GET", f"/competitions/{self.competition_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                standings = data.get("standings", {})
+                
+                if not standings:
+                    self.log_test("Standings Data Persistence", False, "No standings data found in competition")
+                    return False
+                
+                # Check if enhanced standings structure is preserved
+                participants = standings.get("participants", {})
+                if participants:
+                    # Verify structure of first participant
+                    first_participant = list(participants.values())[0]
+                    required_fields = ["name", "points", "rank"]
+                    missing_fields = [field for field in required_fields if field not in first_participant]
+                    
+                    if missing_fields:
+                        self.log_test("Standings Data Persistence", False, f"Missing required fields in standings: {missing_fields}")
+                        return False
+                    
+                    self.log_test("Standings Data Persistence", True, f"Standings data persisted correctly for {len(participants)} participants")
+                    return True
+                else:
+                    # Check legacy standings format
+                    if standings:
+                        self.log_test("Standings Data Persistence", True, "Legacy standings format persisted correctly")
+                        return True
+                    else:
+                        self.log_test("Standings Data Persistence", False, "No standings data found")
+                        return False
+            else:
+                self.log_test("Standings Data Persistence", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Standings Data Persistence", False, f"Exception: {str(e)}")
+            return False
+
+    def test_participant_points_updating(self):
+        """Test participant management and points updating functionality"""
+        if not self.competition_id:
+            self.log_test("Participant Points Updating", False, "No competition ID available")
+            return False
+            
+        try:
+            # First, get current competition details to see participants
+            response = self.make_request("GET", f"/competitions/{self.competition_id}")
+            
+            if response.status_code != 200:
+                self.log_test("Participant Points Updating", False, f"Could not get competition details: {response.status_code}")
+                return False
+                
+            competition_data = response.json()
+            participants = competition_data.get("participants", [])
+            
+            if not participants:
+                self.log_test("Participant Points Updating", False, "No participants found in competition")
+                return False
+            
+            # Update points for existing participants
+            updated_standings = {
+                "standings": {
+                    "participants": {}
+                },
+                "matchday": 7
+            }
+            
+            # Add points for each participant
+            for i, participant in enumerate(participants):
+                participant_id = participant.get("id", str(i))
+                participant_name = participant.get("name", f"Participant {i+1}")
+                
+                updated_standings["standings"]["participants"][participant_id] = {
+                    "name": participant_name,
+                    "points": 150.0 - (i * 10),  # Decreasing points for ranking
+                    "rank": i + 1,
+                    "badge": "gold" if i == 0 else ("silver" if i == 1 else ("bronze" if i == 2 else "")),
+                    "team_name": f"Team {participant_name}",
+                    "matchday_scores": [20.0 + random.uniform(-5, 5) for _ in range(7)]
+                }
+            
+            response = self.make_request("PATCH", f"/competitions/{self.competition_id}/standings", updated_standings)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "updated successfully" in data.get("message", ""):
+                    self.log_test("Participant Points Updating", True, f"Points updated for {len(participants)} participants with automatic ranking", data)
+                    return True
+                else:
+                    self.log_test("Participant Points Updating", False, f"Unexpected response: {data}")
+                    return False
+            else:
+                self.log_test("Participant Points Updating", False, f"HTTP {response.status_code}: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Participant Points Updating", False, f"Exception: {str(e)}")
+            return False
     
     def test_competition_transactions(self):
         """Test getting competition transaction history"""
