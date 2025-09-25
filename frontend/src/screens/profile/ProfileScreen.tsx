@@ -32,6 +32,7 @@ const ProfileScreen: React.FC = () => {
   const [userBalance, setUserBalance] = useState(0);
   const [selectedProfileImage, setSelectedProfileImage] = useState('default');
   const [showProfileImageModal, setShowProfileImageModal] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   // Available profile images/logos
   const profileImages: ProfileImage[] = [
