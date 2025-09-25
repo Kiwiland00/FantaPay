@@ -843,8 +843,11 @@ const CompetitionDetailScreen: React.FC = () => {
           <RefreshControl refreshing={refreshing} onRefresh={loadCompetition} />
         }
       >
-        {/* Competition Info */}
-        <View style={styles.infoCard}>
+        {/* Tab Content */}
+        {activeTab === 'summary' && (
+          <>
+            {/* Competition Info */}
+            <View style={styles.infoCard}>
           <View style={styles.infoHeader}>
             <Ionicons name="trophy-outline" size={24} color="#FF9500" />
             <Text style={styles.infoTitle}>League Summary</Text>
