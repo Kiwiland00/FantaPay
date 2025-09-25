@@ -1967,6 +1967,107 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // Payment Table Styles (in Daily Payments section)
+  paymentTableContainer: {
+    marginTop: 20,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 12,
+    padding: 16,
+  },
+  paymentTableTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 12,
+  },
+  paymentTable: {
+    minWidth: '100%',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#3A3A3C',
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginBottom: 2,
+  },
+  nameHeaderCell: {
+    width: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  matchdayHeaderCell: {
+    width: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  totalHeaderCell: {
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tableHeaderText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  participantTableRow: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#3A3A3C',
+  },
+  nameCell: {
+    width: 100,
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  participantTableName: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  matchdayCell: {
+    width: 32,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    marginHorizontal: 1,
+  },
+  paidCell: {
+    backgroundColor: 'rgba(52, 199, 89, 0.2)',
+  },
+  pendingCell: {
+    backgroundColor: 'rgba(255, 59, 48, 0.2)',
+  },
+  totalCell: {
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  totalPaidText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#34C759',
+  },
+  totalDueText: {
+    fontSize: 10,
+    color: '#FF3B30',
+  },
+  emptyTableContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+  },
+  emptyTableText: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 8,
+  },
+
   // Payment Grid Styles
   paymentsCard: {
     backgroundColor: '#1C1C1E',
