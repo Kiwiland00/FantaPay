@@ -524,6 +524,93 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Payment Mode Controls - Only show if there are pending payments */}
+        {pendingCount > 0 && (
+          <View style={styles.paymentControlsCard}>
+            <Text style={styles.paymentControlsTitle}>Payment Options</Text>
+            
+            {/* Payment Mode Toggle */}
+            <View style={styles.paymentModeToggle}>
+              <TouchableOpacity
+                style={[
+                  styles.paymentModeButton,
+                  paymentMode === 'single' && styles.paymentModeButtonActive
+                ]}
+                onPress={() => {
+                  setPaymentMode('single');
+                  setSelectedMatchdays([]);
+                }}
+              >
+                <Ionicons name="card-outline" size={20} color={paymentMode === 'single' ? "#FFFFFF" : "#8E8E93"} />
+                <Text style={[
+                  styles.paymentModeButtonText,
+                  paymentMode === 'single' && styles.paymentModeButtonTextActive
+                ]}>
+                  Single Payment
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  styles.paymentModeButton,
+                  paymentMode === 'bulk' && styles.paymentModeButtonActive
+                ]}
+                onPress={() => {
+                  setPaymentMode('bulk');
+                  setSelectedMatchdays([]);
+                }}
+              >
+                <Ionicons name="layers-outline" size={20} color={paymentMode === 'bulk' ? "#FFFFFF" : "#8E8E93"} />
+                <Text style={[
+                  styles.paymentModeButtonText,
+                  paymentMode === 'bulk' && styles.paymentModeButtonTextActive
+                ]}>
+                  Bulk Payment
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Bulk Payment Actions */}
+            {paymentMode === 'bulk' && (
+              <View style={styles.bulkPaymentActions}>
+                {selectedMatchdays.length > 0 ? (
+                  <View style={styles.bulkPaymentInfo}>
+                    <View style={styles.bulkPaymentDetails}>
+                      <Text style={styles.bulkPaymentText}>
+                        Selected: {selectedMatchdays.length} matchdays
+                      </Text>
+                      <Text style={styles.bulkPaymentAmount}>
+                        Total: €{(selectedMatchdays.length * competition.daily_payment_amount).toFixed(2)}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.bulkPaymentButtons}>
+                      <TouchableOpacity
+                        style={styles.clearSelectionButton}
+                        onPress={() => setSelectedMatchdays([])}
+                      >
+                        <Text style={styles.clearSelectionButtonText}>Clear</Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={styles.bulkPayButton}
+                        onPress={handleBulkPayment}
+                      >
+                        <Ionicons name="card" size={16} color="#FFFFFF" />
+                        <Text style={styles.bulkPayButtonText}>Pay All</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.bulkPaymentHint}>
+                    💡 Select multiple pending matchdays below to pay them all at once
+                  </Text>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Filter Buttons */}
         <View style={styles.filtersContainer}>
           {renderFilterButton('all', 'All', totalCount)}
