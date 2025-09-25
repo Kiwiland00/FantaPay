@@ -310,9 +310,19 @@ const CompetitionDetailScreen: React.FC = () => {
                 created_at: new Date().toISOString(),
               });
 
-              Alert.alert('Success', 'Competition deleted successfully', [
-                { text: 'OK', onPress: () => navigation.goBack() }
-              ]);
+              // Immediately invalidate queries to refresh the competitions list
+              queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
+              queryClient.invalidateQueries({ queryKey: ['allCompetitions'] });
+              queryClient.invalidateQueries({ queryKey: ['competition', competitionId] });
+              
+              // Navigate back immediately and show success message
+              navigation.goBack();
+              
+              // Show success message after navigation
+              setTimeout(() => {
+                Alert.alert('Success', `"${competition?.name}" has been deleted successfully`);
+              }, 300);
+              
             } catch (error) {
               console.error('💥 Error deleting competition:', error);
               Alert.alert('Error', 'Failed to delete competition');
