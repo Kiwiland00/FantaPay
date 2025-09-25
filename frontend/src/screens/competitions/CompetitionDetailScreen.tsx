@@ -1539,6 +1539,182 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  
+  // Tab Bar Styles
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#1C1C1E',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+  },
+  tabItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 6,
+  },
+  tabItemActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#007AFF',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#8E8E93',
+  },
+  tabTextActive: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+
+  // Standings Styles
+  standingsCard: {
+    backgroundColor: '#1C1C1E',
+    margin: 16,
+    borderRadius: 12,
+    padding: 20,
+  },
+  standingsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  standingsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 12,
+  },
+  standingsAdminNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#0A2A12',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 16,
+    gap: 6,
+  },
+  standingsAdminText: {
+    fontSize: 12,
+    color: '#34C759',
+    fontWeight: '500',
+  },
+  standingsTableHeader: {
+    flexDirection: 'row',
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+    marginBottom: 12,
+  },
+  standingsHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8E8E93',
+    textAlign: 'center',
+  },
+  standingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+  },
+  standingsCell: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  positionColumn: {
+    flex: 0.8,
+  },
+  nameColumn: {
+    flex: 2,
+    alignItems: 'flex-start',
+    paddingHorizontal: 12,
+  },
+  pointsColumn: {
+    flex: 1.2,
+  },
+  positionBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#2C2C2E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  positionBadgeGold: {
+    backgroundColor: '#FFD700',
+  },
+  positionBadgeSilver: {
+    backgroundColor: '#C0C0C0',
+  },
+  positionBadgeBronze: {
+    backgroundColor: '#CD7F32',
+  },
+  positionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  positionTextMedal: {
+    color: '#000000',
+  },
+  pointsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  pointsText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  pointsEditContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  pointsInput: {
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    minWidth: 60,
+  },
+  pointsSaveButton: {
+    backgroundColor: '#34C759',
+    borderRadius: 6,
+    padding: 6,
+  },
+  pointsCancelButton: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 6,
+    padding: 6,
+  },
+  emptyStandingsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyStandingsText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginTop: 16,
+  },
+  emptyStandingsSubtext: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 8,
+    textAlign: 'center',
+  },
 });
 
 export default CompetitionDetailScreen;
