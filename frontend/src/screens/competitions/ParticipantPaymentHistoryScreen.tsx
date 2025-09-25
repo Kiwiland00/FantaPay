@@ -288,13 +288,13 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
       let actionType = '';
       
       if (paymentType === 'residual_fee') {
-        description = `${participantName || 'User'} paid residual participation fee of €${totalAmount.toFixed(2)}`;
+        description = `${participantName || 'User'} paid residual fee of €${totalAmount.toFixed(2)}`;
         actionType = 'residual_payment';
       } else {
         const matchdayText = matchdays.length === 1 
-          ? `matchday ${matchdays[0]}`
-          : `matchdays ${matchdays.join(', ')}`;
-        description = `${participantName || 'User'} paid €${totalAmount.toFixed(2)} (${matchdayText})`;
+          ? `paid matchday ${matchdays[0]}`
+          : `paid matchdays ${matchdays.join(', ')}`;
+        description = `${participantName || 'User'} ${matchdayText} - €${totalAmount.toFixed(2)}`;
         actionType = 'matchday_payment';
       }
       
