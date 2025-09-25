@@ -738,38 +738,50 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Wallet Balance & Residual Fee */}
-        <View style={styles.summaryCard}>
-          <View style={styles.walletContainer}>
-            <View style={styles.walletBalanceSection}>
-              <View style={styles.walletHeader}>
-                <Ionicons name="wallet" size={20} color="#007AFF" />
-                <Text style={styles.walletTitle}>Wallet Balance</Text>
-              </View>
-              <Text style={styles.walletBalance}>€{userBalance.toFixed(2)}</Text>
-            </View>
-            
-            {residualFee > 0 && (
-              <View style={styles.residualFeeSection}>
-                <View style={styles.residualFeeHeader}>
-                  <Ionicons name="receipt" size={20} color="#FF9500" />
-                  <Text style={styles.residualFeeTitle}>Residual Fee</Text>
-                </View>
-                <Text style={styles.residualFeeAmount}>€{residualFee.toFixed(2)}</Text>
-                <TouchableOpacity
-                  style={styles.payResidualButton}
-                  onPress={processResidualFeePayment}
-                >
-                  <Ionicons name="card" size={16} color="#FFFFFF" />
-                  <Text style={styles.payResidualButtonText}>Pay Residual Fee</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+        {/* User Access Control Banner */}
+        {!canMakePayments && (
+          <View style={styles.readOnlyBanner}>
+            <Ionicons name="eye-outline" size={20} color="#8E8E93" />
+            <Text style={styles.readOnlyBannerText}>
+              Read-only view - You can only view {isCurrentUser ? 'your' : `${participantName}'s`} payment history
+            </Text>
           </View>
-        </View>
+        )}
 
-        {/* Payment Mode Controls - Only show if there are pending payments */}
-        {pendingCount > 0 && (
+        {/* Wallet Balance & Residual Fee - Only show for current user */}
+        {canMakePayments && (
+          <View style={styles.summaryCard}>
+            <View style={styles.walletContainer}>
+              <View style={styles.walletBalanceSection}>
+                <View style={styles.walletHeader}>
+                  <Ionicons name="wallet" size={20} color="#007AFF" />
+                  <Text style={styles.walletTitle}>Wallet Balance</Text>
+                </View>
+                <Text style={styles.walletBalance}>€{userBalance.toFixed(2)}</Text>
+              </View>
+              
+              {residualFee > 0 && (
+                <View style={styles.residualFeeSection}>
+                  <View style={styles.residualFeeHeader}>
+                    <Ionicons name="receipt" size={20} color="#FF9500" />
+                    <Text style={styles.residualFeeTitle}>Residual Fee</Text>
+                  </View>
+                  <Text style={styles.residualFeeAmount}>€{residualFee.toFixed(2)}</Text>
+                  <TouchableOpacity
+                    style={styles.payResidualButton}
+                    onPress={processResidualFeePayment}
+                  >
+                    <Ionicons name="card" size={16} color="#FFFFFF" />
+                    <Text style={styles.payResidualButtonText}>Pay Residual Fee</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Payment Mode Controls - Only show if user can make payments and there are pending payments */}
+        {canMakePayments && pendingCount > 0 && (
           <View style={styles.paymentControlsCard}>
             <Text style={styles.paymentControlsTitle}>Payment Options</Text>
             
