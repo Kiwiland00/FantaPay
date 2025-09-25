@@ -526,7 +526,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
             <View style={styles.summaryStatItem}>
               <View style={styles.summaryStatHeader}>
                 <Ionicons name="time-outline" size={20} color="#FF9500" />
-                <Text style={styles.summaryStatLabel}>Pending</Text>
+                <Text style={styles.summaryStatLabel}>{t('competitions.pending')}</Text>
               </View>
               <Text style={styles.summaryStatValue}>€{participantData.total_pending.toFixed(2)}</Text>
               <Text style={styles.summaryStatCount}>{pendingCount} matchdays</Text>
