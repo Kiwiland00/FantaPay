@@ -238,7 +238,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         paidMatchdays: paidPayments.length,
         pendingMatchdays: pendingPayments.length,
         totalMatchdays: matchdayPayments.length,
-        totalMatchdayFees: totalMatchdayFees,
+        matchdayFeePerTeam: matchdayFeePerTeam,
         totalParticipationCost: totalParticipationCost,
         residualFee: calculatedResidualFee
       });
