@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-FantaPay Backend API Comprehensive Test Suite
-Tests all backend functionality including authentication, competitions, wallet operations, and transactions.
+FantaPay Backend API Testing Suite - Payment System Integration Focus
+Tests all backend APIs with emphasis on payment system integration after recent updates.
+Focus areas:
+1. All existing API endpoints still working
+2. Wallet balance management functionality  
+3. Transaction recording
+4. Competition and payment-related endpoints
+5. Matchday payment system integration
 """
 
 import requests
@@ -9,12 +15,15 @@ import json
 import time
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 
 # Configuration
 BASE_URL = "https://fantaleague-pay.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
+TEST_USER_EMAIL = "fantapay.tester@example.com"
+TEST_USER_NAME = "FantaPay Tester"
+TEST_USER_PASSWORD = "SecurePass123!"
 
 class FantaPayTester:
     def __init__(self):
