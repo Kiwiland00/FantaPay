@@ -332,13 +332,37 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
 
   const renderPaymentItem = ({ item }: { item: MatchdayPayment }) => {
     const isPaid = item.status === 'paid';
+    const isSelected = selectedMatchdays.includes(item.matchday);
+    const canSelectForBulk = paymentMode === 'bulk' && !isPaid;
     
     return (
-      <View style={[styles.paymentItem, isPaid ? styles.paymentItemPaid : styles.paymentItemPending]}>
+      <View style={[
+        styles.paymentItem, 
+        isPaid ? styles.paymentItemPaid : styles.paymentItemPending,
+        isSelected && styles.paymentItemSelected
+      ]}>
         <View style={styles.paymentHeader}>
           <View style={styles.matchdayInfo}>
-            <Text style={styles.matchdayNumber}>Matchday {item.matchday}</Text>
-            <Text style={styles.paymentAmount}>€{item.amount.toFixed(2)}</Text>
+            <View style={styles.matchdayTitleRow}>
+              {/* Bulk selection checkbox */}
+              {canSelectForBulk && (
+                <TouchableOpacity
+                  style={styles.selectionCheckbox}
+                  onPress={() => toggleMatchdaySelection(item.matchday)}
+                >
+                  <Ionicons
+                    name={isSelected ? "checkbox" : "square-outline"}
+                    size={24}
+                    color={isSelected ? "#007AFF" : "#8E8E93"}
+                  />
+                </TouchableOpacity>
+              )}
+              
+              <View style={styles.matchdayDetails}>
+                <Text style={styles.matchdayNumber}>Matchday {item.matchday}</Text>
+                <Text style={styles.paymentAmount}>€{item.amount.toFixed(2)}</Text>
+              </View>
+            </View>
           </View>
           
           <View style={styles.statusContainer}>
@@ -365,6 +389,17 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
           <Text style={styles.paymentDate}>
             {isPaid ? `Paid: ${formatPaymentDate(item.paid_at)}` : 'Payment pending'}
           </Text>
+          
+          {/* Single payment button - only show for pending payments in single mode */}
+          {!isPaid && paymentMode === 'single' && (
+            <TouchableOpacity
+              style={styles.payButton}
+              onPress={() => handleSingleMatchdayPayment(item.matchday)}
+            >
+              <Ionicons name="card" size={16} color="#FFFFFF" />
+              <Text style={styles.payButtonText}>Pay Now</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
