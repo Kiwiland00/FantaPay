@@ -355,7 +355,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Standings Feature Backend Testing - COMPLETED"
+    - "Enhanced Competition Balance & User-Specific Payment Features - COMPLETED"
     - "Enhanced LogsScreen Features"
     - "ParticipantPaymentHistoryScreen"
   stuck_tasks: []
