@@ -298,6 +298,99 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     navigation.setParams({ shouldRefreshBalance: true } as never);
   };
 
+  // Admin Functions
+  const showAdminOptions = () => {
+    Alert.alert(
+      'Admin Options',
+      `Manage ${participantName}'s participation`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove from Competition',
+          style: 'destructive',
+          onPress: confirmRemoveParticipant
+        }
+      ]
+    );
+  };
+
+  const confirmRemoveParticipant = () => {
+    Alert.alert(
+      'Remove Participant',
+      `Are you sure you want to remove ${participantName} from this competition? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive', 
+          onPress: removeParticipant
+        }
+      ]
+    );
+  };
+
+  const removeParticipant = async () => {
+    try {
+      console.log('🗑️ Admin removing participant:', participantId, 'from competition:', competitionId);
+
+      // Get stored competitions
+      const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
+      const competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+      
+      // Update competition by removing participant
+      const updatedCompetitions = competitions.map((comp: any) => {
+        if (comp._id === competitionId) {
+          const updatedParticipants = comp.participants?.filter(
+            (participant: any) => participant.id !== participantId
+          ) || [];
+          
+          return { ...comp, participants: updatedParticipants };
+        }
+        return comp;
+      });
+      
+      // Save updated competitions
+      await CrossPlatformStorage.setItem('competitions_mock', JSON.stringify(updatedCompetitions));
+      
+      // Log admin action
+      const existingLogs = await CrossPlatformStorage.getItem('adminLogs');
+      const logs = existingLogs ? JSON.parse(existingLogs) : [];
+      
+      const newLog = {
+        _id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        admin_id: user?.id || 'admin',
+        admin_username: user?.name || 'Admin',
+        competition_id: competitionId,
+        competition_name: competition?.name || 'Unknown Competition',
+        action: 'remove_participant',
+        details: `${user?.name || 'Admin'} removed ${participantName} from competition`,
+        timestamp: new Date().toISOString()
+      };
+      
+      logs.unshift(newLog);
+      await CrossPlatformStorage.setItem('adminLogs', JSON.stringify(logs));
+
+      Alert.alert(
+        'Participant Removed',
+        `${participantName} has been removed from the competition.`,
+        [{ 
+          text: 'OK', 
+          onPress: () => navigation.goBack()
+        }]
+      );
+      
+      console.log('✅ Participant removed successfully');
+      
+    } catch (error) {
+      console.error('💥 Error removing participant:', error);
+      Alert.alert(
+        'Error',
+        'Failed to remove participant. Please try again.',
+        [{ text: 'OK', style: 'default' }]
+      );
+    }
+  };
+
   // Add transaction log entry for payments
   const addPaymentLog = async (matchdays: number[], totalAmount: number, paymentType: string = 'matchday') => {
     try {
