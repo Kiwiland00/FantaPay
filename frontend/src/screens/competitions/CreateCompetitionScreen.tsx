@@ -73,17 +73,25 @@ const CreateCompetitionScreen: React.FC = () => {
     setTotalPrizePool(calculatedTotal.toString());
   }, [participationCostPerTeam, expectedTeams]);
 
-  // Enhanced validation for unique competition names
+  // Enhanced validation for unique competition names AND invite codes
   useEffect(() => {
     const timeout = setTimeout(async () => {
       if (competitionName.trim().length >= 3) {
         try {
           setValidation({ isLoading: true, isAvailable: false, message: '' });
           
-          // Check against ALL competitions in the system (not just user's competitions)
+          // Check against ALL competitions in the system
           const allCompetitions = await competitionAPI.getAllCompetitions?.() || [];
+          
+          // Check name uniqueness
           const isNameTaken = allCompetitions.some(
             (comp: any) => comp.name.toLowerCase() === competitionName.trim().toLowerCase()
+          );
+          
+          // Generate potential invite code for this name and check uniqueness
+          const potentialCode = competitionName.trim().replace(/\s+/g, '').substring(0, 6).toUpperCase();
+          const isCodeTaken = allCompetitions.some(
+            (comp: any) => comp.invite_code === potentialCode
           );
           
           if (isNameTaken) {
@@ -92,11 +100,17 @@ const CreateCompetitionScreen: React.FC = () => {
               isAvailable: false,
               message: 'This competition name is already taken. Please choose a different name.',
             });
+          } else if (isCodeTaken) {
+            setValidation({
+              isLoading: false,
+              isAvailable: false,
+              message: 'Generated invite code would conflict with existing competition. Please modify the name.',
+            });
           } else {
             setValidation({
               isLoading: false,
               isAvailable: true,
-              message: 'Competition name is available!',
+              message: `Competition name and invite code (${potentialCode}) are available!`,
             });
           }
         } catch (error) {
@@ -104,7 +118,7 @@ const CreateCompetitionScreen: React.FC = () => {
           setValidation({
             isLoading: false,
             isAvailable: false,
-            message: 'Unable to verify name availability',
+            message: 'Unable to verify name and code availability',
           });
         }
       } else if (competitionName.trim().length > 0) {
@@ -116,7 +130,7 @@ const CreateCompetitionScreen: React.FC = () => {
       } else {
         setValidation({ isLoading: false, isAvailable: false, message: '' });
       }
-    }, 500);
+    }, 300); // Faster validation for better UX
 
     return () => {
       if (timeout) clearTimeout(timeout);
