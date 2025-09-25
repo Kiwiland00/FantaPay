@@ -264,19 +264,27 @@ export const competitionAPI = {
     }
     
     // Create new competition
-    // Generate unique invite code based on competition name
-    let inviteCode = data.name.replace(/\s+/g, '').substring(0, 6).toUpperCase();
+    // Generate truly random unique invite code (not based on name)
+    const generateRandomCode = () => {
+      const chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'; // Exclude confusing chars like O, 0, I, L
+      let result = '';
+      for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
     
-    // Ensure invite code is unique by appending a number if needed
-    let uniqueCode = inviteCode;
-    let counter = 1;
-    while (existingCompetitions.some((comp: any) => comp.invite_code === uniqueCode)) {
-      uniqueCode = inviteCode + counter.toString().padStart(2, '0');
-      counter++;
+    // Ensure invite code is globally unique
+    let inviteCode = generateRandomCode();
+    while (existingCompetitions.some((comp: any) => comp.invite_code === inviteCode)) {
+      inviteCode = generateRandomCode();
+      console.log('🔄 Generated new code due to collision:', inviteCode);
     }
     
+    console.log('✅ Generated unique invite code:', inviteCode);
+    
     const newCompetition = {
-      _id: `comp_${Date.now()}`,
+      _id: `comp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name: data.name,
       total_matchdays: data.total_matchdays || 36,
       participation_cost_per_team: data.participation_cost_per_team || 210.0,
@@ -285,8 +293,8 @@ export const competitionAPI = {
       daily_payment_enabled: data.daily_payment_enabled || false,
       daily_payment_amount: data.daily_payment_amount || 0.0,
       rules: data.rules,
-      invite_code: uniqueCode, // Use unique code
-      invite_link: `https://fantapay.app/join/${uniqueCode}`,
+      invite_code: inviteCode, // Random unique code
+      invite_link: `https://fantapay.app/join/${inviteCode}`,
       admin_id: '650f1f1f1f1f1f1f1f1f1f1f', // Current mock user ID
       participants: [
         { 
