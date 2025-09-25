@@ -604,6 +604,34 @@ export const competitionAPI = {
       return [];
     }
   },
+  
+  // Critical Missing Method: Get ALL competitions for uniqueness validation
+  getAllCompetitions: async () => {
+    console.log('🌐 Mock: Getting ALL competitions for validation');
+    
+    try {
+      // Get competitions from both storage locations 
+      const storedCompetitions = await CrossPlatformStorage.getItem('competitions_mock');
+      let competitions = storedCompetitions ? JSON.parse(storedCompetitions) : [];
+      
+      // Also check the old storage key for backwards compatibility
+      const oldStoredCompetitions = await CrossPlatformStorage.getItem('mockCompetitions');
+      const oldCompetitions = oldStoredCompetitions ? JSON.parse(oldStoredCompetitions) : [];
+      
+      // Combine both sources and remove duplicates
+      const allCompetitions = [...competitions, ...oldCompetitions];
+      const uniqueCompetitions = allCompetitions.filter((comp, index, self) => 
+        index === self.findIndex(c => c._id === comp._id)
+      );
+      
+      console.log('📊 Total unique competitions found:', uniqueCompetitions.length);
+      return uniqueCompetitions;
+      
+    } catch (error) {
+      console.error('💥 Error getting all competitions:', error);
+      return [];
+    }
+  },
 };
 
 // Wallet API
