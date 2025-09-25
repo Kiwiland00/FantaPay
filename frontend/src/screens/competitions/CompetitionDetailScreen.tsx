@@ -94,7 +94,7 @@ const CompetitionDetailScreen: React.FC = () => {
   
   // Real Wallet Balance State
   const [userBalance, setUserBalance] = useState(0);
-  const [activeTab, setActiveTab] = useState<'summary' | 'participants' | 'standings' | 'payments'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'participants' | 'standings'>('summary');
   const [editingParticipantId, setEditingParticipantId] = useState<string | null>(null);
   const [editingPointsType, setEditingPointsType] = useState<'points' | 'totalPoints'>('points');
   const [tempPoints, setTempPoints] = useState<string>('');
