@@ -509,7 +509,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
 
         {/* Payment Summary */}
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Payment Summary</Text>
+          <Text style={styles.summaryTitle}>{t('paymentHistory.summary')}</Text>
           
           <View style={styles.summaryStats}>
             <View style={styles.summaryStatItem}>
