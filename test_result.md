@@ -326,6 +326,14 @@ frontend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE MOBILE TESTING COMPLETED WITH SUCCESS: Daily Payment System UI is FULLY IMPLEMENTED and working perfectly. ✅ Step 4 Financial Configuration shows 'Enable Daily Payments' toggle with green checkmark ✅ Daily payment amount input field appears when enabled ✅ Total cost calculations working correctly ✅ CompetitionDetailScreen has Pay Matchdays button ✅ Matchday selection modal with grid interface ✅ Payment confirmation flow working ✅ Admin Payment Table accessible ✅ Mobile responsive design (390x844 iPhone 12) ✅ Dark theme consistency ✅ Touch-friendly interface. Previous test result was incorrect - all matchday payment UI components are implemented and functional. Minor console warnings about React Native web compatibility but core functionality works perfectly."
 
+  - task: "ParticipantPaymentHistoryScreen CrossPlatformStorage Fix"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/screens/competitions/ParticipantPaymentHistoryScreen.tsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
