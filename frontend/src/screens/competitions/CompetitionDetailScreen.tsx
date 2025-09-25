@@ -1801,6 +1801,46 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
   },
+
+  // Enhanced Participant Styles
+  participantItemCurrentUser: {
+    backgroundColor: '#0A2A12',
+    borderLeftWidth: 3,
+    borderLeftColor: '#34C759',
+  },
+  participantNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  participantNameCurrentUser: {
+    color: '#34C759',
+    fontWeight: '600',
+  },
+  currentUserIndicator: {
+    color: '#34C759',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  participantClickIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  clickIndicatorText: {
+    fontSize: 11,
+    color: '#34C759',
+    fontWeight: '500',
+  },
+  clickIndicatorTextReadOnly: {
+    fontSize: 11,
+    color: '#8E8E93',
+    fontWeight: '500',
+  },
+  participantChevron: {
+    marginLeft: 8,
+  },
 });
 
 export default CompetitionDetailScreen;
