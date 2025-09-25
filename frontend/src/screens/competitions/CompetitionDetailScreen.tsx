@@ -344,19 +344,69 @@ const CompetitionDetailScreen: React.FC = () => {
     setCompetitionBalance(balance);
   };
 
-  // Payment Grid Helper Functions - Load real payment data from storage
+  // Payment Grid Helper Functions - Load real payment data from storage (Issue 4 Fix)
+  const [participantPayments, setParticipantPayments] = useState<{[key: string]: any[]}>({});
+
   const getParticipantPaymentsFromStorage = (participantId: string) => {
-    // Create array of all matchdays with default 'pending' status
+    // Check if we have cached payments for this participant
+    if (participantPayments[participantId]) {
+      return participantPayments[participantId];
+    }
+    
+    // Create array of all matchdays with default 'pending' status for new competitions
     const allMatchdays = Array.from({length: competition?.total_matchdays || 36}, (_, i) => ({
       matchday: i + 1,
       status: 'pending' as const,
       amount: competition?.daily_payment_amount || 10
     }));
     
-    // This would be loaded from CrossPlatformStorage in real implementation
-    // For now, all matchdays start as pending (fixing Issue 4)
     return allMatchdays;
   };
+
+  // Load participant payments from storage when competition loads
+  useEffect(() => {
+    const loadAllParticipantPayments = async () => {
+      if (!competition?.participants) return;
+      
+      const paymentsMap: {[key: string]: any[]} = {};
+      
+      for (const participant of competition.participants) {
+        try {
+          const paymentKey = `payments_${participant.id}_${competitionId}`;
+          const storedPayments = await CrossPlatformStorage.getItem(paymentKey);
+          const payments = storedPayments ? JSON.parse(storedPayments) : [];
+          
+          // Create full matchday array with actual payment status
+          const allMatchdays = Array.from({length: competition?.total_matchdays || 36}, (_, i) => {
+            const matchday = i + 1;
+            const payment = payments.find((p: any) => p.matchday === matchday);
+            return {
+              matchday,
+              status: payment?.status || 'pending',
+              amount: competition?.daily_payment_amount || 10,
+              paid_at: payment?.paid_at
+            };
+          });
+          
+          paymentsMap[participant.id] = allMatchdays;
+        } catch (error) {
+          console.error(`Error loading payments for ${participant.name}:`, error);
+          // Fallback to all pending
+          const allPending = Array.from({length: competition?.total_matchdays || 36}, (_, i) => ({
+            matchday: i + 1,
+            status: 'pending' as const,
+            amount: competition?.daily_payment_amount || 10
+          }));
+          paymentsMap[participant.id] = allPending;
+        }
+      }
+      
+      setParticipantPayments(paymentsMap);
+      console.log('📊 Loaded participant payment data for', Object.keys(paymentsMap).length, 'participants');
+    };
+
+    loadAllParticipantPayments();
+  }, [competition, competitionId]);
 
   const loadCompetition = async () => {
     try {
