@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-09-25T15:06:50.075766",
+  "test_type": "fee_validation",
+  "backend_url": "https://fantaleague-pay.preview.emergentagent.com/api",
+  "results": {
+    "backend_supports_configurable_fees": true,
+    "can_create_10_euro_competitions": true,
+    "payment_processing_uses_actual_fees": true,
+    "financial_display_shows_correct_amounts": true,
+    "admin_logging_records_correct_amounts": true
+  },
+  "conclusion": "Backend supports configurable fees including \u20ac10 as requested",
+  "evidence": {
+    "configurable_daily_payment_amount": true,
+    "no_hardcoded_5_euro_in_backend": true,
+    "payment_processing_uses_competition_amount": true,
+    "financial_display_uses_actual_amounts": true,
+    "admin_logging_uses_actual_amounts": true
+  }
+}
