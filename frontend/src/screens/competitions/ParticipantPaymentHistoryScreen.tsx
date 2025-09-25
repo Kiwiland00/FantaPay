@@ -157,10 +157,151 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     }
   };
 
+  const [selectedMatchdays, setSelectedMatchdays] = useState<number[]>([]);
+  const [paymentMode, setPaymentMode] = useState<'single' | 'bulk'>('single');
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await loadParticipantData();
     setRefreshing(false);
+  };
+
+  // Add transaction log entry for payments
+  const addPaymentLog = async (matchdays: number[], totalAmount: number) => {
+    try {
+      const logKey = `competition_logs_${competitionId}`;
+      const existingLogs = await CrossPlatformStorage.getItem(logKey);
+      const logs = existingLogs ? JSON.parse(existingLogs) : [];
+      
+      const matchdayText = matchdays.length === 1 
+        ? `matchday ${matchdays[0]}`
+        : `matchday ${matchdays.join(' and matchday ')}`;
+      
+      const newLog = {
+        id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        type: 'payment',
+        user_id: participantId,
+        user_name: participantName || 'User',
+        description: `${participantName || 'User'} paid ${matchdayText}`,
+        amount: totalAmount,
+        matchdays: matchdays,
+        timestamp: new Date().toISOString(),
+        status: 'completed'
+      };
+      
+      logs.push(newLog);
+      await CrossPlatformStorage.setItem(logKey, JSON.stringify(logs));
+      
+      console.log('📝 Payment log added:', newLog.description);
+      return newLog;
+    } catch (error) {
+      console.error('💥 Error adding payment log:', error);
+    }
+  };
+
+  // Handle single matchday payment
+  const handleSingleMatchdayPayment = async (matchday: number) => {
+    if (!competition || !participantData) return;
+    
+    const amount = competition.daily_payment_amount;
+    const totalCost = amount;
+    
+    Alert.alert(
+      'Pay Matchday',
+      `Pay €${totalCost.toFixed(2)} for Matchday ${matchday}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Pay',
+          onPress: () => processPayment([matchday], totalCost)
+        }
+      ]
+    );
+  };
+
+  // Handle bulk matchday payment
+  const handleBulkPayment = async () => {
+    if (!competition || !participantData || selectedMatchdays.length === 0) return;
+    
+    const amount = competition.daily_payment_amount;
+    const totalCost = selectedMatchdays.length * amount;
+    const matchdaysText = selectedMatchdays.length === 1 
+      ? `Matchday ${selectedMatchdays[0]}`
+      : `Matchdays ${selectedMatchdays.join(', ')}`;
+    
+    Alert.alert(
+      'Pay Multiple Matchdays',
+      `Pay €${totalCost.toFixed(2)} for ${matchdaysText}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Pay',
+          onPress: () => processPayment(selectedMatchdays, totalCost)
+        }
+      ]
+    );
+  };
+
+  // Process payment for one or multiple matchdays
+  const processPayment = async (matchdays: number[], totalAmount: number) => {
+    try {
+      // Update payment records in storage
+      const paymentKey = `payments_${participantId}_${competitionId}`;
+      const existingPayments = await CrossPlatformStorage.getItem(paymentKey);
+      const payments = existingPayments ? JSON.parse(existingPayments) : [];
+      
+      const paymentTimestamp = new Date().toISOString();
+      
+      // Add payment records for each matchday
+      matchdays.forEach(matchday => {
+        payments.push({
+          matchday: matchday,
+          amount: competition!.daily_payment_amount,
+          status: 'paid',
+          paid_at: paymentTimestamp,
+          transaction_id: `txn_${Date.now()}_${matchday}`
+        });
+      });
+      
+      // Save updated payment records
+      await CrossPlatformStorage.setItem(paymentKey, JSON.stringify(payments));
+      
+      // Add payment log to competition logs
+      await addPaymentLog(matchdays, totalAmount);
+      
+      // Clear selections
+      setSelectedMatchdays([]);
+      setPaymentMode('single');
+      
+      // Refresh data
+      await loadParticipantData();
+      
+      // Success message
+      const matchdaysText = matchdays.length === 1 
+        ? `Matchday ${matchdays[0]}`
+        : `Matchdays ${matchdays.join(', ')}`;
+      
+      Alert.alert(
+        'Payment Successful!',
+        `✅ Paid €${totalAmount.toFixed(2)} for ${matchdaysText}`,
+        [{ text: 'OK', style: 'default' }]
+      );
+      
+      console.log('✅ Payment processed successfully:', matchdays);
+      
+    } catch (error) {
+      console.error('💥 Error processing payment:', error);
+      Alert.alert('Error', 'Failed to process payment. Please try again.');
+    }
+  };
+
+  // Toggle matchday selection for bulk payment
+  const toggleMatchdaySelection = (matchday: number) => {
+    if (selectedMatchdays.includes(matchday)) {
+      setSelectedMatchdays(prev => prev.filter(m => m !== matchday));
+    } else {
+      setSelectedMatchdays(prev => [...prev, matchday]);
+    }
   };
 
   const getFilteredPayments = () => {
