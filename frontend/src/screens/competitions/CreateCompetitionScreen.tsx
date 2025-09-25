@@ -73,38 +73,50 @@ const CreateCompetitionScreen: React.FC = () => {
     setTotalPrizePool(calculatedTotal.toString());
   }, [participationCostPerTeam, expectedTeams]);
 
-  // Real-time name validation
+  // Enhanced validation for unique competition names
   useEffect(() => {
-    const validateName = async () => {
-      if (!competitionName.trim()) {
-        setValidation({ isValidating: false, isAvailable: true, message: '' });
-        return;
-      }
-
-      setValidation(prev => ({ ...prev, isValidating: true }));
-      
-      try {
-        const result = await competitionAPI.validateNameMock(competitionName);
+    const timeout = setTimeout(async () => {
+      if (competitionName.trim().length >= 3) {
+        try {
+          setValidation({ isLoading: true, isAvailable: false, message: '' });
+          
+          // Check against ALL competitions in the system (not just user's competitions)
+          const allCompetitions = await competitionAPI.getAllCompetitions?.() || [];
+          const isNameTaken = allCompetitions.some(
+            (comp: any) => comp.name.toLowerCase() === competitionName.trim().toLowerCase()
+          );
+          
+          if (isNameTaken) {
+            setValidation({
+              isLoading: false,
+              isAvailable: false,
+              message: 'This competition name is already taken. Please choose a different name.',
+            });
+          } else {
+            setValidation({
+              isLoading: false,
+              isAvailable: true,
+              message: 'Competition name is available!',
+            });
+          }
+        } catch (error) {
+          console.log('🔍 Name validation error:', error);
+          setValidation({
+            isLoading: false,
+            isAvailable: false,
+            message: 'Unable to verify name availability',
+          });
+        }
+      } else if (competitionName.trim().length > 0) {
         setValidation({
-          isValidating: false,
-          isAvailable: result.available,
-          message: result.message
-        });
-      } catch (error) {
-        setValidation({
-          isValidating: false,
+          isLoading: false,
           isAvailable: false,
-          message: 'Error checking name'
+          message: 'Competition name must be at least 3 characters',
         });
+      } else {
+        setValidation({ isLoading: false, isAvailable: false, message: '' });
       }
-    };
-
-    if (validationTimeout) {
-      clearTimeout(validationTimeout);
-    }
-
-    const timeout = setTimeout(validateName, 500);
-    setValidationTimeout(timeout);
+    }, 500);
 
     return () => {
       if (timeout) clearTimeout(timeout);
@@ -117,6 +129,7 @@ const CreateCompetitionScreen: React.FC = () => {
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['myCompetitions'] });
+      queryClient.invalidateQueries({ queryKey: ['allCompetitions'] });
       
       const competition = response.data;
       const inviteCode = competition.invite_code;
@@ -132,12 +145,17 @@ const CreateCompetitionScreen: React.FC = () => {
             text: 'Copy Code',
             onPress: () => {
               Clipboard.setString(inviteCode);
-              Alert.alert('Copied!', `Invite code "${inviteCode}" copied to clipboard!`);
+              Alert.alert('Copied!', `Invite code "${inviteCode}" copied to clipboard!`, [
+                {
+                  text: 'OK',
+                  onPress: () => navigation.goBack(), // Auto-close after copying
+                }
+              ]);
             },
           },
           {
             text: 'Done',
-            onPress: () => navigation.goBack(),
+            onPress: () => navigation.goBack(), // Return to main dashboard
             style: 'default',
           },
         ]
