@@ -280,36 +280,40 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   // Add transaction log entry for payments
   const addPaymentLog = async (matchdays: number[], totalAmount: number, paymentType: string = 'matchday') => {
     try {
-      const logKey = `competition_logs_${competitionId}`;
-      const existingLogs = await CrossPlatformStorage.getItem(logKey);
+      // Get existing admin logs
+      const existingLogs = await CrossPlatformStorage.getItem('adminLogs');
       const logs = existingLogs ? JSON.parse(existingLogs) : [];
       
       let description = '';
+      let actionType = '';
+      
       if (paymentType === 'residual_fee') {
-        description = `${participantName || 'User'} paid residual participation fee`;
+        description = `${participantName || 'User'} paid residual participation fee of €${totalAmount.toFixed(2)}`;
+        actionType = 'residual_payment';
       } else {
         const matchdayText = matchdays.length === 1 
           ? `matchday ${matchdays[0]}`
-          : `matchday ${matchdays.join(' and matchday ')}`;
-        description = `${participantName || 'User'} paid ${matchdayText}`;
+          : `matchdays ${matchdays.join(', ')}`;
+        description = `${participantName || 'User'} paid €${totalAmount.toFixed(2)} (${matchdayText})`;
+        actionType = 'matchday_payment';
       }
       
+      // Create admin log entry that matches the expected format
       const newLog = {
-        id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-        type: paymentType === 'residual_fee' ? 'residual_fee_payment' : 'payment',
-        user_id: participantId,
-        user_name: participantName || 'User',
-        description: description,
-        amount: totalAmount,
-        matchdays: matchdays,
-        timestamp: new Date().toISOString(),
-        status: 'completed'
+        _id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        admin_id: user?.id || participantId,
+        admin_username: participantName || 'User',
+        competition_id: competitionId,
+        competition_name: competition?.name || 'Unknown Competition',
+        action: actionType,
+        details: description,
+        timestamp: new Date().toISOString()
       };
       
-      logs.push(newLog);
-      await CrossPlatformStorage.setItem(logKey, JSON.stringify(logs));
+      logs.unshift(newLog); // Add to beginning for newest first
+      await CrossPlatformStorage.setItem('adminLogs', JSON.stringify(logs));
       
-      console.log('📝 Payment log added:', newLog.description);
+      console.log('📝 Payment log added to admin logs:', newLog.details);
       return newLog;
     } catch (error) {
       console.error('💥 Error adding payment log:', error);
