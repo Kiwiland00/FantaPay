@@ -476,9 +476,9 @@ export const competitionAPI = {
             }
           ];
           
-          return { ...comp, participants: demoParticipants };
+          return { ...updatedComp, participants: demoParticipants };
         }
-        return comp;
+        return updatedComp;
       });
       
       // Save enhanced competitions back to storage
