@@ -225,10 +225,11 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         matchday_payments: matchdayPayments
       };
       
-      // Calculate residual fee (total participation cost - matchday fees)
-      const totalMatchdayFees = realCompetition.total_matchdays * realCompetition.daily_payment_amount;
+      // Calculate residual fee according to user requirements:
+      // Example: 8 teams, €210 per team, €5 × 36 matchdays = €180, residual = €30 per team
+      const matchdayFeePerTeam = (realCompetition.daily_payment_amount || 0) * (realCompetition.total_matchdays || 36);
       const totalParticipationCost = actualCompetition?.participation_cost_per_team || 210.0;
-      const calculatedResidualFee = Math.max(0, totalParticipationCost - totalMatchdayFees);
+      const calculatedResidualFee = Math.max(0, totalParticipationCost - matchdayFeePerTeam);
       setResidualFee(calculatedResidualFee);
 
       console.log('📊 Payment Summary Generated:', {
