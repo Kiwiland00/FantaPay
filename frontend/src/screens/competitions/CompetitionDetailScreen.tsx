@@ -96,6 +96,7 @@ const CompetitionDetailScreen: React.FC = () => {
   const [userBalance, setUserBalance] = useState(0);
   const [activeTab, setActiveTab] = useState<'summary' | 'participants' | 'standings'>('summary');
   const [editingParticipantId, setEditingParticipantId] = useState<string | null>(null);
+  const [editingPointsType, setEditingPointsType] = useState<'points' | 'totalPoints'>('points');
   const [tempPoints, setTempPoints] = useState<string>('');
 
   // Fetch competition data
