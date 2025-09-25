@@ -409,38 +409,7 @@ const WalletScreen: React.FC = () => {
           </View>
         </LinearGradient>
 
-        {/* Quick Stats */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Ionicons name="trending-up" size={20} color="#34C759" />
-            <View style={styles.statContent}>
-              <Text style={styles.statNumber}>
-                {transactions.filter(t => t.type === 'deposit').length}
-              </Text>
-              <Text style={styles.statLabel}>Deposits</Text>
-            </View>
-          </View>
-          
-          <View style={styles.statCard}>
-            <Ionicons name="card" size={20} color="#007AFF" />
-            <View style={styles.statContent}>
-              <Text style={styles.statNumber}>
-                {transactions.filter(t => t.type === 'matchday_payment').length}
-              </Text>
-              <Text style={styles.statLabel}>Payments</Text>
-            </View>
-          </View>
-          
-          <View style={styles.statCard}>
-            <Ionicons name="trophy" size={20} color="#FF9500" />
-            <View style={styles.statContent}>
-              <Text style={styles.statNumber}>
-                {transactions.filter(t => t.type === 'prize_received').length}
-              </Text>
-              <Text style={styles.statLabel}>Prizes</Text>
-            </View>
-          </View>
-        </View>
+        {/* Stats section removed as requested */}
 
         {/* Transaction History */}
         <View style={styles.transactionsCard}>
