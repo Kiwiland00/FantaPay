@@ -152,6 +152,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "PAYMENT SYSTEM INTEGRATION VERIFIED: ✅ Real wallet balance integration working correctly ✅ Balance checking before payments operational ✅ Automatic balance deduction on successful payments confirmed ✅ Transaction recording for all payment types functional ✅ Residual fee calculation and payment processing working ✅ All wallet APIs supporting enhanced payment system perfectly. Wallet balance management functionality fully operational after payment system integration."
+      - working: true
+        agent: "testing"
+        comment: "BUG FIX VALIDATION COMPLETED: ✅ Wallet balance updates working perfectly (€100 top-up, €25 withdrawal tested) ✅ Transaction recording functional (6 transactions tracked correctly) ✅ Balance deduction functionality verified (€50 competition payment, €25 matchday payments) ✅ Real-time balance tracking operational ✅ Insufficient balance validation active (€10,000 withdrawal correctly rejected) ✅ All wallet APIs supporting enhanced payment system with proper balance checks and wallet integration. Wallet balance system fully supports the bug fixes and frontend payment features."
 
   - task: "Financial Configuration API Support"
     implemented: true
