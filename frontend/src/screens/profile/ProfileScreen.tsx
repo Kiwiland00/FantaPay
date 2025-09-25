@@ -299,6 +299,34 @@ const ProfileScreen: React.FC = () => {
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
           </TouchableOpacity>
 
+          <TouchableOpacity style={styles.settingItem} onPress={toggleNotifications}>
+            <View style={styles.settingIcon}>
+              <Ionicons 
+                name={notificationsEnabled ? "notifications" : "notifications-off"} 
+                size={20} 
+                color={notificationsEnabled ? "#34C759" : "#FF3B30"} 
+              />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Push Notifications</Text>
+              <Text style={[
+                styles.settingSubtitle,
+                { color: notificationsEnabled ? "#34C759" : "#FF3B30" }
+              ]}>
+                {notificationsEnabled ? 'Enabled' : 'Disabled'}
+              </Text>
+            </View>
+            <View style={[
+              styles.toggleSwitch,
+              notificationsEnabled && styles.toggleSwitchActive
+            ]}>
+              <View style={[
+                styles.toggleCircle,
+                notificationsEnabled && styles.toggleCircleActive
+              ]} />
+            </View>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.settingItem} onPress={handleBiometricToggle}>
             <View style={styles.settingIcon}>
               <Ionicons name="finger-print-outline" size={20} color="#007AFF" />
