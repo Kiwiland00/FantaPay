@@ -260,7 +260,7 @@ const CompetitionDetailScreen: React.FC = () => {
   // Calculate total competition balance from all participant payments
   const calculateCompetitionBalance = async () => {
     try {
-      if (!competition?.participants || !competition.daily_payment_enabled) {
+      if (!competition?.participants) {
         return { totalPaid: 0, totalPrizePool: 0 };
       }
 
@@ -277,15 +277,25 @@ const CompetitionDetailScreen: React.FC = () => {
           .filter((payment: any) => payment.status === 'paid')
           .reduce((sum: number, payment: any) => sum + (payment.amount || 0), 0);
         
+        console.log(`💰 Participant ${participant.name} paid: €${participantPaid}`);
         totalPaid += participantPaid;
       }
 
-      // Calculate total prize pool (all participants × all matchdays × fee)
+      // Calculate total prize pool based on competition settings
       const participantCount = competition.participants.length;
       const totalMatchdays = competition.total_matchdays || 36;
-      const feePerMatchday = competition.daily_payment_amount || 0;
-      const totalPrizePool = participantCount * totalMatchdays * feePerMatchday;
+      const feePerMatchday = competition.daily_payment_amount || 5; // Default fee
+      let totalPrizePool = 0;
 
+      if (competition.daily_payment_enabled) {
+        totalPrizePool = participantCount * totalMatchdays * feePerMatchday;
+      } else {
+        // If daily payments not enabled, use participation cost
+        const participationCost = competition.participation_cost_per_team || 210;
+        totalPrizePool = participantCount * participationCost;
+      }
+
+      console.log(`💰 Competition Balance: €${totalPaid} / €${totalPrizePool} (${participantCount} participants)`);
       return { totalPaid, totalPrizePool };
     } catch (error) {
       console.error('💥 Error calculating competition balance:', error);
