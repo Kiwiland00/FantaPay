@@ -472,7 +472,10 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
                     { text: t('common.cancel'), style: 'cancel' },
                     { 
                       text: 'Go to Wallet', 
-                      onPress: () => navigation.navigate('Wallet' as never)
+                      onPress: () => {
+                        // Navigate to the Wallet tab
+                        navigation.getParent()?.navigate('Wallet');
+                      }
                     }
                   ]
                 );
