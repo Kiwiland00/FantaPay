@@ -376,7 +376,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Competition Balance & User-Specific Payment Features - COMPLETED"
+    - "Review Request Critical Features Validation - COMPLETED"
     - "Enhanced LogsScreen Features"
     - "ParticipantPaymentHistoryScreen"
   stuck_tasks: []
