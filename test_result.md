@@ -185,6 +185,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "PAYMENT SYSTEM INTEGRATION RE-VERIFIED: ✅ All matchday payment APIs operational after recent payment system updates ✅ Competition creation with daily payments (€5/matchday) working correctly ✅ Matchday payment processing (paid for 5 matchdays successfully) ✅ Admin payment status table accessible and functional ✅ Payment validation (duplicate prevention, invalid matchdays) working ✅ Balance deduction integration confirmed ✅ Transaction recording for matchday payments operational. All 31 comprehensive tests continue to pass with 100% success rate. Matchday payment system fully supports enhanced payment system integration."
+      - working: true
+        agent: "testing"
+        comment: "BUG FIX VALIDATION COMPLETED: ✅ Competition balance calculation and real-time updates verified (competition wallet correctly updated from €0 to €75 after payments) ✅ Payment logging system confirmed (matchday payment transactions recorded with proper details, admin payment status table functional) ✅ Payment processing with proper balance checks working (€5/matchday × 5 matchdays = €25 calculation accurate) ✅ All matchday payment APIs operational (payment records creation, status retrieval, admin table access) ✅ Enhanced payment validation active (duplicate prevention, invalid matchdays rejection, insufficient balance handling). Matchday payment system fully supports all bug fixes and frontend payment features with 100% success rate."
 
   - task: "Database Models & Integration"
     implemented: true
