@@ -415,9 +415,19 @@ export const competitionAPI = {
       const competitions = JSON.parse(storedCompetitions);
       console.log('📋 Competitions found in storage:', competitions.length);
       
-      // Enhance competitions with demo participants if they don't have enough
+      // Enhance competitions with demo participants if they don't have enough and fix financial settings
       const enhancedCompetitions = competitions.map((comp: any) => {
-        if (!comp.participants || comp.participants.length < 4) {
+        let updatedComp = { ...comp };
+        
+        // Fix financial settings for existing competitions if needed
+        if (!updatedComp.daily_payment_enabled || !updatedComp.daily_payment_amount) {
+          console.log('🔧 Updating financial settings for competition:', updatedComp.name);
+          updatedComp.daily_payment_enabled = true;
+          updatedComp.daily_payment_amount = updatedComp.daily_payment_amount || 10; // Default to €10 as mentioned by user
+          updatedComp.participation_cost_per_team = updatedComp.participation_cost_per_team || 210;
+        }
+        
+        if (!updatedComp.participants || updatedComp.participants.length < 4) {
           const demoParticipants = [
             { 
               id: '650f1f1f1f1f1f1f1f1f1f1f', 
