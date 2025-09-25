@@ -604,8 +604,8 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
             {isPaid ? `Paid: ${formatPaymentDate(item.paid_at)}` : 'Payment pending'}
           </Text>
           
-          {/* Single payment button - only show for pending payments in single mode */}
-          {!isPaid && paymentMode === 'single' && (
+          {/* Single payment button - only show for pending payments in single mode and if user can make payments */}
+          {!isPaid && paymentMode === 'single' && canMakePayments && (
             <TouchableOpacity
               style={styles.payButton}
               onPress={() => handleSingleMatchdayPayment(item.matchday)}
