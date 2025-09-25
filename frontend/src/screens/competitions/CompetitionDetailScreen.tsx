@@ -1301,6 +1301,119 @@ const CompetitionDetailScreen: React.FC = () => {
             )}
           </View>
         )}
+
+        {/* Payments Grid Tab */}
+        {activeTab === 'payments' && (
+          <View style={styles.paymentsCard}>
+            <View style={styles.paymentsHeader}>
+              <Ionicons name="card-outline" size={24} color="#34C759" />
+              <Text style={styles.paymentsTitle}>Payment Grid</Text>
+            </View>
+            
+            {/* Payment Grid */}
+            {competition.participants && competition.participants.length > 0 ? (
+              <>
+                {/* Column Headers */}
+                <View style={styles.gridContainer}>
+                  <View style={styles.gridHeader}>
+                    {/* First column for participant names */}
+                    <View style={styles.gridHeaderCell}>
+                      <Text style={styles.gridHeaderText}>Participant</Text>
+                    </View>
+                    
+                    {/* Matchday columns */}
+                    {Array.from({length: Math.min(competition.total_matchdays || 36, 10)}, (_, i) => (
+                      <View key={i} style={styles.gridHeaderCell}>
+                        <Text style={styles.gridHeaderText}>G{i + 1}</Text>
+                      </View>
+                    ))}
+                    
+                    {/* Total column */}
+                    <View style={styles.gridHeaderCell}>
+                      <Text style={styles.gridHeaderText}>Total</Text>
+                    </View>
+                  </View>
+                  
+                  {/* Participant Rows */}
+                  {competition.participants.map((participant: any) => {
+                    const participantPayments = getParticipantPayments(participant.id);
+                    const paidCount = participantPayments.filter((p: any) => p.status === 'paid').length;
+                    const totalPaid = paidCount * (competition.daily_payment_amount || 10);
+                    
+                    return (
+                      <View key={participant.id} style={styles.gridRow}>
+                        {/* Participant name cell */}
+                        <View style={styles.gridCell}>
+                          <Text style={styles.participantGridName} numberOfLines={1}>
+                            {participant.name}
+                          </Text>
+                        </View>
+                        
+                        {/* Matchday status cells */}
+                        {Array.from({length: Math.min(competition.total_matchdays || 36, 10)}, (_, i) => {
+                          const matchday = i + 1;
+                          const payment = participantPayments.find((p: any) => p.matchday === matchday);
+                          const isPaid = payment?.status === 'paid';
+                          
+                          return (
+                            <View key={i} style={[
+                              styles.gridCell,
+                              styles.gridStatusCell,
+                              isPaid ? styles.gridCellPaid : styles.gridCellPending
+                            ]}>
+                              <Ionicons
+                                name={isPaid ? "checkmark-circle" : "ellipse-outline"}
+                                size={16}
+                                color={isPaid ? "#34C759" : "#FF3B30"}
+                              />
+                            </View>
+                          );
+                        })}
+                        
+                        {/* Total cell */}
+                        <View style={[styles.gridCell, styles.gridTotalCell]}>
+                          <Text style={styles.gridTotalText}>
+                            €{totalPaid.toFixed(0)}
+                          </Text>
+                          <Text style={styles.gridTotalSubtext}>
+                            {paidCount}/{competition.total_matchdays || 36}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+                
+                {/* Summary Row */}
+                <View style={styles.gridSummary}>
+                  <Text style={styles.gridSummaryTitle}>Summary</Text>
+                  <View style={styles.gridSummaryStats}>
+                    <View style={styles.gridSummaryItem}>
+                      <Ionicons name="checkmark-circle" size={16} color="#34C759" />
+                      <Text style={styles.gridSummaryText}>
+                        Paid: {calculateTotalPaid()} payments
+                      </Text>
+                    </View>
+                    <View style={styles.gridSummaryItem}>
+                      <Ionicons name="time-outline" size={16} color="#FF3B30" />
+                      <Text style={styles.gridSummaryText}>
+                        Pending: {calculateTotalPending()} payments
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <View style={styles.emptyPaymentsContainer}>
+                <Ionicons name="card-outline" size={48} color="#8E8E93" />
+                <Text style={styles.emptyPaymentsText}>No participants yet</Text>
+                <Text style={styles.emptyPaymentsSubtext}>
+                  Add participants to see payment status
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       {renderPaymentModal()}
