@@ -986,23 +986,6 @@ const CompetitionDetailScreen: React.FC = () => {
             {t('competitions.standings') || 'Standings'}
           </Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'payments' && styles.tabItemActive]}
-          onPress={() => setActiveTab('payments')}
-        >
-          <Ionicons 
-            name="card-outline" 
-            size={20} 
-            color={activeTab === 'payments' ? '#007AFF' : '#8E8E93'} 
-          />
-          <Text style={[
-            styles.tabText, 
-            activeTab === 'payments' && styles.tabTextActive
-          ]}>
-            Payments
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView
