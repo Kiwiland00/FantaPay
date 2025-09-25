@@ -292,13 +292,13 @@ const CreateCompetitionScreen: React.FC = () => {
   };
 
   const getValidationStatusColor = () => {
-    if (validation.isValidating) return '#8E8E93';
+    if (validation.isLoading) return '#8E8E93';
     if (!competitionName.trim()) return 'transparent';
     return validation.isAvailable ? '#34C759' : '#FF3B30';
   };
 
   const getValidationStatusIcon = () => {
-    if (validation.isValidating) return 'hourglass';
+    if (validation.isLoading) return 'hourglass';
     if (!competitionName.trim()) return null;
     return validation.isAvailable ? 'checkmark-circle' : 'close-circle';
   };
