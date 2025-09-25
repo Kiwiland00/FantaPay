@@ -427,6 +427,76 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     }
   };
 
+  // Process residual fee payment
+  const processResidualFeePayment = async () => {
+    if (residualFee <= 0) return;
+    
+    Alert.alert(
+      'Pay Residual Fee',
+      `Pay remaining participation fee of €${residualFee.toFixed(2)}?`,
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('paymentHistory.payNow'),
+          onPress: async () => {
+            try {
+              console.log('💳 Processing residual fee payment:', residualFee);
+
+              // Check balance
+              if (userBalance < residualFee) {
+                Alert.alert(
+                  t('common.error'), 
+                  `Insufficient balance. You have €${userBalance.toFixed(2)} but need €${residualFee.toFixed(2)}.`,
+                  [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    { 
+                      text: 'Go to Wallet', 
+                      onPress: () => navigation.navigate('Wallet' as never)
+                    }
+                  ]
+                );
+                return;
+              }
+
+              // Deduct from balance
+              const newBalance = userBalance - residualFee;
+              await updateUserBalance(newBalance);
+
+              // Add transaction
+              await addTransaction({
+                type: 'competition_residual_fee',
+                amount: -residualFee,
+                description: `Residual participation fee - ${competition?.name}`,
+                from_wallet: user?.id || '650f1f1f1f1f1f1f1f1f1f1f',
+                to_wallet: `competition_${competitionId}`,
+                status: 'completed',
+                created_at: new Date().toISOString()
+              });
+
+              // Log the payment
+              await addPaymentLog([], residualFee, 'residual_fee');
+
+              // Reset residual fee
+              setResidualFee(0);
+
+              Alert.alert(
+                t('paymentHistory.paymentSuccess'),
+                `✅ Paid residual fee of €${residualFee.toFixed(2)}`,
+                [{ text: t('common.ok'), style: 'default' }]
+              );
+
+              console.log('✅ Residual fee payment processed successfully');
+
+            } catch (error) {
+              console.error('💥 Error processing residual fee payment:', error);
+              Alert.alert(t('common.error'), t('paymentHistory.paymentFailed'));
+            }
+          }
+        }
+      ]
+    );
+  };
+
   // Toggle matchday selection for bulk payment
   const toggleMatchdaySelection = (matchday: number) => {
     if (selectedMatchdays.includes(matchday)) {
