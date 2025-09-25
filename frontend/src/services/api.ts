@@ -264,6 +264,17 @@ export const competitionAPI = {
     }
     
     // Create new competition
+    // Generate unique invite code based on competition name
+    let inviteCode = data.name.replace(/\s+/g, '').substring(0, 6).toUpperCase();
+    
+    // Ensure invite code is unique by appending a number if needed
+    let uniqueCode = inviteCode;
+    let counter = 1;
+    while (existingCompetitions.some((comp: any) => comp.invite_code === uniqueCode)) {
+      uniqueCode = inviteCode + counter.toString().padStart(2, '0');
+      counter++;
+    }
+    
     const newCompetition = {
       _id: `comp_${Date.now()}`,
       name: data.name,
@@ -274,8 +285,8 @@ export const competitionAPI = {
       daily_payment_enabled: data.daily_payment_enabled || false,
       daily_payment_amount: data.daily_payment_amount || 0.0,
       rules: data.rules,
-      invite_code: Math.random().toString(36).substr(2, 8).toUpperCase(),
-      invite_link: `https://fantapay.app/join/${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+      invite_code: uniqueCode, // Use unique code
+      invite_link: `https://fantapay.app/join/${uniqueCode}`,
       admin_id: '650f1f1f1f1f1f1f1f1f1f1f', // Current mock user ID
       participants: [
         { 
