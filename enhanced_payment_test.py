@@ -50,13 +50,13 @@ class EnhancedPaymentTester:
             
         try:
             if method.upper() == "GET":
-                return requests.get(url, headers=request_headers, params=params, timeout=10)
+                return requests.get(url, headers=request_headers, params=params, timeout=30)
             elif method.upper() == "POST":
-                return requests.post(url, json=data, headers=request_headers, params=params, timeout=10)
+                return requests.post(url, json=data, headers=request_headers, params=params, timeout=30)
             elif method.upper() == "PATCH":
-                return requests.patch(url, json=data, headers=request_headers, params=params, timeout=10)
+                return requests.patch(url, json=data, headers=request_headers, params=params, timeout=30)
             elif method.upper() == "DELETE":
-                return requests.delete(url, headers=request_headers, timeout=10)
+                return requests.delete(url, headers=request_headers, timeout=30)
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}")
             return None
