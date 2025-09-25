@@ -56,6 +56,15 @@ const WalletScreen: React.FC = () => {
     loadTransactions();
   }, []);
 
+  // Refresh data when screen comes into focus (e.g., after returning from payments)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('💰 WalletScreen focused - refreshing data');
+      loadUserBalance();
+      loadTransactions();
+    }, [])
+  );
+
   const loadUserBalance = async () => {
     try {
       const userId = user?.id || '650f1f1f1f1f1f1f1f1f1f1f';
