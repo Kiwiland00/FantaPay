@@ -967,7 +967,10 @@ const CompetitionDetailScreen: React.FC = () => {
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Fee per Matchday:</Text>
             <Text style={styles.infoValue}>
-              {competition.daily_payment_amount ? `€${competition.daily_payment_amount.toFixed(2)}` : 'Free'}
+              {competition.daily_payment_enabled 
+                ? `€${(competition.daily_payment_amount || 0).toFixed(2)}` 
+                : 'Free'
+              }
             </Text>
           </View>
           
