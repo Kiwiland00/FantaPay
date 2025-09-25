@@ -477,7 +477,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>Payment History</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{t('paymentHistory.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
