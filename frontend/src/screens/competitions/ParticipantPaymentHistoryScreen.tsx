@@ -271,6 +271,12 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
     setRefreshing(false);
   };
 
+  // Navigation callback to refresh parent competition balance
+  const refreshParentBalance = () => {
+    // This will be called to refresh the parent screen when returning
+    navigation.setParams({ shouldRefreshBalance: true } as never);
+  };
+
   // Add transaction log entry for payments
   const addPaymentLog = async (matchdays: number[], totalAmount: number, paymentType: string = 'matchday') => {
     try {
