@@ -515,7 +515,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
             <View style={styles.summaryStatItem}>
               <View style={styles.summaryStatHeader}>
                 <Ionicons name="checkmark-circle" size={20} color="#34C759" />
-                <Text style={styles.summaryStatLabel}>Paid</Text>
+                <Text style={styles.summaryStatLabel}>{t('paymentHistory.paid')}</Text>
               </View>
               <Text style={styles.summaryStatValue}>€{participantData.total_paid.toFixed(2)}</Text>
               <Text style={styles.summaryStatCount}>{paidCount} matchdays</Text>
