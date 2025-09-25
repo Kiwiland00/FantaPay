@@ -54,7 +54,7 @@ const CreateCompetitionScreen: React.FC = () => {
   
   // Real-time validation state
   const [validation, setValidation] = useState<ValidationState>({
-    isValidating: false,
+    isLoading: false,
     isAvailable: true,
     message: ''
   });
