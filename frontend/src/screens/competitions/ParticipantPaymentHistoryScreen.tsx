@@ -547,7 +547,7 @@ const ParticipantPaymentHistoryScreen: React.FC = () => {
   const renderPaymentItem = ({ item }: { item: MatchdayPayment }) => {
     const isPaid = item.status === 'paid';
     const isSelected = selectedMatchdays.includes(item.matchday);
-    const canSelectForBulk = paymentMode === 'bulk' && !isPaid;
+    const canSelectForBulk = paymentMode === 'bulk' && !isPaid && canMakePayments;
     
     return (
       <View style={[
