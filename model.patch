@@ -4,3 +4,14 @@ diff --git a/FantaPay b/FantaPay
 @@ -1 +1 @@
 -Subproject commit e0fb3014b9557e9c97cadbf3c4c7ce5760f12aef
 +Subproject commit e0fb3014b9557e9c97cadbf3c4c7ce5760f12aef-dirty
+diff --git a/model.patch b/model.patch
+index f8c7773..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,6 +0,0 @@
+-diff --git a/FantaPay b/FantaPay
+---- a/FantaPay
+-+++ b/FantaPay
+-@@ -1 +1 @@
+--Subproject commit e0fb3014b9557e9c97cadbf3c4c7ce5760f12aef
+-+Subproject commit e0fb3014b9557e9c97cadbf3c4c7ce5760f12aef-dirty
